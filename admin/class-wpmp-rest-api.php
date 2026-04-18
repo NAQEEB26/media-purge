@@ -417,7 +417,7 @@ class WPMP_REST_API {
 	public function get_trashed_media( $request ) {
 		global $wpdb;
 
-		$page     = $request->get_param( 'page' );
+		$page     = max( 1, (int) $request->get_param( 'page' ) );
 		$per_page = min( 100, max( 1, $request->get_param( 'per_page' ) ) );
 		$offset   = ( $page - 1 ) * $per_page;
 		$table    = $wpdb->prefix . 'wpmp_scan_results';
@@ -452,7 +452,7 @@ class WPMP_REST_API {
 			'total'       => $total,
 			'page'        => $page,
 			'per_page'    => $per_page,
-			'total_pages' => (int) ceil( $total / $per_page ),
+			'total_pages' => $total > 0 ? (int) ceil( $total / $per_page ) : 0,
 		), 200 );
 	}
 
