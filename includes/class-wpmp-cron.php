@@ -16,9 +16,10 @@ class WPMP_Cron {
 	 * Initialize cron handlers.
 	 */
 	public static function init() {
-		add_action( 'wpmp_purge_old_trash',     array( __CLASS__, 'purge_old_trash' ) );
-		add_action( 'wpmp_reset_monthly_count', array( __CLASS__, 'reset_monthly_count' ) );
-		add_action( 'wpmp_storage_snapshot',    array( __CLASS__, 'take_storage_snapshot' ) );
+		add_action( 'wpmp_purge_old_trash',  array( __CLASS__, 'purge_old_trash' ) );
+		add_action( 'wpmp_storage_snapshot', array( __CLASS__, 'take_storage_snapshot' ) );
+		// Note: wpmp_reset_monthly_count is intentionally not registered here.
+		// The monthly cleanup counter will be enforced and reset by the Pro tier add-on.
 	}
 
 	/**
@@ -45,14 +46,6 @@ class WPMP_Cron {
 			wp_delete_attachment( (int) $row['attachment_id'], true );
 			$wpdb->delete( $table, array( 'id' => $row['id'] ), array( '%d' ) );
 		}
-	}
-
-	/**
-	 * Reset monthly cleanup count (free tier limit).
-	 */
-	public static function reset_monthly_count() {
-		update_option( 'wpmp_monthly_count', 0 );
-		update_option( 'wpmp_monthly_reset', gmdate( 'Y-m' ) );
 	}
 
 	/**

@@ -6,7 +6,7 @@ Tags: media, media library, cleanup, unused images, duplicates, storage, optimiz
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,7 +72,7 @@ Deep scanning of Elementor JSON data, Divi page meta, WPBakery shortcodes, and B
 1. Upload the `wp-media-purge` folder to `/wp-content/plugins/`
    **or** install directly via WordPress → Plugins → Add New → search "WP Media Purge".
 2. Activate the plugin through the **Plugins** menu.
-3. Navigate to **Media Purge** in the WordPress admin sidebar.
+3. Navigate to **Media → Media Purge** in the WordPress admin sidebar.
 4. Click **Run Scan Now** to perform your first media audit.
 5. Review the results, verify "Used In" links for each file, then trash what you no longer need.
 
@@ -122,6 +122,67 @@ The free version scans unlimited media and provides full functionality for scann
 
 == Changelog ==
 
+= 1.4.0 =
+* Security: Rewrote `get_unused_media` query to use `$wpdb->prepare()` — eliminated SQL LIKE injection risk.
+* Security: Fixed negative OFFSET vulnerability when `?page=0` was passed to the media endpoint.
+* Performance: Scanner now fetches attachment IDs in configurable batches (default 200) instead of loading all IDs into memory at once — prevents PHP memory exhaustion on large libraries.
+* Reliability: Replaced TRUNCATE (full data wipe before scan) with a targeted DELETE that preserves whitelisted entries — scan results survive a mid-scan crash.
+* Reliability: Added `POST /scan/cancel` REST endpoint to force-clear a stuck scan lock without server access.
+* Reliability: Replaced `@set_time_limit(0)` with a `function_exists()` guard to comply with WP Coding Standards (WPCS).
+* GDPR / WP.org compliance: Removed Google Fonts CDN enqueue — admin UI now uses a fully system font stack.
+* Business logic: Removed "(Pro)" label from Divi, WPBakery, and Beaver Builder scanner labels — page builder scanning is free.
+* Code hygiene: Removed dead `reset_monthly_count()` cron method and its hook registration; monthly counter will be enforced by the Pro add-on when ready.
+
+= 1.3.0 =
+* Complete UI overhaul — Navy/Blue premium design system matching mediapurge-ui.jsx reference.
+* System font stack for modern, distinctive typography (no external font loading).
+* SVG icon system replaces WordPress dashicons — crisp at every resolution.
+* New navy plugin header bar with integrated tab navigation and brand identity.
+* Dashboard stat cards with coloured icon squares, mono-weight values, and storage grid.
+* Quick actions card with last-scan indicator and one-click export/scan buttons.
+* Scanner pre-scan hero with source badges (free/pro) and large CTA.
+* Scan progress component with animated spinner box, gradient bar, and phase step indicators.
+* Horizontal media rows replace vertical grid cards — better information density.
+* Custom checkbox component with animated check SVG (18px, 5px radius).
+* Bottom-right toast notification system replaces WordPress admin notices.
+* Confirm modal with square icon (52px, 14px radius), safety box, and amber confirm.
+* Undo toast with 8-second countdown integrated into the new toast system.
+* Recovery tab with horizontal rows and updated empty state.
+* Settings redesigned as two-column card grid with toggle switches.
+* Exclusion tags, warning box, and pro features grid in settings.
+* Pro gate with purple gradient, feature cards, and 30-day guarantee.
+* Footer with version, docs, and support links.
+* 9 CSS keyframe animations (fadeUp, fadeIn, spin, barFill, slideIn, scaleIn, modal-in, toast-in, countUp).
+* 40+ new localized strings for complete i18n coverage.
+* Responsive breakpoints for tablet and mobile views.
+
+= 1.2.0 =
+* Undo toast after trash action — 5-second countdown with one-click undo to restore files immediately.
+* Scan phase labels during scan progress — shows which step is running (post content, meta, page builders, etc.).
+* Elementor page builder scanning moved to Free tier (was Pro) — no Pro licence required.
+* "Restorable within 30 days" green badge in trash confirmation modal — reduces user anxiety.
+* Full ARIA accessibility — tabs have role, aria-selected, aria-controls; modal has aria-labelledby/describedby; checkboxes have aria-checked; progress bar has progressbar role.
+* Selected media items highlight with blue outline and tinted background for clear visual feedback.
+* Focus rings on all interactive elements (WCAG 2.1 AA).
+
+= 1.1.0 =
+* Complete UI/UX redesign with modern card-based interface and CSS custom properties design system.
+* Menu moved under Media → Media Purge (was a top-level menu item).
+* New page header with plugin icon, tagline, and version badge.
+* Dashboard stat cards with coloured top bars, dashicons, and hover effects.
+* Storage breakdown section with visual bar and colour-coded type legend.
+* "How it works" onboarding section with three illustrated steps.
+* Tab navigation with dashicons and contextual description banners.
+* Colour-coded action buttons — red for Trash, green for Keep/Restore.
+* Enhanced confirmation modal with file-count badge and animated backdrop.
+* Recovery and Duplicates tabs with illustrated empty-state placeholders.
+* Settings page redesign with icon headers and inline help text.
+* Upgrade-to-Pro banner with gradient styling.
+* Full internationalisation — all UI strings localised via wp_localize_script.
+* Responsive layout improvements for tablets and smaller screens.
+* Pre-scan hero section with safety note.
+* Scanner toolbar with dashicon-labeled filter and export buttons.
+
 = 1.0.0 =
 * Initial public release.
 * Smart scanner with content, meta, options, and all major page builder support.
@@ -136,6 +197,12 @@ The free version scans unlimited media and provides full functionality for scann
 * Full uninstall cleanup.
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+Security and performance release.  The media scanner now processes attachments in batches (safe for 50k+ libraries), the unused-media REST endpoint is fully parameterised, and a stuck-scan cancel button has been added.  Hard-refresh your browser after updating.
+
+= 1.1.0 =
+Major UI/UX redesign.  Modern card-based dashboard, improved navigation under Media menu, full i18n support, and responsive layout.  Hard-refresh your browser after updating to see all changes.
 
 = 1.0.0 =
 First release.  After activation run a full scan to audit your media library.
