@@ -820,7 +820,7 @@ class WPMP_REST_API {
 	 */
 	public function update_settings( $request ) {
 		$params  = $request->get_json_params() ?: $request->get_params();
-		$allowed = array( 'recent_upload_days', 'trash_retention_days', 'batch_size', 'scan_woocommerce', 'skip_recent', 'exclude_file_types' );
+		$allowed = array( 'recent_upload_days', 'trash_retention_days', 'batch_size', 'scan_woocommerce', 'skip_recent', 'exclude_file_types', 'wizard_seen' );
 		$update  = array();
 
 		foreach ( $allowed as $key ) {
@@ -833,7 +833,7 @@ class WPMP_REST_API {
 				$update[ $key ] = min( 365, max( 7, absint( $params[ $key ] ) ) );
 			} elseif ( 'batch_size' === $key ) {
 				$update[ $key ] = min( 500, max( 50, absint( $params[ $key ] ) ) );
-			} elseif ( 'scan_woocommerce' === $key || 'skip_recent' === $key ) {
+			} elseif ( 'scan_woocommerce' === $key || 'skip_recent' === $key || 'wizard_seen' === $key ) {
 				$update[ $key ] = (bool) $params[ $key ];
 			} elseif ( 'exclude_file_types' === $key && is_array( $params[ $key ] ) ) {
 				$update[ $key ] = array_values( array_map( 'sanitize_key', $params[ $key ] ) );

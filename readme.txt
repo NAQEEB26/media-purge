@@ -6,7 +6,7 @@ Tags: media, media library, unused media, cleanup, duplicates, storage, page bui
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -158,7 +158,13 @@ Features labelled "Coming Soon" (duplicate merge, scheduled auto-cleanup, advanc
 
 == Changelog ==
 
-= 1.4.0 =
+= 1.4.2 =
+* Replaced Folders (Coming Soon) tab with functional Recovery tab — list trashed files, restore or delete permanently, Empty Trash and Restore All bulk actions.
+* Added first-run Setup Wizard — configures recent-upload protection, trash retention period, and WooCommerce scan preference on first visit.
+* Wizard auto-dismissed after completion; never shown again; skippable at any step.
+* Fixed Help button and footer documentation links to use getmediapurge.com.
+
+= 1.4.1 =
 * Security: Rewrote `get_unused_media` query to use `$wpdb->prepare()` — eliminated SQL LIKE injection risk.
 * Security: Fixed negative OFFSET vulnerability when `?page=0` was passed to the media endpoint.
 * Performance: Scanner now fetches attachment IDs in configurable batches (default 200) instead of loading all IDs into memory at once — prevents PHP memory exhaustion on large libraries.

@@ -137,6 +137,7 @@
       wpmp.api('scan/status').then(function (status) {
         if (status && status.running) { wpmp.startPoll(); }
       });
+      wpmp.checkWizard();
     },
 
     renderContent: function () {
@@ -152,7 +153,7 @@
       if (currentTab === 'dashboard') wpmp.loadDashboard();
       else if (currentTab === 'scanner') wpmp.loadScanner(false);
       else if (currentTab === 'storage') wpmp.loadStorage();
-      else if (currentTab === 'folders') wpmp.loadFolders();
+      else if (currentTab === 'recovery') wpmp.loadRecovery();
       else if (currentTab === 'settings') wpmp.loadSettings();
     },
 
@@ -548,7 +549,7 @@
         '<button type="button" class="wpmp-btn-primary wpmp-scan-btn" style="font-size:12px;padding:7px 14px">' + icon('refresh', 13) + ' ' + wpmp.esc(s.rescan || 'Rescan') + '</button>' +
         '</div>' +
         '</div>' +
-        '<div style="height:12px"></div>'  +
+        '<div style="height:12px"></div>' +
         '<div class="wpmp-media-list scrollbar">' + rows + '</div>' +
         '<div class="wpmp-load-more-wrap" style="text-align:center;margin:20px 0;' + (scannerTotalPages > 1 ? '' : 'display:none') + '">' +
         '<button type="button" class="wpmp-btn-ghost wpmp-load-more">' + wpmp.esc(s.loadMore || 'Load More') + '</button>' +
@@ -920,31 +921,164 @@
     /* ================================================================
      * FOLDERS TAB (Pro-gated, matches JSX FoldersTab)
      * ================================================================ */
-    loadFolders: function () {
-      var $ph = $('.wpmp-folders-placeholder');
-      var previewFolders = ['All Media', 'Products', 'Blog Images', 'Team Photos', 'Brand Assets'];
+    loadRecovery: function () {
+      var recoveryPage = 1;
 
-      var folderTabs = '';
-      previewFolders.forEach(function (f, i) {
-        folderTabs += '<div style="padding:6px 14px;border-radius:8px;background:' + (i === 0 ? 'var(--wpmp-blue)' : 'var(--wpmp-gray1)') + ';color:' + (i === 0 ? '#fff' : 'var(--wpmp-gray6)') + ';font-size:12px;font-weight:500">' + wpmp.esc(f) + '</div>';
-      });
-      folderTabs += '<div style="padding:6px 14px;border-radius:8px;background:var(--wpmp-gray1);border:1.5px dashed var(--wpmp-gray3);color:var(--wpmp-gray5);font-size:12px">+ New Folder</div>';
+      function buildRecoveryRow(item) {
+        var attId = parseInt(item.attachment_id || 0, 10);
+        var size  = parseInt(item.file_size || 0, 10);
+        var thumb = item.thumbnail_url
+          ? '<img src="' + wpmp.esc(item.thumbnail_url) + '" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--wpmp-gray2)">'
+          : '<div style="width:44px;height:44px;border-radius:6px;background:var(--wpmp-gray1);border:1px solid var(--wpmp-gray2);display:flex;align-items:center;justify-content:center;color:var(--wpmp-gray4)">' + icon('file', 18) + '</div>';
+        var trashDate = item.trashed_date ? ' &middot; Trashed ' + wpmp.esc(wpmp.formatDate(item.trashed_date)) : '';
+        return '<div class="wpmp-recovery-row" data-id="' + attId + '">' +
+          '<div class="wpmp-recovery-thumb">' + thumb + '</div>' +
+          '<div class="wpmp-recovery-info">' +
+          '<div class="wpmp-recovery-name">' + wpmp.esc(item.filename || item.file_path || '') + '</div>' +
+          '<div class="wpmp-recovery-meta">' + wpmp.esc(wpmp.formatBytes(size)) + trashDate + '</div>' +
+          '</div>' +
+          '<div class="wpmp-recovery-actions">' +
+          '<button type="button" class="wpmp-btn-ghost wpmp-restore-one" data-id="' + attId + '" title="' + wpmp.esc(s.helpRestore || 'Restore') + '" style="font-size:12px;padding:5px 12px;color:var(--wpmp-green)">' + icon('undo', 13) + ' ' + wpmp.esc(s.restore || 'Restore') + '</button>' +
+          '<button type="button" class="wpmp-btn-ghost wpmp-delete-one" data-id="' + attId + '" data-size="' + size + '" title="' + wpmp.esc(s.helpPermDelete || 'Delete permanently') + '" style="font-size:12px;padding:5px 12px;color:var(--wpmp-red);border-color:#FCA5A5">' + icon('trash', 13) + ' ' + wpmp.esc(s.delete || 'Delete') + '</button>' +
+          '</div>' +
+          '</div>';
+      }
 
-      $ph.replaceWith(
-        '<div class="wpmp-folders wpmp-fade-up">' +
-        '<div class="wpmp-page-title-row">' +
-        '<div><h1>' + wpmp.esc(s.folderOrganizer || 'Folder Organizer') + '</h1>' +
-        '<div class="wpmp-page-subtitle">' + wpmp.esc(s.foldersDesc || 'Organize your media into virtual folders') + '</div></div>' +
-        '</div>' +
-        wpmp.buildProGate(s.proVirtFolders || 'Virtual Folder Organizer', s.proFoldersFullDesc || 'Create folders, drag & drop files, and organize your entire media library without changing any server paths. Filter by folder in the native WordPress Media Library too.') +
-        '<div style="margin-top:20px;opacity:.35;pointer-events:none;user-select:none">' +
-        '<div class="wpmp-card" style="padding:20px">' +
-        '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">' + folderTabs + '</div>' +
-        '<div style="height:160px;background:var(--wpmp-gray1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--wpmp-gray4);font-size:13px">Drag & drop media here</div>' +
-        '</div>' +
-        '</div>' +
-        '</div>'
-      );
+      function fetchAndRender(page, append) {
+        var $ph = append ? null : $('.wpmp-recovery-placeholder');
+        wpmp.api('media/trashed?page=' + page + '&per_page=20').then(function (data) {
+          var items      = data.items || [];
+          var total      = data.total || 0;
+          var totalPages = data.total_pages || 1;
+
+          if (!append) {
+            if (!total) {
+              $ph.replaceWith(
+                '<div class="wpmp-recovery wpmp-fade-up">' +
+                '<div class="wpmp-page-title-row"><div><h1>' + wpmp.esc(s.recovery || 'Recovery') + '</h1>' +
+                '<div class="wpmp-page-subtitle">' + wpmp.esc(s.recoveryDesc || 'Files you previously trashed. Restore them if needed, or delete permanently.') + '</div></div></div>' +
+                '<div class="wpmp-card" style="padding:60px 24px;text-align:center">' +
+                '<div style="width:64px;height:64px;border-radius:50%;background:var(--wpmp-gray1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--wpmp-gray4)">' + icon('trash', 28) + '</div>' +
+                '<h3 style="font-size:16px;font-weight:700;color:var(--wpmp-navy);margin:0 0 8px">' + wpmp.esc(s.trashEmpty || 'Trash is Empty') + '</h3>' +
+                '<p style="color:var(--wpmp-gray5);font-size:13px;margin:0">' + wpmp.esc(s.trashEmptyDesc || 'No files in trash. When you move unused media to trash from the Scanner tab, they will appear here.') + '</p>' +
+                '</div></div>'
+              );
+              return;
+            }
+
+            var rows = '';
+            items.forEach(function (item) { rows += buildRecoveryRow(item); });
+            var html =
+              '<div class="wpmp-recovery wpmp-fade-up">' +
+              '<div class="wpmp-page-title-row">' +
+              '<div><h1>' + wpmp.esc(s.recovery || 'Recovery') + '</h1>' +
+              '<div class="wpmp-page-subtitle">' + wpmp.esc(s.recoveryDesc || 'Files you previously trashed. Restore them if needed, or delete permanently.') + '</div></div>' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+              '<button type="button" class="wpmp-btn-ghost wpmp-restore-all-btn" style="font-size:12px;color:var(--wpmp-green)">' + icon('undo', 13) + ' ' + wpmp.esc(s.restoreAll || 'Restore All') + '</button>' +
+              '<button type="button" class="wpmp-btn-ghost wpmp-empty-trash-btn" style="font-size:12px;color:var(--wpmp-red);border-color:#FCA5A5">' + icon('trash', 13) + ' ' + wpmp.esc(s.emptyTrash || 'Empty Trash') + '</button>' +
+              '</div></div>' +
+              '<div class="wpmp-card" style="padding:0;overflow:hidden">' +
+              '<div class="wpmp-recovery-count-bar">' +
+              icon('clock', 13) + '<span>' + total + ' ' + wpmp.esc(s.filesInTrashLabel || 'file(s) in trash \u2014 restorable within 30 days') + '</span>' +
+              '</div>' +
+              '<div class="wpmp-recovery-list">' + rows + '</div>' +
+              (page < totalPages
+                ? '<div class="wpmp-recovery-loadmore"><button type="button" class="wpmp-btn-ghost wpmp-recovery-load-more-btn" style="font-size:12px">' + wpmp.esc(s.loadMore || 'Load More') + '</button></div>'
+                : '') +
+              '</div></div>';
+            $ph.replaceWith(html);
+
+            $(document).off('.wpmpRecovery');
+
+            /* Restore individual */
+            $(document).on('click.wpmpRecovery', '.wpmp-restore-one', function () {
+              var id   = parseInt($(this).data('id'), 10);
+              var $row = $(this).closest('.wpmp-recovery-row');
+              $(this).prop('disabled', true).text('\u2026');
+              wpmp.api('media/restore', { method: 'POST', body: JSON.stringify({ ids: [id] }) })
+                .then(function (resp) {
+                  if (resp.success) {
+                    $row.css({ opacity: 0, transition: 'opacity .25s' });
+                    setTimeout(function () { $row.remove(); }, 260);
+                    wpmp.showToast(resp.message || 'Restored.', 'success');
+                  }
+                }).catch(function (err) { wpmp.showToast(err.message, 'error'); });
+            });
+
+            /* Delete individual permanently */
+            $(document).on('click.wpmpRecovery', '.wpmp-delete-one', function () {
+              var id   = parseInt($(this).data('id'), 10);
+              var size = parseInt($(this).data('size'), 10) || 0;
+              var $row = $(this).closest('.wpmp-recovery-row');
+              wpmp.showConfirmModal([id], size, 'delete', function () {
+                wpmp.api('media/delete', { method: 'POST', body: JSON.stringify({ ids: [id] }) })
+                  .then(function (resp) {
+                    if (resp.success) {
+                      $row.css({ opacity: 0, transition: 'opacity .25s' });
+                      setTimeout(function () { $row.remove(); }, 260);
+                      wpmp.showToast(resp.message || 'Deleted permanently.', 'success');
+                    }
+                  }).catch(function (err) { wpmp.showToast(err.message, 'error'); });
+              });
+            });
+
+            /* Restore all */
+            $(document).on('click.wpmpRecovery', '.wpmp-restore-all-btn', function () {
+              var $btn = $(this).prop('disabled', true);
+              wpmp.api('media/trashed?per_page=500').then(function (data) {
+                var ids = (data.items || []).map(function (i) { return parseInt(i.attachment_id, 10); });
+                if (!ids.length) { $btn.prop('disabled', false); return; }
+                wpmp.api('media/restore', { method: 'POST', body: JSON.stringify({ ids: ids }) })
+                  .then(function (resp) {
+                    if (resp.success) {
+                      wpmp.showToast(resp.message || 'All files restored.', 'success');
+                      wpmp.renderContent();
+                    }
+                  }).catch(function (err) { wpmp.showToast(err.message, 'error'); $btn.prop('disabled', false); });
+              });
+            });
+
+            /* Empty trash */
+            $(document).on('click.wpmpRecovery', '.wpmp-empty-trash-btn', function () {
+              wpmp.api('media/trashed?per_page=500').then(function (data) {
+                var items2 = data.items || [];
+                if (!items2.length) { wpmp.showToast(s.trashEmpty || 'Trash is already empty.', 'info'); return; }
+                var ids      = items2.map(function (i) { return parseInt(i.attachment_id, 10); });
+                var totalSz  = items2.reduce(function (a, i) { return a + parseInt(i.file_size || 0, 10); }, 0);
+                wpmp.showConfirmModal(ids, totalSz, 'delete', function () {
+                  wpmp.api('media/delete', { method: 'POST', body: JSON.stringify({ ids: ids }) })
+                    .then(function (resp) {
+                      if (resp.success) {
+                        wpmp.showToast(resp.message || 'Trash emptied.', 'success');
+                        wpmp.renderContent();
+                      }
+                    }).catch(function (err) { wpmp.showToast(err.message, 'error'); });
+                });
+              });
+            });
+
+            /* Load more */
+            $(document).on('click.wpmpRecovery', '.wpmp-recovery-load-more-btn', function () {
+              recoveryPage++;
+              fetchAndRender(recoveryPage, true);
+            });
+
+          } else {
+            if (items.length) {
+              var newRows = '';
+              items.forEach(function (item) { newRows += buildRecoveryRow(item); });
+              $('.wpmp-recovery-list').append(newRows);
+              if (page >= totalPages) { $('.wpmp-recovery-loadmore').remove(); }
+            }
+          }
+        }).catch(function (err) {
+          if (!append) {
+            $('.wpmp-recovery-placeholder').replaceWith('<p class="wpmp-error">' + wpmp.esc(err.message) + '</p>');
+          }
+        });
+      }
+
+      fetchAndRender(1, false);
     },
 
     /* ================================================================
@@ -1126,6 +1260,143 @@
         });
       }, 2000);
     },
+
+    /* ================================================================
+     * SETUP WIZARD (first-run)
+     * ================================================================ */
+    checkWizard: function () {
+      if (typeof wpmpAdmin !== 'undefined' && !wpmpAdmin.wizardSeen) {
+        setTimeout(function () { wpmp.showWizard(); }, 600);
+      }
+    },
+
+    showWizard: function () {
+      if ($('.wpmp-wizard-overlay').length) return;
+      var wizardStep = 1;
+      var wizardData = { recent_upload_days: 30, trash_retention_days: 30, scan_woocommerce: true };
+
+      function captureStep() {
+        if (wizardStep === 2) {
+          var v = parseInt($('#wpmp-wizard-recent-days').val(), 10);
+          if (!isNaN(v)) wizardData.recent_upload_days = v;
+        } else if (wizardStep === 3) {
+          var v2 = parseInt($('#wpmp-wizard-trash-days').val(), 10);
+          if (!isNaN(v2)) wizardData.trash_retention_days = v2;
+        }
+      }
+
+      function dismissWizard() {
+        wpmp.api('settings', { method: 'POST', body: JSON.stringify({ wizard_seen: true }) }).catch(function () {});
+        if (typeof wpmpAdmin !== 'undefined') wpmpAdmin.wizardSeen = true;
+        $('.wpmp-wizard-overlay').fadeOut(200, function () { $(this).remove(); });
+      }
+
+      function renderStep() {
+        var content = '';
+        if (wizardStep === 1) {
+          content =
+            '<div class="wpmp-wizard-icon-wrap">' + icon('shield', 32) + '</div>' +
+            '<h2 class="wpmp-wizard-title">' + wpmp.esc(s.wizardWelcomeTitle || 'Welcome to MediaPurge!') + '</h2>' +
+            '<p class="wpmp-wizard-desc">' + wpmp.esc(s.wizardWelcomeDesc || 'Let\'s take 30 seconds to set up 2 key preferences for your site.') + '</p>' +
+            '<div class="wpmp-wizard-features">' +
+            '<div class="wpmp-wizard-feature">' + icon('checkCircle', 16) + '<span>' + wpmp.esc(s.wizardFeature1 || 'Scans posts, pages, widgets & page builders') + '</span></div>' +
+            '<div class="wpmp-wizard-feature">' + icon('checkCircle', 16) + '<span>' + wpmp.esc(s.wizardFeature2 || 'Nothing is deleted until you confirm') + '</span></div>' +
+            '<div class="wpmp-wizard-feature">' + icon('checkCircle', 16) + '<span>' + wpmp.esc(s.wizardFeature3 || 'All trashed files are recoverable for 30 days') + '</span></div>' +
+            '</div>';
+        } else if (wizardStep === 2) {
+          content =
+            '<div class="wpmp-wizard-icon-wrap" style="background:linear-gradient(135deg,#059669,#34D399)">' + icon('clock', 32) + '</div>' +
+            '<h2 class="wpmp-wizard-title">' + wpmp.esc(s.wizardStep2Title || 'Protect Recent Uploads') + '</h2>' +
+            '<p class="wpmp-wizard-desc">' + wpmp.esc(s.wizardStep2Desc || 'How many days after upload should a file be protected from being flagged as unused?') + '</p>' +
+            '<div class="wpmp-wizard-field">' +
+            '<label class="wpmp-wizard-label">' + wpmp.esc(s.wizardRecentLabel || 'Protect files uploaded within the last:') + '</label>' +
+            '<select id="wpmp-wizard-recent-days" class="wpmp-wizard-select">' +
+            '<option value="7"' + (wizardData.recent_upload_days === 7 ? ' selected' : '') + '>7 days</option>' +
+            '<option value="14"' + (wizardData.recent_upload_days === 14 ? ' selected' : '') + '>14 days</option>' +
+            '<option value="30"' + (wizardData.recent_upload_days === 30 ? ' selected' : '') + '>30 days (recommended)</option>' +
+            '<option value="60"' + (wizardData.recent_upload_days === 60 ? ' selected' : '') + '>60 days</option>' +
+            '</select></div>' +
+            '<p class="wpmp-wizard-hint">' + wpmp.esc(s.wizardRecentHint || 'We recommend 30 days to protect files still being rolled out on your site.') + '</p>';
+        } else {
+          var wooRow = '';
+          if (typeof wpmpAdmin !== 'undefined' && wpmpAdmin.hasWooCommerce) {
+            wooRow =
+              '<div class="wpmp-wizard-toggle-row">' +
+              '<div><div class="wpmp-wizard-toggle-label">' + wpmp.esc(s.scanWoo || 'Scan WooCommerce galleries') + '</div>' +
+              '<div class="wpmp-wizard-toggle-desc">' + wpmp.esc(s.scanWooDesc || 'Include product gallery images in scans.') + '</div></div>' +
+              '<button type="button" class="wpmp-toggle' + (wizardData.scan_woocommerce ? ' on' : '') + '" id="wpmp-wizard-woo"><div class="wpmp-toggle-knob"></div></button>' +
+              '</div>';
+          }
+          content =
+            '<div class="wpmp-wizard-icon-wrap" style="background:linear-gradient(135deg,#D97706,#FCD34D)">' + icon('trash', 32) + '</div>' +
+            '<h2 class="wpmp-wizard-title">' + wpmp.esc(s.wizardStep3Title || 'Trash Policy') + '</h2>' +
+            '<p class="wpmp-wizard-desc">' + wpmp.esc(s.wizardStep3Desc || 'How long should trashed files stay in Recovery before being permanently deleted?') + '</p>' +
+            '<div class="wpmp-wizard-field">' +
+            '<label class="wpmp-wizard-label">' + wpmp.esc(s.wizardTrashLabel || 'Keep trashed files for:') + '</label>' +
+            '<select id="wpmp-wizard-trash-days" class="wpmp-wizard-select">' +
+            '<option value="14"' + (wizardData.trash_retention_days === 14 ? ' selected' : '') + '>14 days</option>' +
+            '<option value="30"' + (wizardData.trash_retention_days === 30 ? ' selected' : '') + '>30 days (recommended)</option>' +
+            '<option value="60"' + (wizardData.trash_retention_days === 60 ? ' selected' : '') + '>60 days</option>' +
+            '<option value="365"' + (wizardData.trash_retention_days >= 365 ? ' selected' : '') + '>Never auto-delete</option>' +
+            '</select></div>' +
+            wooRow +
+            '<p class="wpmp-wizard-hint">' + wpmp.esc(s.wizardTrashHint || '30 days gives you a comfortable window to recover anything accidentally trashed.') + '</p>';
+        }
+
+        var dots = '';
+        for (var d = 1; d <= 3; d++) {
+          dots += '<div class="wpmp-wizard-dot' + (d === wizardStep ? ' active' : '') + '"></div>';
+        }
+        var prevBtn = wizardStep > 1
+          ? '<button type="button" class="wpmp-btn-ghost wpmp-wizard-prev" style="min-width:72px">' + wpmp.esc(s.wizardBack || '\u2190 Back') + '</button>'
+          : '';
+        var actionBtn = wizardStep === 3
+          ? '<button type="button" class="wpmp-btn-primary wpmp-wizard-finish">' + icon('checkCircle', 14) + ' ' + wpmp.esc(s.wizardFinish || 'Finish Setup') + '</button>'
+          : '<button type="button" class="wpmp-btn-primary wpmp-wizard-next">' + wpmp.esc(s.wizardNext || 'Next') + ' \u2192</button>';
+
+        $('.wpmp-wizard-body').html(
+          content +
+          '<div class="wpmp-wizard-footer">' +
+          '<div class="wpmp-wizard-dots">' + dots + '</div>' +
+          '<div class="wpmp-wizard-actions">' + prevBtn + actionBtn +
+          '<button type="button" class="wpmp-wizard-skip">' + wpmp.esc(s.wizardSkip || 'Skip setup') + '</button>' +
+          '</div></div>'
+        );
+
+        /* Step-specific bindings */
+        $('#wpmp-wizard-recent-days').on('change', function () { wizardData.recent_upload_days = parseInt($(this).val(), 10); });
+        $('#wpmp-wizard-trash-days').on('change', function () { wizardData.trash_retention_days = parseInt($(this).val(), 10); });
+        $('#wpmp-wizard-woo').on('click', function () {
+          wizardData.scan_woocommerce = !wizardData.scan_woocommerce;
+          $(this).toggleClass('on', wizardData.scan_woocommerce);
+        });
+        $('.wpmp-wizard-next').on('click', function () { captureStep(); wizardStep++; renderStep(); });
+        $('.wpmp-wizard-prev').on('click', function () { captureStep(); wizardStep--; renderStep(); });
+        $('.wpmp-wizard-skip').on('click', dismissWizard);
+        $('.wpmp-wizard-finish').on('click', function () {
+          captureStep();
+          var $btn = $(this).prop('disabled', true).html(icon('spinner', 14) + ' Saving\u2026');
+          wpmp.api('settings', { method: 'POST', body: JSON.stringify($.extend({}, wizardData, { wizard_seen: true })) })
+            .then(function () {
+              if (typeof wpmpAdmin !== 'undefined') wpmpAdmin.wizardSeen = true;
+              $('.wpmp-wizard-overlay').fadeOut(200, function () { $(this).remove(); });
+              wpmp.showToast(s.wizardDone || 'Setup complete! You\'re ready to run your first scan.', 'success');
+            }).catch(function (err) {
+              $btn.prop('disabled', false).html(icon('checkCircle', 14) + ' ' + wpmp.esc(s.wizardFinish || 'Finish Setup'));
+              wpmp.showToast(err.message, 'error');
+            });
+        });
+      }
+
+      $('body').append(
+        '<div class="wpmp-wizard-overlay">' +
+        '<div class="wpmp-wizard-modal">' +
+        '<div class="wpmp-wizard-body"></div>' +
+        '</div></div>'
+      );
+      renderStep();
+    },
+
   };
 
   $(document).ready(function () {

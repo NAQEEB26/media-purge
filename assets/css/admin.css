@@ -2746,3 +2746,266 @@
    font-size: 9px;
    padding: 1px 6px;
 }
+
+/* ================================================================
+   RECOVERY TAB — file list rows
+   ================================================================ */
+.wpmp-recovery-count-bar {
+   padding: 10px 16px;
+   border-bottom: 1px solid var(--wpmp-gray2);
+   font-size: 12px;
+   color: var(--wpmp-gray6);
+   display: flex;
+   align-items: center;
+   gap: 8px;
+}
+
+.wpmp-recovery-list {
+   padding: 4px 0;
+}
+
+.wpmp-recovery-row {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   padding: 10px 16px;
+   border-bottom: 1px solid var(--wpmp-gray1);
+   transition: background .1s;
+}
+
+.wpmp-recovery-row:last-child {
+   border-bottom: none;
+}
+
+.wpmp-recovery-row:hover {
+   background: var(--wpmp-gray0);
+}
+
+.wpmp-recovery-thumb {
+   flex-shrink: 0;
+}
+
+.wpmp-recovery-info {
+   flex: 1;
+   min-width: 0;
+}
+
+.wpmp-recovery-name {
+   font-size: 13px;
+   font-weight: 600;
+   color: var(--wpmp-navy);
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.wpmp-recovery-meta {
+   font-size: 11px;
+   color: var(--wpmp-gray5);
+   margin-top: 2px;
+}
+
+.wpmp-recovery-actions {
+   display: flex;
+   gap: 6px;
+   flex-shrink: 0;
+}
+
+.wpmp-recovery-loadmore {
+   padding: 12px;
+   text-align: center;
+   border-top: 1px solid var(--wpmp-gray2);
+}
+
+/* ================================================================
+   SETUP WIZARD
+   ================================================================ */
+.wpmp-wizard-overlay {
+   position: fixed;
+   inset: 0;
+   background: rgba(15, 23, 42, 0.55);
+   backdrop-filter: blur(4px);
+   z-index: 200100;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.wpmp-wizard-modal {
+   background: #fff;
+   border-radius: 20px;
+   width: 100%;
+   max-width: 480px;
+   box-shadow: 0 24px 64px rgba(0, 0, 0, .18);
+   animation: wpmp-modal-in .25s ease;
+   overflow: hidden;
+}
+
+.wpmp-wizard-body {
+   padding: 36px 36px 28px;
+}
+
+.wpmp-wizard-icon-wrap {
+   width: 60px;
+   height: 60px;
+   border-radius: 16px;
+   background: linear-gradient(135deg, #1E3A5F, #2563EB);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: #fff;
+   margin-bottom: 20px;
+}
+
+.wpmp-wizard-title {
+   font-size: 20px;
+   font-weight: 800;
+   color: var(--wpmp-navy);
+   margin: 0 0 8px;
+   line-height: 1.25;
+}
+
+.wpmp-wizard-desc {
+   font-size: 14px;
+   color: var(--wpmp-gray6);
+   line-height: 1.6;
+   margin: 0 0 20px;
+}
+
+.wpmp-wizard-features {
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+   margin-bottom: 8px;
+}
+
+.wpmp-wizard-feature {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   font-size: 13px;
+   color: var(--wpmp-navy);
+}
+
+.wpmp-wizard-feature .wpmp-icon {
+   color: #059669;
+   flex-shrink: 0;
+}
+
+.wpmp-wizard-field {
+   margin-bottom: 12px;
+}
+
+.wpmp-wizard-label {
+   display: block;
+   font-size: 13px;
+   font-weight: 600;
+   color: var(--wpmp-navy);
+   margin-bottom: 8px;
+}
+
+.wpmp-wizard-select {
+   width: 100%;
+   padding: 10px 14px;
+   border: 1.5px solid var(--wpmp-gray2);
+   border-radius: 10px;
+   font-size: 14px;
+   font-family: var(--wpmp-sans);
+   color: var(--wpmp-navy);
+   background: #fff;
+   cursor: pointer;
+   appearance: auto;
+   transition: border-color .15s;
+}
+
+.wpmp-wizard-select:focus {
+   outline: none;
+   border-color: var(--wpmp-blue);
+   box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+}
+
+.wpmp-wizard-hint {
+   font-size: 12px;
+   color: var(--wpmp-gray5);
+   margin: 4px 0 0;
+   line-height: 1.5;
+}
+
+.wpmp-wizard-toggle-row {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 16px;
+   padding: 12px 14px;
+   background: var(--wpmp-gray0);
+   border: 1px solid var(--wpmp-gray2);
+   border-radius: 10px;
+   margin-top: 12px;
+}
+
+.wpmp-wizard-toggle-label {
+   font-size: 13px;
+   font-weight: 600;
+   color: var(--wpmp-navy);
+}
+
+.wpmp-wizard-toggle-desc {
+   font-size: 11px;
+   color: var(--wpmp-gray5);
+   margin-top: 2px;
+}
+
+.wpmp-wizard-footer {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   margin-top: 24px;
+   padding-top: 20px;
+   border-top: 1px solid var(--wpmp-gray1);
+}
+
+.wpmp-wizard-dots {
+   display: flex;
+   gap: 6px;
+   align-items: center;
+}
+
+.wpmp-wizard-dot {
+   width: 7px;
+   height: 7px;
+   border-radius: 50%;
+   background: var(--wpmp-gray3);
+   transition: background .2s, transform .2s;
+}
+
+.wpmp-wizard-dot.active {
+   background: var(--wpmp-blue);
+   transform: scale(1.3);
+}
+
+.wpmp-wizard-actions {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+}
+
+.wpmp-wizard-skip {
+   background: none;
+   border: none;
+   font-size: 11px;
+   color: var(--wpmp-gray4);
+   cursor: pointer;
+   padding: 4px 2px;
+   font-family: var(--wpmp-sans);
+   text-decoration: underline;
+   text-underline-offset: 2px;
+}
+
+.wpmp-wizard-skip:hover {
+   color: var(--wpmp-gray6);
+}
+
+@media (max-width: 520px) {
+   .wpmp-wizard-body { padding: 24px 20px 20px; }
+   .wpmp-wizard-title { font-size: 17px; }
+}
