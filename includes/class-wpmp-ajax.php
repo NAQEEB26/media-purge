@@ -40,7 +40,9 @@ class WPMP_Ajax {
 			wp_die( 'Unauthorized', 403 );
 		}
 
-		@set_time_limit( 0 );
+		if ( function_exists( 'set_time_limit' ) ) {
+			set_time_limit( 0 );
+		}
 		do_action( 'wpmp_start_scan' );
 
 		wp_send_json_success( array( 'message' => 'Scan completed' ) );
