@@ -35,6 +35,12 @@ class WPMP_REST_API {
 			'permission_callback' => array( $this, 'check_admin_permission' ),
 		) );
 
+		register_rest_route( WPMP_REST_NAMESPACE, '/scan/cancel', array(
+			'methods'             => 'POST',
+			'callback'            => array( $this, 'cancel_scan' ),
+			'permission_callback' => array( $this, 'check_admin_permission' ),
+		) );
+
 		register_rest_route( WPMP_REST_NAMESPACE, '/media/unused', array(
 			'methods'             => 'GET',
 			'callback'            => array( $this, 'get_unused_media' ),
@@ -159,6 +165,9 @@ class WPMP_REST_API {
 				'recent_upload_days'   => array( 'sanitize_callback' => 'absint' ),
 				'trash_retention_days' => array( 'sanitize_callback' => 'absint' ),
 				'batch_size'           => array( 'sanitize_callback' => 'absint' ),
+				'scan_woocommerce'     => array( 'type' => 'boolean' ),
+				'skip_recent'          => array( 'type' => 'boolean' ),
+				'exclude_file_types'   => array( 'type' => 'array' ),
 			),
 		) );
 	}
@@ -235,6 +244,7 @@ class WPMP_REST_API {
 			'running'   => (bool) $running,
 			'last_run'  => $last_run,
 			'progress'  => $running ? (int) get_transient( 'wpmp_scan_progress' ) : 100,
+			'phase'     => $running ? (string) get_transient( 'wpmp_scan_phase' ) : 'done',
 		), 200 );
 	}
 
@@ -295,6 +305,23 @@ class WPMP_REST_API {
 	}
 
 	/**
+	 * Force-cancel a running scan by removing the lock transient.
+	 * Useful when a scan crashes mid-way and the UI is stuck in "Scanning…" state.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
+	public function cancel_scan( $request ) {
+		delete_transient( 'wpmp_scan_running' );
+		delete_transient( 'wpmp_scan_progress' );
+
+		return new WP_REST_Response( array(
+			'success' => true,
+			'message' => __( 'Scan cancelled.', 'wp-media-purge' ),
+		), 200 );
+	}
+
+	/**
 	 * Get unused media.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -303,44 +330,61 @@ class WPMP_REST_API {
 	public function get_unused_media( $request ) {
 		global $wpdb;
 
-		$page     = $request->get_param( 'page' );
+		// Clamp page to minimum 1 to prevent negative OFFSET.
+		$page     = max( 1, (int) $request->get_param( 'page' ) );
 		$per_page = min( 100, max( 1, $request->get_param( 'per_page' ) ) );
 		$offset   = ( $page - 1 ) * $per_page;
 		$type     = sanitize_key( $request->get_param( 'type' ) );
 		$table    = $wpdb->prefix . 'wpmp_scan_results';
 
-		// Build WHERE clause with optional type filter
-		$where     = "WHERE status = 'unused'";
-		$where_args = array();
+		// Build a fully parameterised query using wpdb::prepare().
+		// All LIKE patterns come from a hardcoded allowlist — never from user input.
+		$where_sql  = "WHERE status = 'unused'";
+		$args       = array();
+
 		if ( $type ) {
-			$mime_map = array(
-				'image'    => 'image/%',
-				'video'    => 'video/%',
-				'document' => array( 'application/pdf', 'application/msword', 'text/plain', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument%' ),
-			);
-			if ( isset( $mime_map[ $type ] ) ) {
-				if ( is_array( $mime_map[ $type ] ) ) {
-					$placeholders = implode( ',', array_fill( 0, count( $mime_map[ $type ] ), '%s' ) );
-					$like_parts   = array_map( function ( $m ) use ( $wpdb ) {
-						return "mime_type LIKE '" . esc_sql( $m ) . "'";
-					}, $mime_map[ $type ] );
-					$where .= ' AND (' . implode( ' OR ', $like_parts ) . ')';
-				} else {
-					$where .= $wpdb->prepare( ' AND mime_type LIKE %s', $mime_map[ $type ] );
-				}
+			if ( 'image' === $type ) {
+				$where_sql .= ' AND mime_type LIKE %s';
+				$args[]     = 'image/%';
+			} elseif ( 'video' === $type ) {
+				$where_sql .= ' AND mime_type LIKE %s';
+				$args[]     = 'video/%';
+			} elseif ( 'document' === $type ) {
+				$where_sql .= ' AND (
+					mime_type LIKE %s OR
+					mime_type LIKE %s OR
+					mime_type LIKE %s OR
+					mime_type LIKE %s OR
+					mime_type LIKE %s
+				)';
+				$args[] = 'application/pdf';
+				$args[] = 'application/msword';
+				$args[] = 'text/plain';
+				$args[] = 'application/vnd.ms-excel';
+				$args[] = 'application/vnd.openxmlformats-officedocument%';
 			} elseif ( 'other' === $type ) {
-				$where .= " AND mime_type NOT LIKE 'image/%' AND mime_type NOT LIKE 'video/%' AND mime_type NOT LIKE 'application/pdf'";
+				$where_sql .= ' AND mime_type NOT LIKE %s AND mime_type NOT LIKE %s AND mime_type NOT LIKE %s';
+				$args[]     = 'image/%';
+				$args[]     = 'video/%';
+				$args[]     = 'application/pdf';
 			}
 		}
 
-		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
+		// Build COUNT query.
+		if ( $args ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $where_sql is built from a hardcoded allowlist, never user data.
+			$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} {$where_sql}", $args ) );
+		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- static query, no user input.
+			$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where_sql}" );
+		}
 
-		// Use intval for LIMIT/OFFSET to avoid double-prepare issues with LIKE % wildcards.
-		$limit_val  = intval( $per_page );
-		$offset_val = intval( $offset );
-
+		// Build results query — LIMIT and OFFSET are safe integers, never user strings.
+		$args[] = $per_page;
+		$args[] = $offset;
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $where_sql is from a hardcoded allowlist.
 		$results = $wpdb->get_results(
-			"SELECT * FROM {$table} {$where} ORDER BY file_size DESC LIMIT {$limit_val} OFFSET {$offset_val}",
+			$wpdb->prepare( "SELECT * FROM {$table} {$where_sql} ORDER BY file_size DESC LIMIT %d OFFSET %d", $args ),
 			ARRAY_A
 		);
 
@@ -776,19 +820,23 @@ class WPMP_REST_API {
 	 */
 	public function update_settings( $request ) {
 		$params  = $request->get_json_params() ?: $request->get_params();
-		$allowed = array( 'recent_upload_days', 'trash_retention_days', 'batch_size' );
+		$allowed = array( 'recent_upload_days', 'trash_retention_days', 'batch_size', 'scan_woocommerce', 'skip_recent', 'exclude_file_types' );
 		$update  = array();
 
 		foreach ( $allowed as $key ) {
-			if ( isset( $params[ $key ] ) ) {
-				$val = absint( $params[ $key ] );
-				if ( 'recent_upload_days' === $key ) {
-					$update[ $key ] = min( 30, max( 0, $val ) );
-				} elseif ( 'trash_retention_days' === $key ) {
-					$update[ $key ] = min( 365, max( 7, $val ) );
-				} else {
-					$update[ $key ] = min( 500, max( 50, $val ) );
-				}
+			if ( ! isset( $params[ $key ] ) ) {
+				continue;
+			}
+			if ( 'recent_upload_days' === $key ) {
+				$update[ $key ] = min( 90, max( 0, absint( $params[ $key ] ) ) );
+			} elseif ( 'trash_retention_days' === $key ) {
+				$update[ $key ] = min( 365, max( 7, absint( $params[ $key ] ) ) );
+			} elseif ( 'batch_size' === $key ) {
+				$update[ $key ] = min( 500, max( 50, absint( $params[ $key ] ) ) );
+			} elseif ( 'scan_woocommerce' === $key || 'skip_recent' === $key ) {
+				$update[ $key ] = (bool) $params[ $key ];
+			} elseif ( 'exclude_file_types' === $key && is_array( $params[ $key ] ) ) {
+				$update[ $key ] = array_values( array_map( 'sanitize_key', $params[ $key ] ) );
 			}
 		}
 
