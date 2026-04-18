@@ -23,9 +23,12 @@ class WPMP_Settings {
 	 * @var array
 	 */
 	private static $defaults = array(
-		'recent_upload_days'   => 7,
+		'recent_upload_days'   => 30,
 		'trash_retention_days' => 30,
 		'batch_size'           => 100,
+		'scan_woocommerce'     => true,
+		'skip_recent'          => true,
+		'exclude_file_types'   => array( 'svg', 'gif', 'pdf', 'mp4', 'mov' ),
 	);
 
 	/**

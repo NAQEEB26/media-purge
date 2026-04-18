@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: WP Media Purge
- * Plugin URI:  https://naqeebulrehman.com
- * Description: Find and safely remove unused images, detect duplicates, and organize your media library with full storage analytics.
- * Version:     1.1.0
+ * Plugin URI:  https://getmediapurge.com/
+ * Description: Find and safely remove unused media, detect duplicates, and reclaim disk space — free to use, with advanced features planned.
+ * Version:     1.4.1
  * Author:      Naqeeb Ul Rehman
- * Author URI:  https://naqeebulrehman.com
+ * Author URI:  https://getmediapurge.com/
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: wp-media-purge
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * Plugin global constants.
  * Use these throughout the plugin for consistency.
  */
-define( 'WPMP_VERSION', '1.1.0' );
+define( 'WPMP_VERSION', '1.4.1' );
 define( 'WPMP_PLUGIN_FILE', __FILE__ );
 define( 'WPMP_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WPMP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
