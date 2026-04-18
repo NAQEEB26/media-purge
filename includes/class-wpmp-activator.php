@@ -75,9 +75,13 @@ class WPMP_Activator {
 	 */
 	public static function set_default_options() {
 		$defaults = array(
-			'recent_upload_days' => 7,
+			'recent_upload_days'   => 30,
 			'trash_retention_days' => 30,
-			'batch_size'         => 100,
+			'batch_size'           => 100,
+			'scan_woocommerce'     => true,
+			'skip_recent'          => true,
+			'exclude_file_types'   => array( 'svg', 'gif', 'pdf', 'mp4', 'mov' ),
+			'wizard_seen'          => false,
 		);
 
 		if ( false === get_option( 'wpmp_settings' ) ) {
@@ -91,9 +95,6 @@ class WPMP_Activator {
 	public static function schedule_cron_events() {
 		if ( ! wp_next_scheduled( 'wpmp_purge_old_trash' ) ) {
 			wp_schedule_event( time(), 'daily', 'wpmp_purge_old_trash' );
-		}
-		if ( ! wp_next_scheduled( 'wpmp_reset_monthly_count' ) ) {
-			wp_schedule_event( time(), 'monthly', 'wpmp_reset_monthly_count' );
 		}
 		if ( ! wp_next_scheduled( 'wpmp_storage_snapshot' ) ) {
 			wp_schedule_event( time(), 'daily', 'wpmp_storage_snapshot' );

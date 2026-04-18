@@ -69,6 +69,9 @@ function wpmp_init() {
 	// Load text domain
 	load_plugin_textdomain( 'wp-media-purge', false, dirname( WPMP_PLUGIN_BASENAME ) . '/languages' );
 
+	// Plugin action links on Plugins page
+	add_filter( 'plugin_action_links_' . WPMP_PLUGIN_BASENAME, 'wpmp_plugin_action_links' );
+
 	// Core includes
 	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-loader.php';
 	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-settings.php';
@@ -122,4 +125,17 @@ function wpmp_add_cron_schedules( $schedules ) {
 		);
 	}
 	return $schedules;
+}
+
+/**
+ * Add Settings link to plugin action links on Plugins page.
+ *
+ * @param array $links Existing plugin action links.
+ * @return array
+ */
+function wpmp_plugin_action_links( $links ) {
+	$settings_link = '<a href="' . esc_url( admin_url( 'upload.php?page=wp-media-purge' ) ) . '">'
+		. esc_html__( 'Settings', 'wp-media-purge' ) . '</a>';
+	array_unshift( $links, $settings_link );
+	return $links;
 }

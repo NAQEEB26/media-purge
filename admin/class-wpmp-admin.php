@@ -68,11 +68,12 @@ class WPMP_Admin {
 		);
 
 		wp_localize_script( 'wpmp-admin', 'wpmpAdmin', array(
-			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-			'restUrl'      => rest_url( WPMP_REST_NAMESPACE . '/' ),
-			'nonce'        => wp_create_nonce( 'wp_rest' ),
-			'adminUrl'     => admin_url( 'admin.php' ),
-			'wizardSeen'   => (bool) WPMP_Settings::get( 'wizard_seen', false ),
+			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+			'restUrl'        => rest_url( WPMP_REST_NAMESPACE . '/' ),
+			'nonce'          => wp_create_nonce( 'wp_rest' ),
+			'adminUrl'       => admin_url( 'admin.php' ),
+			'pluginVersion'  => WPMP_VERSION,
+			'wizardSeen'     => (bool) WPMP_Settings::get( 'wizard_seen', false ),
 			'hasWooCommerce' => class_exists( 'WooCommerce' ),
 			'exportCsvUrl' => wp_nonce_url(
 				admin_url( 'admin.php?page=wp-media-purge&action=export_csv' ),
@@ -314,6 +315,40 @@ class WPMP_Admin {
 				/* Recovery tab */
 				'emptyTrash'         => __( 'Empty Trash', 'wp-media-purge' ),
 				'restore'            => __( 'Restore', 'wp-media-purge' ),
+				/* About tab */
+				'aboutTitle'         => __( 'About WP Media Purge', 'wp-media-purge' ),
+				'aboutSubtitle'      => __( 'Built with care for the WordPress community', 'wp-media-purge' ),
+				'aboutMission'       => __( 'Our Mission', 'wp-media-purge' ),
+				'aboutMissionDesc'   => __( 'Every WordPress site accumulates unused media files over time — old featured images, replaced logos, test uploads, and content that was never published. These files silently eat up your hosting storage and make your media library harder to manage.', 'wp-media-purge' ),
+				'aboutMissionDesc2'  => __( 'WP Media Purge was built to solve this problem the right way: safely, transparently, and without any risk to your content. We believe that cleaning your media library should feel easy and worry-free — not scary.', 'wp-media-purge' ),
+				'aboutSafetyTitle'   => __( 'Safety-First Philosophy', 'wp-media-purge' ),
+				'aboutSafety1'       => __( 'Nothing is ever deleted automatically — you always review first', 'wp-media-purge' ),
+				'aboutSafety2'       => __( 'All trashed files are recoverable for 30 days', 'wp-media-purge' ),
+				'aboutSafety3'       => __( 'Recently uploaded files are protected from being flagged', 'wp-media-purge' ),
+				'aboutSafety4'       => __( 'Whitelist any file to permanently protect it from cleanup', 'wp-media-purge' ),
+				'aboutScanTitle'     => __( 'What We Scan', 'wp-media-purge' ),
+				'aboutScan1'         => __( 'All post and page content (including shortcodes)', 'wp-media-purge' ),
+				'aboutScan2'         => __( 'Featured images and custom fields', 'wp-media-purge' ),
+				'aboutScan3'         => __( 'Widget areas and theme customizer settings', 'wp-media-purge' ),
+				'aboutScan4'         => __( 'Page builders: Elementor, Divi, WPBakery, Beaver Builder', 'wp-media-purge' ),
+				'aboutScan5'         => __( 'WooCommerce product galleries', 'wp-media-purge' ),
+				'aboutScan6'         => __( 'Serialized data and complex meta fields', 'wp-media-purge' ),
+				'aboutWorkflowTitle' => __( 'How It Works', 'wp-media-purge' ),
+				'aboutStep1'         => __( 'Scan — Analyze your entire media library against all site content', 'wp-media-purge' ),
+				'aboutStep2'         => __( 'Review — See exactly where each file is used (or not used)', 'wp-media-purge' ),
+				'aboutStep3'         => __( 'Clean — Move unused files to a safe trash with one click', 'wp-media-purge' ),
+				'aboutStep4'         => __( 'Recover — Restore any file within 30 days if you change your mind', 'wp-media-purge' ),
+				'aboutBuiltFor'      => __( 'Built For You', 'wp-media-purge' ),
+				'aboutBuiltForDesc'  => __( 'WP Media Purge is designed for bloggers, agency owners, WooCommerce store managers, and anyone who wants a cleaner, faster WordPress site without the complexity.', 'wp-media-purge' ),
+				'aboutFree'          => __( '100% Free — No hidden limits, no premium gates on core features', 'wp-media-purge' ),
+				'aboutPrivacy'       => __( 'Privacy-First — No external calls, no tracking, no data collection', 'wp-media-purge' ),
+				'aboutGpl'           => __( 'Open Source — GPL-2.0+ licensed, community-driven', 'wp-media-purge' ),
+				'aboutSupport'       => __( 'Need Help?', 'wp-media-purge' ),
+				'aboutSupportDesc'   => __( 'If you have questions, need support, or want to suggest a feature — we are here for you.', 'wp-media-purge' ),
+				'aboutVersion'       => __( 'Version', 'wp-media-purge' ),
+				'aboutAuthor'        => __( 'Author', 'wp-media-purge' ),
+				'aboutLicense'       => __( 'License', 'wp-media-purge' ),
+				'aboutRequires'      => __( 'Requires', 'wp-media-purge' ),
 			),
 		) );
 	}
@@ -374,6 +409,7 @@ class WPMP_Admin {
 	public function render_admin_page() {
 		?>
 		<div class="wpmp-wrap">
+			<a class="wpmp-skip-link" href="#wpmp-root"><?php esc_html_e( 'Skip to content', 'wp-media-purge' ); ?></a>
 			<div class="wpmp-plugin-header">
 				<div class="wpmp-brand">
 					<div class="wpmp-brand-icon">
@@ -401,6 +437,10 @@ class WPMP_Admin {
 					<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="settings">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
 						<?php esc_html_e( 'Settings', 'wp-media-purge' ); ?>
+					</button>
+					<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="about">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+						<?php esc_html_e( 'About', 'wp-media-purge' ); ?>
 					</button>
 				</nav>
 				<div class="wpmp-header-actions">
