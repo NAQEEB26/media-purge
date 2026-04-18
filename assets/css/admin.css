@@ -288,7 +288,8 @@
    flex-shrink: 0;
 }
 
-.wpmp-tab .wpmp-tag-pro {
+.wpmp-tab .wpmp-tag-pro,
+.wpmp-tab .wpmp-tag-soon {
    font-size: 9px;
    padding: 1px 5px;
 }
@@ -479,6 +480,48 @@
    border-radius: 6px;
    text-transform: uppercase;
    letter-spacing: .5px;
+}
+
+/* Coming Soon badge — teal/cyan to differentiate from Pro purple */
+.wpmp-tag-soon {
+   display: inline-flex;
+   align-items: center;
+   gap: 3px;
+   background: linear-gradient(135deg, #0891B2, #0284C7);
+   color: #fff;
+   font-size: 10px;
+   font-weight: 700;
+   padding: 2px 8px;
+   border-radius: 6px;
+   text-transform: uppercase;
+   letter-spacing: .5px;
+}
+
+/* Coming Soon card — replaces Pro Gate overlay */
+.wpmp-coming-soon-card {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   text-align: center;
+   padding: 28px 24px;
+   margin: 14px 0;
+   background: linear-gradient(135deg, #EFF6FF 0%, #F0FDFA 100%);
+   border: 1.5px dashed #BAE6FD;
+   border-radius: 14px;
+}
+
+.wpmp-coming-soon-card h3 {
+   font-size: 15px;
+   font-weight: 700;
+   color: var(--wpmp-navy);
+   margin: 0 0 8px;
+}
+
+.wpmp-coming-soon-card p {
+   font-size: 13px;
+   color: var(--wpmp-gray6);
+   margin: 0;
+   max-width: 380px;
 }
 
 /* ================================================================
