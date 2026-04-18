@@ -121,7 +121,7 @@ foreach ( $all_files as $path ) {
 if ( ! in_array( $path, $registered, true ) ) {
 $orphans[] = array(
 'path' => $path,
-'size' => (int) @filesize( $path ),
+'size' => file_exists( $path ) ? (int) filesize( $path ) : 0,
 );
 }
 }
@@ -140,7 +140,9 @@ public function get_total_upload_size() {
 $files = $this->get_all_upload_files();
 $size  = 0;
 foreach ( $files as $path ) {
-$size += (int) @filesize( $path );
+if ( file_exists( $path ) ) {
+$size += (int) filesize( $path );
+}
 }
 return $size;
 }
