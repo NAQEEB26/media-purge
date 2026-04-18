@@ -1246,7 +1246,7 @@
           '</div>';
       }
 
-      var pluginVersion = (typeof wpmpAdmin !== 'undefined' && wpmpAdmin.pluginVersion) ? wpmpAdmin.pluginVersion : '1.4.2';
+      var pluginVersion = (typeof wpmpAdmin !== 'undefined' && wpmpAdmin.pluginVersion) ? wpmpAdmin.pluginVersion : '';
 
       $ph.replaceWith(
         '<div class="wpmp-about wpmp-fade-up">' +

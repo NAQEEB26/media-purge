@@ -113,7 +113,7 @@ class WPMP_Scanner {
 		} while ( count( $batch ) === $batch_size );
 
 		$total        = count( $attachments );
-		$recent_days  = (int) WPMP_Settings::get( 'recent_upload_days', 7 );
+		$recent_days  = (int) WPMP_Settings::get( 'recent_upload_days', 30 );
 		$cutoff_date  = strtotime( "-{$recent_days} days" );
 		$unused_count = 0;
 		$exclude_types = array_map( 'strtolower', (array) WPMP_Settings::get( 'exclude_file_types', array() ) );
