@@ -49,6 +49,9 @@ class WPMP_Admin {
 			return;
 		}
 
+		// No external font CDN — uses system font stack defined in admin.css
+		// to avoid GDPR concerns with Google Fonts and potential WP.org rejection.
+
 		wp_enqueue_style(
 			'wpmp-admin',
 			WPMP_PLUGIN_URL . 'assets/css/admin.css',
@@ -196,6 +199,100 @@ class WPMP_Admin {
 				'deletePermanently'  => __( 'Delete Permanently', 'wp-media-purge' ),
 				'filesSelected'      => __( 'file(s) selected', 'wp-media-purge' ),
 				'filesAndSize'       => __( 'file(s)', 'wp-media-purge' ),
+				/* Undo toast */
+				'movedToTrash'       => __( 'moved to trash', 'wp-media-purge' ),
+				'freed'              => __( 'freed', 'wp-media-purge' ),
+				'undo'               => __( 'Undo', 'wp-media-purge' ),
+				'undoing'            => __( 'Undoing…', 'wp-media-purge' ),
+				'undone'             => __( 'Restored! Files are back in your library.', 'wp-media-purge' ),
+				/* Restorable badge */
+				'restorableNote'     => __( 'Restorable within 30 days from Recovery tab', 'wp-media-purge' ),
+				/* Scan phase labels */
+				'scanPhaseContent'   => __( 'Checking post content…', 'wp-media-purge' ),
+				'scanPhaseMeta'      => __( 'Checking post meta & featured images…', 'wp-media-purge' ),
+				'scanPhaseOptions'   => __( 'Checking widgets & theme customizer…', 'wp-media-purge' ),
+				'scanPhaseBuilder'   => __( 'Checking page builders (Elementor, Divi…)…', 'wp-media-purge' ),
+				'scanPhaseWriting'   => __( 'Saving results…', 'wp-media-purge' ),
+				'scanPhaseDone'      => __( 'Finalising…', 'wp-media-purge' ),
+				'phase'              => __( 'Phase', 'wp-media-purge' ),
+				/* Accessibility labels */
+				'tabNavLabel'        => __( 'Plugin navigation', 'wp-media-purge' ),
+				'selectItem'         => __( 'Select this item', 'wp-media-purge' ),
+				'previewImage'       => __( 'Preview image', 'wp-media-purge' ),
+				/* New v1.3 strings */
+				'quickActions'       => __( 'Quick Actions', 'wp-media-purge' ),
+				'lastScanLabel'      => __( 'Last Scan', 'wp-media-purge' ),
+				'unusedFiles'        => __( 'Unused Files', 'wp-media-purge' ),
+				'startFullScan'      => __( 'Start Full Scan', 'wp-media-purge' ),
+				'mediaItems'         => __( 'media items', 'wp-media-purge' ),
+				'scanSources'        => __( 'Scan Sources', 'wp-media-purge' ),
+				'postContent'        => __( 'Post Content', 'wp-media-purge' ),
+				'metaFields'         => __( 'Meta Fields', 'wp-media-purge' ),
+				'widgets'            => __( 'Widgets', 'wp-media-purge' ),
+				'elementor'          => __( 'Elementor', 'wp-media-purge' ),
+				'diviPro'            => __( 'Divi', 'wp-media-purge' ),
+				'wpBakeryPro'        => __( 'WPBakery', 'wp-media-purge' ),
+				'beaverPro'          => __( 'Beaver Builder', 'wp-media-purge' ),
+				'moveToTrash'        => __( 'Move to Trash', 'wp-media-purge' ),
+				'moveItems'          => __( 'Move %d item(s) to trash', 'wp-media-purge' ),
+				'trashSummary'       => __( '%d file(s) moved to trash — %s freed.', 'wp-media-purge' ),
+				'restoreTrashed'     => __( 'Restore', 'wp-media-purge' ),
+				'deselectAll'        => __( 'Deselect', 'wp-media-purge' ),
+				'selected'           => __( 'selected', 'wp-media-purge' ),
+				'manageStorage'      => __( 'Manage your storage', 'wp-media-purge' ),
+				'scanSettings'       => __( 'Scan Settings', 'wp-media-purge' ),
+				'scanSettingsDesc'   => __( 'Configure how the scanner identifies unused files.', 'wp-media-purge' ),
+				'exclusions'         => __( 'Exclusions', 'wp-media-purge' ),
+				'exclusionsDesc'     => __( 'File types and paths that are always skipped during scans.', 'wp-media-purge' ),
+				'skipRecentUploads'  => __( 'Skip recent uploads', 'wp-media-purge' ),
+				'skipRecentDesc'     => __( 'Protect recently uploaded files from being flagged as unused.', 'wp-media-purge' ),
+				'autoTrash'          => __( 'Auto-delete trash', 'wp-media-purge' ),
+				'autoTrashDesc'      => __( 'Permanently delete trashed files after the retention period.', 'wp-media-purge' ),
+				'deepScan'           => __( 'Deep content scan', 'wp-media-purge' ),
+				'deepScanDesc'       => __( 'Scan serialized data and shortcode attributes for media references.', 'wp-media-purge' ),
+				'warningTitle'       => __( 'Important', 'wp-media-purge' ),
+				'warningDesc'        => __( 'Always review scan results before trashing. Some files may be referenced dynamically.', 'wp-media-purge' ),
+				'proUpgradeTitle'    => __( 'Upgrade to Pro — $49/year', 'wp-media-purge' ),
+				'proUpgradeDesc'     => __( 'Get access to all premium features including page builder support, scheduled cleanup, and more.', 'wp-media-purge' ),
+				'proGuarantee'       => __( '30-day money-back guarantee', 'wp-media-purge' ),
+				'proScheduledClean'  => __( 'Scheduled Cleanup', 'wp-media-purge' ),
+				'proScheduledDesc'   => __( 'Auto-clean on your schedule', 'wp-media-purge' ),
+				'proPageBuilders'    => __( 'Page Builders', 'wp-media-purge' ),
+				'proBuildersDesc'    => __( 'Divi, Beaver & WPBakery', 'wp-media-purge' ),
+				'proVirtFolders'     => __( 'Virtual Folders', 'wp-media-purge' ),
+				'proFoldersDesc2'    => __( 'Organize media visually', 'wp-media-purge' ),
+				'proDupMerge'        => __( 'Duplicate Merge', 'wp-media-purge' ),
+				'proDupMergeDesc'    => __( 'One-click deduplication', 'wp-media-purge' ),
+				'help'               => __( 'Help', 'wp-media-purge' ),
+				'documentation'      => __( 'Documentation', 'wp-media-purge' ),
+				'support'            => __( 'Support', 'wp-media-purge' ),
+				/* v1.4 — page titles */
+				'overview'           => __( 'Overview', 'wp-media-purge' ),
+				'storageAnalytics'   => __( 'Storage Analytics', 'wp-media-purge' ),
+				'storageDesc'        => __( 'Understand what\u2019s taking up space', 'wp-media-purge' ),
+				'folderOrganizer'    => __( 'Folder Organizer', 'wp-media-purge' ),
+				'foldersDesc'        => __( 'Organize your media into virtual folders', 'wp-media-purge' ),
+				'storageOverview'    => __( 'Storage Overview', 'wp-media-purge' ),
+				'storageGrowth'      => __( 'Storage Growth', 'wp-media-purge' ),
+				'unusedFilesSpace'   => __( 'Unused files space', 'wp-media-purge' ),
+				'largestFiles'       => __( 'Largest Files', 'wp-media-purge' ),
+				'viewStorageDetails' => __( 'View Storage Details', 'wp-media-purge' ),
+				'freeMonthlyCleanups' => __( 'Free monthly cleanups', 'wp-media-purge' ),
+				'goPro'              => __( 'Go Pro', 'wp-media-purge' ),
+				'filesInTrashLabel'  => __( 'file(s) in trash — restorable within 30 days', 'wp-media-purge' ),
+				'restoreAll'         => __( 'Restore All', 'wp-media-purge' ),
+				'unusedFilesFound2'  => __( 'unused files found', 'wp-media-purge' ),
+				'ofWastedStorage'    => __( 'of wasted storage · Safe to clean', 'wp-media-purge' ),
+				'freePlan'           => __( 'FREE PLAN', 'wp-media-purge' ),
+				'proHostingEstimator'     => __( 'Hosting Cost Estimator', 'wp-media-purge' ),
+				'proHostingEstimatorDesc' => __( 'Enter your hosting plan cost and see how much unused files cost you.', 'wp-media-purge' ),
+				'proFoldersFullDesc' => __( 'Create folders, drag & drop files, and organize your entire media library.', 'wp-media-purge' ),
+				'proUpgradeTitle2'   => __( 'MediaPurge Pro', 'wp-media-purge' ),
+				'scanWoo'            => __( 'Scan WooCommerce galleries', 'wp-media-purge' ),
+				'scanWooDesc'        => __( 'Include product gallery images in scans.', 'wp-media-purge' ),
+				'autoTrashLabel'     => __( 'Auto-purge trash after', 'wp-media-purge' ),
+				'excludeFileTypes'   => __( 'Exclude file types', 'wp-media-purge' ),
+				'runScan'            => __( 'Run New Scan', 'wp-media-purge' ),
 			),
 		) );
 	}
@@ -255,25 +352,71 @@ class WPMP_Admin {
 	 */
 	public function render_admin_page() {
 		?>
-		<div class="wrap wpmp-wrap">
-			<div class="wpmp-page-header">
-				<div class="wpmp-header-left">
-					<span class="dashicons dashicons-images-alt2 wpmp-header-icon"></span>
-					<div>
-						<h1><?php esc_html_e( 'Media Purge', 'wp-media-purge' ); ?></h1>
-						<p class="wpmp-header-tagline"><?php esc_html_e( 'Find and clean unused media files to free up disk space.', 'wp-media-purge' ); ?></p>
+		<div class="wpmp-wrap">
+			<div class="wpmp-plugin-header">
+				<div class="wpmp-brand">
+					<div class="wpmp-brand-icon">
+						<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+					</div>
+					<span class="wpmp-brand-name"><?php esc_html_e( 'Media', 'wp-media-purge' ); ?><span><?php esc_html_e( 'Purge', 'wp-media-purge' ); ?></span></span>
+				</div>
+				<nav class="wpmp-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Plugin navigation', 'wp-media-purge' ); ?>">
+					<button class="wpmp-tab active" role="tab" aria-selected="true" data-tab="dashboard">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>
+						<?php esc_html_e( 'Dashboard', 'wp-media-purge' ); ?>
+					</button>
+					<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="scanner">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+						<?php esc_html_e( 'Scanner', 'wp-media-purge' ); ?>
+					</button>
+					<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="storage">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11l2 2m-2-2v10a1 1 0 0 0-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1m-3 0h6"/></svg>
+						<?php esc_html_e( 'Storage', 'wp-media-purge' ); ?>
+					</button>
+					<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="folders">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+						<?php esc_html_e( 'Folders', 'wp-media-purge' ); ?>
+						<span class="wpmp-tag-pro"><?php esc_html_e( 'PRO', 'wp-media-purge' ); ?></span>
+					</button>
+					<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="settings">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+						<?php esc_html_e( 'Settings', 'wp-media-purge' ); ?>
+					</button>
+				</nav>
+				<div class="wpmp-header-actions">
+					<button class="wpmp-help-btn" type="button" onclick="window.open('https://naqeebulrehman.com/wp-media-purge-docs','_blank')">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+						<?php esc_html_e( 'Help', 'wp-media-purge' ); ?>
+					</button>
+				</div>
+			</div>
+			<div class="wpmp-page-content">
+				<div id="wpmp-root" class="wpmp-admin-root">
+					<div class="wpmp-loading">
+						<span class="spinner is-active"></span>
+						<p><?php esc_html_e( 'Loading...', 'wp-media-purge' ); ?></p>
 					</div>
 				</div>
-				<div class="wpmp-header-right">
-					<span class="wpmp-version-badge">v<?php echo esc_html( WPMP_VERSION ); ?></span>
-				</div>
 			</div>
-			<div id="wpmp-root" class="wpmp-admin-root">
-				<div class="wpmp-loading">
-					<span class="spinner is-active"></span>
-					<p><?php esc_html_e( 'Loading...', 'wp-media-purge' ); ?></p>
-				</div>
+			<div class="wpmp-footer">
+				<span>
+					MediaPurge v<?php echo esc_html( WPMP_VERSION ); ?>
+					&middot;
+					<a href="https://naqeebulrehman.com/wp-media-purge-docs" target="_blank" rel="noopener"><?php esc_html_e( 'Documentation', 'wp-media-purge' ); ?></a>
+					&middot;
+					<a href="https://wordpress.org/support/plugin/wp-media-purge/" target="_blank" rel="noopener"><?php esc_html_e( 'Support', 'wp-media-purge' ); ?></a>
+				</span>
+				<span>
+					<?php if ( ! wpmp_is_pro() ) : ?>
+						<?php esc_html_e( 'Free Plan', 'wp-media-purge' ); ?>
+						&middot;
+						<a href="https://naqeebulrehman.com/wp-media-purge-pro" target="_blank" rel="noopener"><?php esc_html_e( 'Upgrade to Pro →', 'wp-media-purge' ); ?></a>
+					<?php else : ?>
+						<?php esc_html_e( 'Pro Plan', 'wp-media-purge' ); ?>
+					<?php endif; ?>
+				</span>
 			</div>
+			<div class="wpmp-toast-wrap" id="wpmp-toast-wrap"></div>
 		</div>
 		<?php
 	}

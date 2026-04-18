@@ -19,7 +19,9 @@ class WPMP_Scanner {
 	 * Builds rich "used_in" data showing exactly WHERE each file is referenced.
 	 */
 	public static function run() {
-		@set_time_limit( 0 );
+		if ( function_exists( 'set_time_limit' ) ) {
+			set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+		}
 		set_transient( 'wpmp_scan_running', true, 3600 );
 		set_transient( 'wpmp_scan_progress', 0, 3600 );
 
@@ -41,11 +43,25 @@ class WPMP_Scanner {
 		);
 		$scan_log_id = $wpdb->insert_id;
 
-		// --- Build reference sets from all scanners ---
-		$content_refs     = WPMP_Content_Scanner::get_references();
-		$meta_refs        = WPMP_Meta_Scanner::get_references();
-		$options_refs     = WPMP_Options_Scanner::get_references();
+		// --- Build reference sets from all scanners (with phase tracking) ---
+		set_transient( 'wpmp_scan_phase', 'content', 3600 );
+		set_transient( 'wpmp_scan_progress', 5, 3600 );
+		$content_refs = WPMP_Content_Scanner::get_references();
+
+		set_transient( 'wpmp_scan_phase', 'meta', 3600 );
+		set_transient( 'wpmp_scan_progress', 20, 3600 );
+		$meta_refs = WPMP_Meta_Scanner::get_references();
+
+		set_transient( 'wpmp_scan_phase', 'options', 3600 );
+		set_transient( 'wpmp_scan_progress', 35, 3600 );
+		$options_refs = WPMP_Options_Scanner::get_references();
+
+		set_transient( 'wpmp_scan_phase', 'builder', 3600 );
+		set_transient( 'wpmp_scan_progress', 50, 3600 );
 		$pagebuilder_refs = WPMP_PageBuilder_Scanner::get_references();
+
+		set_transient( 'wpmp_scan_phase', 'writing', 3600 );
+		set_transient( 'wpmp_scan_progress', 60, 3600 );
 
 		// Flat reference sets for quick "is used" checks
 		$reference_ids = array_unique( array_merge(
@@ -77,26 +93,44 @@ class WPMP_Scanner {
 			$pagebuilder_refs['url_post_map']
 		);
 
-		// --- Fetch all attachments ---
-		$attachments = get_posts( array(
-			'post_type'      => 'attachment',
-			'post_status'    => 'any',
-			'posts_per_page' => -1,
-			'fields'         => 'ids',
-		) );
+		// --- Fetch all attachment IDs in batches to protect memory on large libraries ---
+		$batch_size  = max( 100, (int) WPMP_Settings::get( 'batch_size', 200 ) );
+		$offset      = 0;
+		$attachments = array();
+
+		do {
+			$batch = get_posts( array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'any',
+				'posts_per_page' => $batch_size,
+				'offset'         => $offset,
+				'fields'         => 'ids',
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+			) );
+			$attachments = array_merge( $attachments, $batch );
+			$offset     += $batch_size;
+		} while ( count( $batch ) === $batch_size );
 
 		$total        = count( $attachments );
 		$recent_days  = (int) WPMP_Settings::get( 'recent_upload_days', 7 );
 		$cutoff_date  = strtotime( "-{$recent_days} days" );
 		$unused_count = 0;
 
-		// Preserve whitelisted IDs before truncate
+		// Preserve whitelisted IDs — these are NEVER cleared.
 		$whitelisted_ids = array_map( 'absint', array_filter( (array) $wpdb->get_col(
 			$wpdb->prepare( "SELECT attachment_id FROM {$table_results} WHERE status = %s", 'whitelisted' )
 		) ) );
 
-		// Clear previous results
-		$wpdb->query( "TRUNCATE TABLE {$table_results}" );
+		// Delete only non-whitelisted previous results. This protects data if the scan
+		// fails partway through — whitelisted items survive and old results remain until
+		// replaced, preventing a complete data wipe on crash.
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$table_results} WHERE status != %s",
+				'whitelisted'
+			)
+		);
 
 		foreach ( $attachments as $index => $attachment_id ) {
 			// Update progress every 5 items to reduce DB writes
@@ -212,6 +246,7 @@ class WPMP_Scanner {
 		);
 
 		update_option( 'wpmp_scan_last_run', current_time( 'mysql' ) );
+		set_transient( 'wpmp_scan_phase', 'done', 60 );
 		delete_transient( 'wpmp_scan_running' );
 		delete_transient( 'wpmp_scan_progress' );
 	}
