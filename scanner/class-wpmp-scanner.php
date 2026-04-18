@@ -116,6 +116,7 @@ class WPMP_Scanner {
 		$recent_days  = (int) WPMP_Settings::get( 'recent_upload_days', 7 );
 		$cutoff_date  = strtotime( "-{$recent_days} days" );
 		$unused_count = 0;
+		$exclude_types = array_map( 'strtolower', (array) WPMP_Settings::get( 'exclude_file_types', array() ) );
 
 		// Preserve whitelisted IDs — these are NEVER cleared.
 		$whitelisted_ids = array_map( 'absint', array_filter( (array) $wpdb->get_col(
@@ -134,13 +135,20 @@ class WPMP_Scanner {
 
 		foreach ( $attachments as $index => $attachment_id ) {
 			// Update progress every 5 items to reduce DB writes
+			// Map attachment loop progress from 60% to 100%
 			if ( 0 === $index % 5 || $index === $total - 1 ) {
-				$progress = $total > 0 ? (int) ( ( $index + 1 ) / $total * 100 ) : 100;
-				set_transient( 'wpmp_scan_progress', $progress, 3600 );
+				$progress = $total > 0 ? 60 + (int) ( ( $index + 1 ) / $total * 40 ) : 100;
+				set_transient( 'wpmp_scan_progress', min( $progress, 100 ), 3600 );
 			}
 
 			$file_path = get_attached_file( $attachment_id );
 			if ( ! $file_path || ! file_exists( $file_path ) ) {
+				continue;
+			}
+
+			// Skip excluded file types
+			$file_ext = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
+			if ( ! empty( $exclude_types ) && in_array( $file_ext, $exclude_types, true ) ) {
 				continue;
 			}
 

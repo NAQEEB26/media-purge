@@ -155,6 +155,7 @@
       else if (currentTab === 'storage') wpmp.loadStorage();
       else if (currentTab === 'recovery') wpmp.loadRecovery();
       else if (currentTab === 'settings') wpmp.loadSettings();
+      else if (currentTab === 'about') wpmp.loadAbout();
     },
 
     /* ================================================================
@@ -1213,6 +1214,122 @@
           wpmp.showToast(s.settingsFailed || 'Failed to save settings.', 'error');
           $btn.prop('disabled', false).html(icon('check', 14) + ' ' + wpmp.esc(s.saveSettings || 'Save Settings'));
         });
+    },
+
+    /* ================================================================
+     * ABOUT TAB — Plugin info, mission, and value
+     * ================================================================ */
+    loadAbout: function () {
+      var $ph = $('.wpmp-about-placeholder');
+
+      function aboutSection(iconName, title, content, extraClass) {
+        extraClass = extraClass || '';
+        return '<div class="wpmp-about-section ' + extraClass + '">' +
+          '<div class="wpmp-about-section-icon">' + icon(iconName, 20) + '</div>' +
+          '<h3>' + wpmp.esc(title) + '</h3>' +
+          content +
+          '</div>';
+      }
+
+      function aboutList(items) {
+        var html = '<ul class="wpmp-about-list" role="list">';
+        items.forEach(function (item) {
+          html += '<li role="listitem">' + icon('checkCircle', 14) + ' <span>' + wpmp.esc(item) + '</span></li>';
+        });
+        return html + '</ul>';
+      }
+
+      function aboutStep(num, text) {
+        return '<div class="wpmp-about-step">' +
+          '<div class="wpmp-about-step-num" aria-hidden="true">' + num + '</div>' +
+          '<span>' + wpmp.esc(text) + '</span>' +
+          '</div>';
+      }
+
+      var pluginVersion = (typeof wpmpAdmin !== 'undefined' && wpmpAdmin.pluginVersion) ? wpmpAdmin.pluginVersion : '1.4.2';
+
+      $ph.replaceWith(
+        '<div class="wpmp-about wpmp-fade-up">' +
+
+        /* Header */
+        '<div class="wpmp-about-hero">' +
+        '<div class="wpmp-about-hero-icon">' + icon('shield', 36) + '</div>' +
+        '<h1>' + wpmp.esc(s.aboutTitle || 'About WP Media Purge') + '</h1>' +
+        '<p class="wpmp-about-subtitle">' + wpmp.esc(s.aboutSubtitle || 'Built with care for the WordPress community') + '</p>' +
+        '</div>' +
+
+        '<div class="wpmp-about-grid">' +
+
+        /* Mission */
+        aboutSection('star', s.aboutMission || 'Our Mission',
+          '<p>' + wpmp.esc(s.aboutMissionDesc || 'Every WordPress site accumulates unused media files over time \u2014 old featured images, replaced logos, test uploads, and content that was never published. These files silently eat up your hosting storage and make your media library harder to manage.') + '</p>' +
+          '<p>' + wpmp.esc(s.aboutMissionDesc2 || 'WP Media Purge was built to solve this problem the right way: safely, transparently, and without any risk to your content. We believe that cleaning your media library should feel easy and worry-free \u2014 not scary.') + '</p>'
+        ) +
+
+        /* Safety-First Philosophy */
+        aboutSection('shield', s.aboutSafetyTitle || 'Safety-First Philosophy',
+          aboutList([
+            s.aboutSafety1 || 'Nothing is ever deleted automatically \u2014 you always review first',
+            s.aboutSafety2 || 'All trashed files are recoverable for 30 days',
+            s.aboutSafety3 || 'Recently uploaded files are protected from being flagged',
+            s.aboutSafety4 || 'Whitelist any file to permanently protect it from cleanup',
+          ]),
+          'safety'
+        ) +
+
+        /* What We Scan */
+        aboutSection('search', s.aboutScanTitle || 'What We Scan',
+          aboutList([
+            s.aboutScan1 || 'All post and page content (including shortcodes)',
+            s.aboutScan2 || 'Featured images and custom fields',
+            s.aboutScan3 || 'Widget areas and theme customizer settings',
+            s.aboutScan4 || 'Page builders: Elementor, Divi, WPBakery, Beaver Builder',
+            s.aboutScan5 || 'WooCommerce product galleries',
+            s.aboutScan6 || 'Serialized data and complex meta fields',
+          ])
+        ) +
+
+        /* How It Works */
+        aboutSection('zap', s.aboutWorkflowTitle || 'How It Works',
+          '<div class="wpmp-about-steps">' +
+          aboutStep('1', s.aboutStep1 || 'Scan \u2014 Analyze your entire media library against all site content') +
+          aboutStep('2', s.aboutStep2 || 'Review \u2014 See exactly where each file is used (or not used)') +
+          aboutStep('3', s.aboutStep3 || 'Clean \u2014 Move unused files to a safe trash with one click') +
+          aboutStep('4', s.aboutStep4 || 'Recover \u2014 Restore any file within 30 days if you change your mind') +
+          '</div>'
+        ) +
+
+        /* Built For You */
+        aboutSection('checkCircle', s.aboutBuiltFor || 'Built For You',
+          '<p>' + wpmp.esc(s.aboutBuiltForDesc || 'WP Media Purge is designed for bloggers, agency owners, WooCommerce store managers, and anyone who wants a cleaner, faster WordPress site without the complexity.') + '</p>' +
+          '<div class="wpmp-about-badges">' +
+          '<div class="wpmp-about-badge green">' + icon('check', 14) + ' <span>' + wpmp.esc(s.aboutFree || '100% Free \u2014 No hidden limits, no premium gates on core features') + '</span></div>' +
+          '<div class="wpmp-about-badge blue">' + icon('lock', 14) + ' <span>' + wpmp.esc(s.aboutPrivacy || 'Privacy-First \u2014 No external calls, no tracking, no data collection') + '</span></div>' +
+          '<div class="wpmp-about-badge navy">' + icon('file', 14) + ' <span>' + wpmp.esc(s.aboutGpl || 'Open Source \u2014 GPL-2.0+ licensed, community-driven') + '</span></div>' +
+          '</div>'
+        ) +
+
+        /* Support */
+        aboutSection('cloud', s.aboutSupport || 'Need Help?',
+          '<p>' + wpmp.esc(s.aboutSupportDesc || 'If you have questions, need support, or want to suggest a feature \u2014 we are here for you.') + '</p>' +
+          '<div class="wpmp-about-links">' +
+          '<a href="https://wordpress.org/support/plugin/wp-media-purge/" target="_blank" rel="noopener" class="wpmp-btn-primary" style="font-size:13px;padding:8px 18px">' + icon('cloud', 14) + ' ' + wpmp.esc(s.support || 'Support Forum') + '</a>' +
+          '<a href="https://getmediapurge.com/docs" target="_blank" rel="noopener" class="wpmp-btn-ghost" style="font-size:13px;padding:8px 18px">' + icon('file', 14) + ' ' + wpmp.esc(s.documentation || 'Documentation') + '</a>' +
+          '</div>'
+        ) +
+
+        '</div>' +
+
+        /* Plugin Meta */
+        '<div class="wpmp-about-meta">' +
+        '<div class="wpmp-about-meta-item"><strong>' + wpmp.esc(s.aboutVersion || 'Version') + '</strong><span>' + wpmp.esc(pluginVersion) + '</span></div>' +
+        '<div class="wpmp-about-meta-item"><strong>' + wpmp.esc(s.aboutAuthor || 'Author') + '</strong><span>Naqeeb Ul Rehman</span></div>' +
+        '<div class="wpmp-about-meta-item"><strong>' + wpmp.esc(s.aboutLicense || 'License') + '</strong><span>GPL-2.0+</span></div>' +
+        '<div class="wpmp-about-meta-item"><strong>' + wpmp.esc(s.aboutRequires || 'Requires') + '</strong><span>WordPress 5.8+ &middot; PHP 7.4+</span></div>' +
+        '</div>' +
+
+        '</div>'
+      );
     },
 
     /* ================================================================

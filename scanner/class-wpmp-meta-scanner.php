@@ -122,7 +122,7 @@ class WPMP_Meta_Scanner {
 		$urls = array();
 
 		if ( is_serialized( $string ) ) {
-			$unserialized = @unserialize( $string );
+			$unserialized = maybe_unserialize( $string );
 			$string       = is_string( $unserialized ) ? $unserialized : wp_json_encode( $unserialized );
 		}
 
@@ -146,7 +146,7 @@ class WPMP_Meta_Scanner {
 		$ids = array();
 
 		if ( is_serialized( $string ) ) {
-			$unserialized = @unserialize( $string );
+			$unserialized = maybe_unserialize( $string );
 			$string       = wp_json_encode( $unserialized );
 		}
 
