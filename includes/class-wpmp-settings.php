@@ -29,6 +29,7 @@ class WPMP_Settings {
 		'scan_woocommerce'     => true,
 		'skip_recent'          => true,
 		'exclude_file_types'   => array( 'svg', 'gif', 'pdf', 'mp4', 'mov' ),
+		'wizard_seen'          => false,
 	);
 
 	/**
