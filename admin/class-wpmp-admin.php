@@ -72,6 +72,8 @@ class WPMP_Admin {
 			'restUrl'      => rest_url( WPMP_REST_NAMESPACE . '/' ),
 			'nonce'        => wp_create_nonce( 'wp_rest' ),
 			'adminUrl'     => admin_url( 'admin.php' ),
+			'wizardSeen'   => (bool) WPMP_Settings::get( 'wizard_seen', false ),
+			'hasWooCommerce' => class_exists( 'WooCommerce' ),
 			'exportCsvUrl' => wp_nonce_url(
 				admin_url( 'admin.php?page=wp-media-purge&action=export_csv' ),
 				'wpmp_export_csv'
@@ -290,6 +292,28 @@ class WPMP_Admin {
 				'autoTrashLabel'     => __( 'Auto-purge trash after', 'wp-media-purge' ),
 				'excludeFileTypes'   => __( 'Exclude file types', 'wp-media-purge' ),
 				'runScan'            => __( 'Run New Scan', 'wp-media-purge' ),
+				/* Wizard strings */
+				'wizardWelcomeTitle' => __( 'Welcome to MediaPurge!', 'wp-media-purge' ),
+				'wizardWelcomeDesc'  => __( 'Let\'s take 30 seconds to set up 2 key preferences for your site.', 'wp-media-purge' ),
+				'wizardFeature1'     => __( 'Scans posts, pages, widgets & page builders', 'wp-media-purge' ),
+				'wizardFeature2'     => __( 'Nothing is deleted until you confirm', 'wp-media-purge' ),
+				'wizardFeature3'     => __( 'All trashed files are recoverable for 30 days', 'wp-media-purge' ),
+				'wizardStep2Title'   => __( 'Protect Recent Uploads', 'wp-media-purge' ),
+				'wizardStep2Desc'    => __( 'How many days after upload should a file be protected from being flagged as unused?', 'wp-media-purge' ),
+				'wizardRecentLabel'  => __( 'Protect files uploaded within the last:', 'wp-media-purge' ),
+				'wizardRecentHint'   => __( 'We recommend 30 days to protect files still being rolled out on your site.', 'wp-media-purge' ),
+				'wizardStep3Title'   => __( 'Trash Policy', 'wp-media-purge' ),
+				'wizardStep3Desc'    => __( 'How long should trashed files stay in the Recovery tab before being permanently deleted?', 'wp-media-purge' ),
+				'wizardTrashLabel'   => __( 'Keep trashed files for:', 'wp-media-purge' ),
+				'wizardTrashHint'    => __( '30 days gives you a comfortable window to recover anything accidentally trashed.', 'wp-media-purge' ),
+				'wizardNext'         => __( 'Next', 'wp-media-purge' ),
+				'wizardBack'         => __( '← Back', 'wp-media-purge' ),
+				'wizardFinish'       => __( 'Finish Setup', 'wp-media-purge' ),
+				'wizardSkip'         => __( 'Skip setup', 'wp-media-purge' ),
+				'wizardDone'         => __( 'Setup complete! You\'re ready to run your first scan.', 'wp-media-purge' ),
+				/* Recovery tab */
+				'emptyTrash'         => __( 'Empty Trash', 'wp-media-purge' ),
+				'restore'            => __( 'Restore', 'wp-media-purge' ),
 			),
 		) );
 	}
@@ -370,10 +394,9 @@ class WPMP_Admin {
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11l2 2m-2-2v10a1 1 0 0 0-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1m-3 0h6"/></svg>
 						<?php esc_html_e( 'Storage', 'wp-media-purge' ); ?>
 					</button>
-					<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="folders">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-						<?php esc_html_e( 'Folders', 'wp-media-purge' ); ?>
-						<span class="wpmp-tag-soon"><?php esc_html_e( 'Soon', 'wp-media-purge' ); ?></span>
+				<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="recovery">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+					<?php esc_html_e( 'Recovery', 'wp-media-purge' ); ?>
 					</button>
 					<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="settings">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
@@ -381,7 +404,7 @@ class WPMP_Admin {
 					</button>
 				</nav>
 				<div class="wpmp-header-actions">
-					<button class="wpmp-help-btn" type="button" onclick="window.open('https://naqeebulrehman.com/wp-media-purge-docs','_blank')">
+					<button class="wpmp-help-btn" type="button" onclick="window.open('https://getmediapurge.com/docs','_blank')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
 						<?php esc_html_e( 'Help', 'wp-media-purge' ); ?>
 					</button>
@@ -399,7 +422,7 @@ class WPMP_Admin {
 				<span>
 					MediaPurge v<?php echo esc_html( WPMP_VERSION ); ?>
 					&middot;
-					<a href="https://naqeebulrehman.com/wp-media-purge-docs" target="_blank" rel="noopener"><?php esc_html_e( 'Documentation', 'wp-media-purge' ); ?></a>
+					<a href="https://getmediapurge.com/docs" target="_blank" rel="noopener"><?php esc_html_e( 'Documentation', 'wp-media-purge' ); ?></a>
 					&middot;
 					<a href="https://wordpress.org/support/plugin/wp-media-purge/" target="_blank" rel="noopener"><?php esc_html_e( 'Support', 'wp-media-purge' ); ?></a>
 				</span>
