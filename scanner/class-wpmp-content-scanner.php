@@ -26,10 +26,11 @@ class WPMP_Content_Scanner {
 
 		$ids          = array();
 		$urls         = array();
-		$id_locations = array(); // attachment_id => [ location_data, ... ]
-		$url_post_map = array(); // url => [ location_data, ... ]
+		$id_locations = array(); // phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar -- attachment_id => [ location_data, ... ]
+		$url_post_map = array(); // phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar -- url => [ location_data, ... ]
 
 		// 1. Posts with upload URLs in post_content
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$posts_with_uploads = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title FROM {$wpdb->posts}
@@ -103,12 +104,12 @@ class WPMP_Content_Scanner {
 	private static function extract_urls_from_content( $content ) {
 		$urls = array();
 
-		// Match wp-content/uploads URLs
+		// Match wp-content/uploads URLs.
 		if ( preg_match_all( '#(https?://[^"\'\s]+/wp-content/uploads/[^"\'\s]+)#i', $content, $matches ) ) {
 			$urls = $matches[1];
 		}
 
-		// Match relative /wp-content/uploads/
+		// Match relative /wp-content/uploads/.
 		if ( preg_match_all( '#(/wp-content/uploads/[^"\'\s\)]+)#i', $content, $matches ) ) {
 			$urls = array_merge( $urls, $matches[1] );
 		}
@@ -125,12 +126,12 @@ class WPMP_Content_Scanner {
 	private static function extract_attachment_ids_from_content( $content ) {
 		$ids = array();
 
-		// wp:image {"id":123}
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar -- Gutenberg JSON pattern.
 		if ( preg_match_all( '#"id"\s*:\s*(\d+)#', $content, $matches ) ) {
 			$ids = array_merge( $ids, $matches[1] );
 		}
 
-		// attachment id=123, attachment_id=123
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar -- shortcode pattern: attachment id=123.
 		if ( preg_match_all( '#(?:attachment[-_]?id|id)\s*=\s*["\']?(\d+)#i', $content, $matches ) ) {
 			$ids = array_merge( $ids, $matches[1] );
 		}
@@ -155,6 +156,7 @@ class WPMP_Content_Scanner {
 
 		$result = array();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title, post_content FROM {$wpdb->posts}
