@@ -1173,13 +1173,23 @@
           '<p class="card-desc">' + wpmp.esc(s.exclusionsDesc || 'Files and types to never flag as unused') + '</p>' +
           '<div style="margin-bottom:14px">' +
           '<label style="font-size:12px;font-weight:600;color:var(--wpmp-gray7);display:block;margin-bottom:6px">' + wpmp.esc(s.excludeFileTypes || 'Exclude file types') + '</label>' +
-          '<div class="wpmp-exclude-tags">' +
-          '<span class="wpmp-exclude-tag">SVG</span>' +
-          '<span class="wpmp-exclude-tag">GIF</span>' +
-          '<span class="wpmp-exclude-tag">PDF</span>' +
-          '<span class="wpmp-exclude-tag">MP4</span>' +
-          '<span class="wpmp-exclude-tag">MOV</span>' +
-          '</div>' +
+          (function () {
+            var excludeTypes = Array.isArray(settings.exclude_file_types) ? settings.exclude_file_types.map(function (t) { return t.toLowerCase(); }) : [];
+            var tagDefs = [
+              { ext: 'svg', label: 'SVG' },
+              { ext: 'gif', label: 'GIF' },
+              { ext: 'pdf', label: 'PDF' },
+              { ext: 'mp4', label: 'MP4' },
+              { ext: 'mov', label: 'MOV' }
+            ];
+            var html = '<div class="wpmp-exclude-tags">';
+            tagDefs.forEach(function (t) {
+              var active = excludeTypes.indexOf(t.ext) !== -1 ? ' active' : '';
+              html += '<span class="wpmp-exclude-tag' + active + '" data-ext="' + t.ext + '">' + t.label + '</span>';
+            });
+            html += '</div>';
+            return html;
+          }()) +
           '</div>' +
           '<div class="wpmp-settings-field">' +
           '<label for="wpmp-recent-days">' + wpmp.esc(s.recentDaysLabel || 'Min file age to flag (days)') + '</label>' +
@@ -1216,6 +1226,12 @@
           if ($(this).hasClass('disabled')) return;
           $(this).toggleClass('on');
         });
+
+        /* Exclude tag toggle events */
+        $(document).on('click', '.wpmp-exclude-tag', function () {
+          $(this).toggleClass('active');
+        });
+
         $('.wpmp-save-settings').on('click', wpmp.saveSettings);
       }).catch(function (err) {
         $('.wpmp-settings-placeholder').replaceWith('<p class="wpmp-error">' + wpmp.esc(err.message) + '</p>');
@@ -1252,6 +1268,12 @@
         var val = $(this).val();
         data[$(this).data('key')] = parseInt(val, 10) || 0;
       });
+      /* Collect toggled exclude file-type tags */
+      var excludeTypes = [];
+      $('.wpmp-exclude-tag.active').each(function () {
+        excludeTypes.push($(this).data('ext'));
+      });
+      data.exclude_file_types = excludeTypes;
       wpmp.api('settings', { method: 'POST', body: JSON.stringify(data) })
         .then(function () {
           wpmp.showToast(s.settingsSaved || 'Settings saved.', 'success');

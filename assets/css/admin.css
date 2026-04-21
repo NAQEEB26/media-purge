@@ -172,6 +172,9 @@
    align-items: center;
    gap: 0;
    flex-shrink: 0;
+   /* Extend flush to the WordPress sidebar — cancel #wpcontent's 20px left padding */
+   margin-left: -20px;
+   padding-left: 28px;
 }
 
 .wpmp-brand {
@@ -1841,11 +1844,24 @@
    color: var(--wpmp-gray7);
    cursor: pointer;
    transition: all .15s;
+   user-select: none;
 }
 
 .wpmp-exclude-tag:hover {
    border-color: var(--wpmp-blue);
    color: var(--wpmp-blue);
+}
+
+.wpmp-exclude-tag.active {
+   background: var(--wpmp-blue);
+   border-color: var(--wpmp-blue);
+   color: #fff;
+}
+
+.wpmp-exclude-tag.active:hover {
+   background: var(--wpmp-blue-hover);
+   border-color: var(--wpmp-blue-hover);
+   color: #fff;
 }
 
 .wpmp-warning-box {
@@ -3268,11 +3284,14 @@
    border-radius: 10px;
 }
 
-/* Skip link for keyboard users */
+/* Skip link — hidden off-screen, revealed only on keyboard focus */
 .wpmp-skip-link {
    position: absolute;
-   top: -40px;
-   left: 0;
+   left: -9999px;
+   top: auto;
+   width: 1px;
+   height: 1px;
+   overflow: hidden;
    padding: 8px 16px;
    background: var(--wpmp-blue);
    color: #fff;
@@ -3281,11 +3300,14 @@
    border-radius: 0 0 8px 0;
    z-index: 100000;
    text-decoration: none;
-   transition: top 0.2s;
 }
 
 .wpmp-skip-link:focus {
-   top: 0;
+   left: 6px;
+   top: 6px;
+   width: auto;
+   height: auto;
+   overflow: visible;
 }
 
 /* ================================================================
