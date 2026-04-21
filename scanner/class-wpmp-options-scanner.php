@@ -1,6 +1,6 @@
 <?php
 /**
- * wp_options scanner.
+ * Options scanner.
  *
  * Scans widgets, theme customizer, and options for media references.
  *
@@ -29,6 +29,7 @@ class WPMP_Options_Scanner {
 		$url_post_map = array();
 
 		// 1. Options containing upload URLs (exclude transients)
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$option_rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT option_name, option_value FROM {$wpdb->options}
@@ -44,13 +45,19 @@ class WPMP_Options_Scanner {
 		foreach ( $option_rows as $row ) {
 			$is_widget = strpos( $row->option_name, 'widget_' ) === 0;
 			$location  = $is_widget
-				? array( 'type' => 'widget', 'label' => 'Widget Area' )
-				: array( 'type' => 'options', 'label' => 'Site Options (' . esc_html( $row->option_name ) . ')' );
+				? array(
+					'type'  => 'widget',
+					'label' => 'Widget Area',
+				)
+				: array(
+					'type'  => 'options',
+					'label' => 'Site Options (' . esc_html( $row->option_name ) . ')',
+				);
 
 			$extracted_urls = self::extract_urls( $row->option_value );
 			$extracted_ids  = self::extract_ids( $row->option_value );
-			$urls = array_merge( $urls, $extracted_urls );
-			$ids  = array_merge( $ids, $extracted_ids );
+			$urls           = array_merge( $urls, $extracted_urls );
+			$ids            = array_merge( $ids, $extracted_ids );
 
 			foreach ( $extracted_urls as $url ) {
 				if ( ! isset( $url_post_map[ $url ] ) ) {
@@ -70,6 +77,7 @@ class WPMP_Options_Scanner {
 		}
 
 		// 2. Theme mods (customizer)
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$theme_mod_rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT option_name, option_value FROM {$wpdb->options}
@@ -81,11 +89,14 @@ class WPMP_Options_Scanner {
 		);
 
 		foreach ( $theme_mod_rows as $row ) {
-			$location        = array( 'type' => 'theme_customizer', 'label' => 'Theme Customizer' );
-			$extracted_urls  = self::extract_urls( $row->option_value );
-			$extracted_ids   = self::extract_ids( $row->option_value );
-			$urls = array_merge( $urls, $extracted_urls );
-			$ids  = array_merge( $ids, $extracted_ids );
+			$location       = array(
+				'type'  => 'theme_customizer',
+				'label' => 'Theme Customizer',
+			);
+			$extracted_urls = self::extract_urls( $row->option_value );
+			$extracted_ids  = self::extract_ids( $row->option_value );
+			$urls           = array_merge( $urls, $extracted_urls );
+			$ids            = array_merge( $ids, $extracted_ids );
 
 			foreach ( $extracted_urls as $url ) {
 				if ( ! isset( $url_post_map[ $url ] ) ) {

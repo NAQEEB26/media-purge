@@ -29,6 +29,7 @@ class WPMP_Meta_Scanner {
 		$url_post_map = array();
 
 		// 1. Featured images — join to get post title in one query
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$thumbnail_rows = $wpdb->get_results(
 			"SELECT pm.post_id, pm.meta_value, p.post_title
 			FROM {$wpdb->postmeta} pm
@@ -55,6 +56,7 @@ class WPMP_Meta_Scanner {
 		}
 
 		// 2. Meta values containing upload URLs
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$meta_rows = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT meta_value FROM {$wpdb->postmeta}
@@ -67,17 +69,21 @@ class WPMP_Meta_Scanner {
 		foreach ( $meta_rows as $value ) {
 			$extracted_urls = self::extract_urls_from_string( $value );
 			$extracted_ids  = self::extract_ids_from_string( $value );
-			$urls = array_merge( $urls, $extracted_urls );
-			$ids  = array_merge( $ids, $extracted_ids );
+			$urls           = array_merge( $urls, $extracted_urls );
+			$ids            = array_merge( $ids, $extracted_ids );
 			foreach ( $extracted_urls as $url ) {
 				if ( ! isset( $url_post_map[ $url ] ) ) {
 					$url_post_map[ $url ] = array();
 				}
-				$url_post_map[ $url ][] = array( 'type' => 'post_meta', 'label' => 'Custom Field / Post Meta' );
+				$url_post_map[ $url ][] = array(
+					'type'  => 'post_meta',
+					'label' => 'Custom Field / Post Meta',
+				);
 			}
 		}
 
 		// 3. WooCommerce product gallery — with product title
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$gallery_rows = $wpdb->get_results(
 			"SELECT pm.post_id, pm.meta_value, p.post_title
 			FROM {$wpdb->postmeta} pm

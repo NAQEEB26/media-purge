@@ -3,7 +3,7 @@
  * Plugin Name: WP Media Purge
  * Plugin URI:  https://getmediapurge.com/
  * Description: Find and safely remove unused media, detect duplicates, and reclaim disk space — free to use, with advanced features planned.
- * Version:     1.4.2
+ * Version:     1.4.3
  * Author:      Naqeeb Ul Rehman
  * Author URI:  https://getmediapurge.com/
  * License:     GPL-2.0+
@@ -66,19 +66,19 @@ function wpmp_init() {
 	// Register custom cron schedules.
 	add_filter( 'cron_schedules', 'wpmp_add_cron_schedules' );
 
-	// Load text domain
+	// Load text domain.
 	load_plugin_textdomain( 'wp-media-purge', false, dirname( WPMP_PLUGIN_BASENAME ) . '/languages' );
 
-	// Plugin action links on Plugins page
+	// Plugin action links on Plugins page.
 	add_filter( 'plugin_action_links_' . WPMP_PLUGIN_BASENAME, 'wpmp_plugin_action_links' );
 
-	// Core includes
+	// Core includes.
 	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-loader.php';
 	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-settings.php';
 	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-cron.php';
 	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-licensing.php';
 
-	// Scanners
+	// Scanners.
 	require_once WPMP_PLUGIN_DIR . 'scanner/class-wpmp-filesystem-scanner.php';
 	require_once WPMP_PLUGIN_DIR . 'scanner/class-wpmp-content-scanner.php';
 	require_once WPMP_PLUGIN_DIR . 'scanner/class-wpmp-meta-scanner.php';
@@ -91,7 +91,7 @@ function wpmp_init() {
 
 	WPMP_Cron::init();
 
-	// REST API must load on ALL requests (fetch hits frontend, not admin)
+	// REST API must load on ALL requests (fetch hits frontend, not admin).
 	require_once WPMP_PLUGIN_DIR . 'admin/class-wpmp-rest-api.php';
 	new WPMP_REST_API();
 
@@ -102,7 +102,7 @@ function wpmp_init() {
 		new WPMP_Admin();
 	}
 
-	// Scanner runs on scan start (admin or cron)
+	// Scanner runs on scan start (admin or cron).
 	add_action( 'wpmp_start_scan', array( 'WPMP_Scanner', 'run' ) );
 
 	$loader = new WPMP_Loader();

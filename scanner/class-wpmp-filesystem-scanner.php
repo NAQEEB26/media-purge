@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Filesystem Scanner — finds upload files not registered in WordPress.
  *
@@ -17,133 +17,133 @@ defined( 'ABSPATH' ) || exit;
  */
 class WPMP_Filesystem_Scanner {
 
-/**
- * Absolute path to the uploads base directory.
- *
- * @var string
- */
-private $upload_dir;
+	/**
+	 * Absolute path to the uploads base directory.
+	 *
+	 * @var string
+	 */
+	private $upload_dir;
 
-/**
- * Constructor.
- */
-public function __construct() {
-$upload_info      = wp_upload_dir();
-$this->upload_dir = trailingslashit( $upload_info['basedir'] );
-}
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		$upload_info      = wp_upload_dir();
+		$this->upload_dir = trailingslashit( $upload_info['basedir'] );
+	}
 
-/**
- * Return all file paths found on disk under the uploads directory.
- *
- * Skips hidden files, WP-generated thumbnails (files containing a
- * dimension suffix like -300x200), and the uploads index.php drop-in.
- *
- * @return string[] Absolute file paths.
- */
-public function get_all_upload_files() {
-if ( ! is_dir( $this->upload_dir ) ) {
-return array();
-}
+	/**
+	 * Return all file paths found on disk under the uploads directory.
+	 *
+	 * Skips hidden files, WP-generated thumbnails (files containing a
+	 * dimension suffix like -300x200), and the uploads index.php drop-in.
+	 *
+	 * @return string[] Absolute file paths.
+	 */
+	public function get_all_upload_files() {
+		if ( ! is_dir( $this->upload_dir ) ) {
+			return array();
+		}
 
-$iterator = new RecursiveIteratorIterator(
-new RecursiveDirectoryIterator( $this->upload_dir, RecursiveDirectoryIterator::SKIP_DOTS ),
-RecursiveIteratorIterator::SELF_FIRST
-);
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator( $this->upload_dir, RecursiveDirectoryIterator::SKIP_DOTS ),
+			RecursiveIteratorIterator::SELF_FIRST
+		);
 
-$files = array();
-foreach ( $iterator as $file ) {
-if ( ! $file->isFile() ) {
-continue;
-}
-$path = $file->getRealPath();
-/* Skip hidden files */
-if ( strpos( basename( $path ), '.' ) === 0 ) {
-continue;
-}
-/* Skip WordPress-generated thumbnail variants (e.g. image-200x150.jpg) */
-if ( preg_match( '/-\d+x\d+\.[a-zA-Z0-9]+$/', $path ) ) {
-continue;
-}
-/* Skip the drop-in index.php */
-if ( basename( $path ) === 'index.php' ) {
-continue;
-}
-$files[] = $path;
-}
+		$files = array();
+		foreach ( $iterator as $file ) {
+			if ( ! $file->isFile() ) {
+				continue;
+			}
+			$path = $file->getRealPath();
+			/* Skip hidden files */
+			if ( strpos( basename( $path ), '.' ) === 0 ) {
+				continue;
+			}
+			/* Skip WordPress-generated thumbnail variants (e.g. image-200x150.jpg) */
+			if ( preg_match( '/-\d+x\d+\.[a-zA-Z0-9]+$/', $path ) ) {
+				continue;
+			}
+			/* Skip the drop-in index.php */
+			if ( basename( $path ) === 'index.php' ) {
+				continue;
+			}
+			$files[] = $path;
+		}
 
-return $files;
-}
+		return $files;
+	}
 
-/**
- * Return all file paths that are registered as WordPress attachments.
- *
- * @return string[] Absolute file paths keyed by attachment ID.
- */
-public function get_registered_files() {
-global $wpdb;
+	/**
+	 * Return all file paths that are registered as WordPress attachments.
+	 *
+	 * @return string[] Absolute file paths keyed by attachment ID.
+	 */
+	public function get_registered_files() {
+		global $wpdb;
 
-$rows = $wpdb->get_results(
-"SELECT post_id, meta_value
+		$rows = $wpdb->get_results(
+			"SELECT post_id, meta_value
  FROM {$wpdb->postmeta}
  WHERE meta_key = '_wp_attached_file'",
-ARRAY_A
-);
+			ARRAY_A
+		);
 
-$upload_dir = $this->upload_dir;
-$registered = array();
-foreach ( $rows as $row ) {
-$registered[ (int) $row['post_id'] ] = $upload_dir . ltrim( $row['meta_value'], '/' );
-}
+		$upload_dir = $this->upload_dir;
+		$registered = array();
+		foreach ( $rows as $row ) {
+			$registered[ (int) $row['post_id'] ] = $upload_dir . ltrim( $row['meta_value'], '/' );
+		}
 
-return $registered;
-}
+		return $registered;
+	}
 
-/**
- * Return files on disk that have no corresponding attachment record.
- *
- * NOTE: This is a preparatory stub — orphaned file management is a
- * Phase-2 feature gated behind the Pro licence.  The return value is
- * intentionally empty in the free tier.
- *
- * @return array[] Each entry: ['path' => string, 'size' => int]
- */
-public function get_orphaned_files() {
-/* Pro gate — return empty in free tier */
-if ( ! apply_filters( 'wpmp_is_pro', false ) ) {
-return array();
-}
+	/**
+	 * Return files on disk that have no corresponding attachment record.
+	 *
+	 * NOTE: This is a preparatory stub — orphaned file management is a
+	 * Phase-2 feature gated behind the Pro licence.  The return value is
+	 * intentionally empty in the free tier.
+	 *
+	 * @return array[] Each entry: ['path' => string, 'size' => int]
+	 */
+	public function get_orphaned_files() {
+		/* Pro gate — return empty in free tier */
+		if ( ! apply_filters( 'wpmp_is_pro', false ) ) {
+			return array();
+		}
 
-$all_files  = $this->get_all_upload_files();
-$registered = array_values( $this->get_registered_files() );
+		$all_files  = $this->get_all_upload_files();
+		$registered = array_values( $this->get_registered_files() );
 
-$orphans = array();
-foreach ( $all_files as $path ) {
-if ( ! in_array( $path, $registered, true ) ) {
-$orphans[] = array(
-'path' => $path,
-'size' => file_exists( $path ) ? (int) filesize( $path ) : 0,
-);
-}
-}
+		$orphans = array();
+		foreach ( $all_files as $path ) {
+			if ( ! in_array( $path, $registered, true ) ) {
+				$orphans[] = array(
+					'path' => $path,
+					'size' => file_exists( $path ) ? (int) filesize( $path ) : 0,
+				);
+			}
+		}
 
-return $orphans;
-}
+		return $orphans;
+	}
 
-/**
- * Return the total size (bytes) of all files in the uploads directory.
- *
- * Used by the storage stats endpoint as a cross-check against DB totals.
- *
- * @return int
- */
-public function get_total_upload_size() {
-$files = $this->get_all_upload_files();
-$size  = 0;
-foreach ( $files as $path ) {
-if ( file_exists( $path ) ) {
-$size += (int) filesize( $path );
-}
-}
-return $size;
-}
+	/**
+	 * Return the total size (bytes) of all files in the uploads directory.
+	 *
+	 * Used by the storage stats endpoint as a cross-check against DB totals.
+	 *
+	 * @return int
+	 */
+	public function get_total_upload_size() {
+		$files = $this->get_all_upload_files();
+		$size  = 0;
+		foreach ( $files as $path ) {
+			if ( file_exists( $path ) ) {
+				$size += (int) filesize( $path );
+			}
+		}
+		return $size;
+	}
 }

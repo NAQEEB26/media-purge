@@ -34,7 +34,7 @@ class WPMP_PageBuilder_Scanner {
 			$ids  = array_merge( $ids, $refs['ids'] );
 			$urls = array_merge( $urls, $refs['urls'] );
 
-			// Merge location data
+			// Merge location data.
 			foreach ( $refs['id_locations'] as $att_id => $locs ) {
 				if ( ! isset( $id_locations[ $att_id ] ) ) {
 					$id_locations[ $att_id ] = array();
@@ -98,7 +98,12 @@ class WPMP_PageBuilder_Scanner {
 			case 'beaver':
 				return self::scan_beaver();
 			default:
-				return array( 'ids' => array(), 'urls' => array(), 'id_locations' => array(), 'url_post_map' => array() );
+				return array(
+					'ids'          => array(),
+					'urls'         => array(),
+					'id_locations' => array(),
+					'url_post_map' => array(),
+				);
 		}
 	}
 
@@ -115,6 +120,7 @@ class WPMP_PageBuilder_Scanner {
 		$id_locations = array();
 		$url_post_map = array();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(
 			"SELECT pm.post_id, pm.meta_value, p.post_title
 			FROM {$wpdb->postmeta} pm
@@ -128,7 +134,7 @@ class WPMP_PageBuilder_Scanner {
 		foreach ( $rows as $row ) {
 			$data = json_decode( $row['meta_value'], true );
 			if ( is_array( $data ) ) {
-				$found = self::extract_from_elementor_data( $data );
+				$found     = self::extract_from_elementor_data( $data );
 				$post_info = array(
 					'type'       => 'elementor',
 					'post_id'    => (int) $row['post_id'],
@@ -136,18 +142,27 @@ class WPMP_PageBuilder_Scanner {
 				);
 				foreach ( $found['ids'] as $att_id ) {
 					$ids[] = $att_id;
-					if ( ! isset( $id_locations[ $att_id ] ) ) $id_locations[ $att_id ] = array();
+					if ( ! isset( $id_locations[ $att_id ] ) ) {
+						$id_locations[ $att_id ] = array();
+					}
 					$id_locations[ $att_id ][] = $post_info;
 				}
 				foreach ( $found['urls'] as $url ) {
 					$urls[] = $url;
-					if ( ! isset( $url_post_map[ $url ] ) ) $url_post_map[ $url ] = array();
+					if ( ! isset( $url_post_map[ $url ] ) ) {
+						$url_post_map[ $url ] = array();
+					}
 					$url_post_map[ $url ][] = $post_info;
 				}
 			}
 		}
 
-		return array( 'ids' => $ids, 'urls' => $urls, 'id_locations' => $id_locations, 'url_post_map' => $url_post_map );
+		return array(
+			'ids'          => $ids,
+			'urls'         => $urls,
+			'id_locations' => $id_locations,
+			'url_post_map' => $url_post_map,
+		);
 	}
 
 	/**
@@ -190,7 +205,10 @@ class WPMP_PageBuilder_Scanner {
 			}
 		}
 
-		return array( 'ids' => $ids, 'urls' => $urls );
+		return array(
+			'ids'  => $ids,
+			'urls' => $urls,
+		);
 	}
 
 	/**
@@ -206,6 +224,7 @@ class WPMP_PageBuilder_Scanner {
 		$id_locations = array();
 		$url_post_map = array();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$posts = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title, post_content FROM {$wpdb->posts}
@@ -236,7 +255,12 @@ class WPMP_PageBuilder_Scanner {
 			}
 		}
 
-		return array( 'ids' => $ids, 'urls' => $urls, 'id_locations' => $id_locations, 'url_post_map' => $url_post_map );
+		return array(
+			'ids'          => $ids,
+			'urls'         => $urls,
+			'id_locations' => $id_locations,
+			'url_post_map' => $url_post_map,
+		);
 	}
 
 	/**
@@ -252,6 +276,7 @@ class WPMP_PageBuilder_Scanner {
 		$id_locations = array();
 		$url_post_map = array();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$posts = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title, post_content FROM {$wpdb->posts}
@@ -264,13 +289,19 @@ class WPMP_PageBuilder_Scanner {
 		);
 
 		foreach ( $posts as $post ) {
-			$loc = array( 'type' => 'wpbakery', 'post_id' => (int) $post->ID, 'post_title' => $post->post_title ? $post->post_title : '(no title)' );
+			$loc = array(
+				'type'       => 'wpbakery',
+				'post_id'    => (int) $post->ID,
+				'post_title' => $post->post_title ? $post->post_title : '(no title)',
+			);
 			if ( preg_match_all( '#image=["\']?(\d+)["\']?#', $post->post_content, $matches ) ) {
 				foreach ( $matches[1] as $att_id ) {
 					$att_id = (int) $att_id;
 					if ( $att_id > 0 ) {
 						$ids[] = $att_id;
-						if ( ! isset( $id_locations[ $att_id ] ) ) $id_locations[ $att_id ] = array();
+						if ( ! isset( $id_locations[ $att_id ] ) ) {
+							$id_locations[ $att_id ] = array();
+						}
 						$id_locations[ $att_id ][] = $loc;
 					}
 				}
@@ -278,13 +309,20 @@ class WPMP_PageBuilder_Scanner {
 			if ( preg_match_all( '#(https?://[^"\'\s]+/wp-content/uploads/[^"\'\s]+)#i', $post->post_content, $matches ) ) {
 				foreach ( $matches[1] as $url ) {
 					$urls[] = $url;
-					if ( ! isset( $url_post_map[ $url ] ) ) $url_post_map[ $url ] = array();
+					if ( ! isset( $url_post_map[ $url ] ) ) {
+						$url_post_map[ $url ] = array();
+					}
 					$url_post_map[ $url ][] = $loc;
 				}
 			}
 		}
 
-		return array( 'ids' => $ids, 'urls' => $urls, 'id_locations' => $id_locations, 'url_post_map' => $url_post_map );
+		return array(
+			'ids'          => $ids,
+			'urls'         => $urls,
+			'id_locations' => $id_locations,
+			'url_post_map' => $url_post_map,
+		);
 	}
 
 	/**
@@ -300,6 +338,7 @@ class WPMP_PageBuilder_Scanner {
 		$id_locations = array();
 		$url_post_map = array();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(
 			"SELECT pm.post_id, pm.meta_value, p.post_title
 			FROM {$wpdb->postmeta} pm
@@ -313,7 +352,7 @@ class WPMP_PageBuilder_Scanner {
 		foreach ( $rows as $row ) {
 			$data = maybe_unserialize( $row['meta_value'] );
 			if ( is_array( $data ) ) {
-				$found    = self::extract_from_beaver_data( $data );
+				$found     = self::extract_from_beaver_data( $data );
 				$post_info = array(
 					'type'       => 'beaver',
 					'post_id'    => (int) $row['post_id'],
@@ -321,18 +360,27 @@ class WPMP_PageBuilder_Scanner {
 				);
 				foreach ( $found['ids'] as $att_id ) {
 					$ids[] = $att_id;
-					if ( ! isset( $id_locations[ $att_id ] ) ) $id_locations[ $att_id ] = array();
+					if ( ! isset( $id_locations[ $att_id ] ) ) {
+						$id_locations[ $att_id ] = array();
+					}
 					$id_locations[ $att_id ][] = $post_info;
 				}
 				foreach ( $found['urls'] as $url ) {
 					$urls[] = $url;
-					if ( ! isset( $url_post_map[ $url ] ) ) $url_post_map[ $url ] = array();
+					if ( ! isset( $url_post_map[ $url ] ) ) {
+						$url_post_map[ $url ] = array();
+					}
 					$url_post_map[ $url ][] = $post_info;
 				}
 			}
 		}
 
-		return array( 'ids' => $ids, 'urls' => $urls, 'id_locations' => $id_locations, 'url_post_map' => $url_post_map );
+		return array(
+			'ids'          => $ids,
+			'urls'         => $urls,
+			'id_locations' => $id_locations,
+			'url_post_map' => $url_post_map,
+		);
 	}
 
 	/**
@@ -366,6 +414,9 @@ class WPMP_PageBuilder_Scanner {
 			}
 		}
 
-		return array( 'ids' => $ids, 'urls' => $urls );
+		return array(
+			'ids'  => $ids,
+			'urls' => $urls,
+		);
 	}
 }

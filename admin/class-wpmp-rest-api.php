@@ -23,159 +23,225 @@ class WPMP_REST_API {
 	 * Register REST routes.
 	 */
 	public function register_routes() {
-		register_rest_route( WPMP_REST_NAMESPACE, '/scan/status', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'get_scan_status' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-		) );
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/scan/status',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_scan_status' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
 
-		register_rest_route( WPMP_REST_NAMESPACE, '/scan/start', array(
-			'methods'             => 'POST',
-			'callback'            => array( $this, 'start_scan' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-		) );
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/scan/start',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'start_scan' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
 
-		register_rest_route( WPMP_REST_NAMESPACE, '/scan/cancel', array(
-			'methods'             => 'POST',
-			'callback'            => array( $this, 'cancel_scan' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-		) );
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/scan/cancel',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'cancel_scan' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
 
-		register_rest_route( WPMP_REST_NAMESPACE, '/media/unused', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'get_unused_media' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-			'args'                => array(
-				'page'     => array(
-					'default'           => 1,
-					'sanitize_callback' => 'absint',
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/media/unused',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_unused_media' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+				'args'                => array(
+					'page'     => array(
+						'default'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+					'per_page' => array(
+						'default'           => 30,
+						'sanitize_callback' => 'absint',
+					),
+					'type'     => array(
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_key',
+					),
 				),
-				'per_page' => array(
-					'default'           => 30,
-					'sanitize_callback' => 'absint',
+			)
+		);
+
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/storage/stats',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_storage_stats' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
+
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/storage/largest',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_largest_files' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+				'args'                => array(
+					'limit' => array(
+						'default'           => 20,
+						'sanitize_callback' => 'absint',
+					),
 				),
-				'type'     => array(
-					'default'           => '',
-					'sanitize_callback' => 'sanitize_key',
+			)
+		);
+
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/settings',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_settings' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
+
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/media/trashed',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_trashed_media' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+				'args'                => array(
+					'page'     => array(
+						'default'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+					'per_page' => array(
+						'default'           => 20,
+						'sanitize_callback' => 'absint',
+					),
 				),
-			),
-		) );
+			)
+		);
 
-		register_rest_route( WPMP_REST_NAMESPACE, '/storage/stats', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'get_storage_stats' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-		) );
-
-		register_rest_route( WPMP_REST_NAMESPACE, '/storage/largest', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'get_largest_files' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-			'args'                => array(
-				'limit' => array(
-					'default'           => 20,
-					'sanitize_callback' => 'absint',
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/media/trash',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'trash_media' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+				'args'                => array(
+					'ids' => array(
+						'required'          => true,
+						'type'              => 'array',
+						'items'             => array( 'type' => 'integer' ),
+						'sanitize_callback' => array( $this, 'sanitize_id_array' ),
+					),
 				),
-			),
-		) );
+			)
+		);
 
-		register_rest_route( WPMP_REST_NAMESPACE, '/settings', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'get_settings' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-		) );
-
-		register_rest_route( WPMP_REST_NAMESPACE, '/media/trashed', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'get_trashed_media' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-			'args'                => array(
-				'page'     => array( 'default' => 1, 'sanitize_callback' => 'absint' ),
-				'per_page' => array( 'default' => 20, 'sanitize_callback' => 'absint' ),
-			),
-		) );
-
-		register_rest_route( WPMP_REST_NAMESPACE, '/media/trash', array(
-			'methods'             => 'POST',
-			'callback'            => array( $this, 'trash_media' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-			'args'                => array(
-				'ids' => array(
-					'required'          => true,
-					'type'              => 'array',
-					'items'             => array( 'type' => 'integer' ),
-					'sanitize_callback' => array( $this, 'sanitize_id_array' ),
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/media/restore',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'restore_media' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+				'args'                => array(
+					'ids' => array(
+						'required'          => true,
+						'type'              => 'array',
+						'items'             => array( 'type' => 'integer' ),
+						'sanitize_callback' => array( $this, 'sanitize_id_array' ),
+					),
 				),
-			),
-		) );
+			)
+		);
 
-		register_rest_route( WPMP_REST_NAMESPACE, '/media/restore', array(
-			'methods'             => 'POST',
-			'callback'            => array( $this, 'restore_media' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-			'args'                => array(
-				'ids' => array(
-					'required'          => true,
-					'type'              => 'array',
-					'items'             => array( 'type' => 'integer' ),
-					'sanitize_callback' => array( $this, 'sanitize_id_array' ),
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/media/whitelist',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'whitelist_media' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+				'args'                => array(
+					'ids' => array(
+						'required'          => true,
+						'type'              => 'array',
+						'items'             => array( 'type' => 'integer' ),
+						'sanitize_callback' => array( $this, 'sanitize_id_array' ),
+					),
 				),
-			),
-		) );
+			)
+		);
 
-		register_rest_route( WPMP_REST_NAMESPACE, '/media/whitelist', array(
-			'methods'             => 'POST',
-			'callback'            => array( $this, 'whitelist_media' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-			'args'                => array(
-				'ids' => array(
-					'required'          => true,
-					'type'              => 'array',
-					'items'             => array( 'type' => 'integer' ),
-					'sanitize_callback' => array( $this, 'sanitize_id_array' ),
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/media/duplicates',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_duplicates' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
+
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/media/delete',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'delete_media' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+				'args'                => array(
+					'ids' => array(
+						'required'          => true,
+						'type'              => 'array',
+						'items'             => array( 'type' => 'integer' ),
+						'sanitize_callback' => array( $this, 'sanitize_id_array' ),
+					),
 				),
-			),
-		) );
+			)
+		);
 
-		register_rest_route( WPMP_REST_NAMESPACE, '/media/duplicates', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'get_duplicates' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-		) );
-
-		register_rest_route( WPMP_REST_NAMESPACE, '/media/delete', array(
-			'methods'             => 'POST',
-			'callback'            => array( $this, 'delete_media' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-			'args'                => array(
-				'ids' => array(
-					'required'          => true,
-					'type'              => 'array',
-					'items'             => array( 'type' => 'integer' ),
-					'sanitize_callback' => array( $this, 'sanitize_id_array' ),
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/settings',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'update_settings' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+				'args'                => array(
+					'recent_upload_days'   => array( 'sanitize_callback' => 'absint' ),
+					'trash_retention_days' => array( 'sanitize_callback' => 'absint' ),
+					'batch_size'           => array( 'sanitize_callback' => 'absint' ),
+					'scan_woocommerce'     => array( 'type' => 'boolean' ),
+					'skip_recent'          => array( 'type' => 'boolean' ),
+					'exclude_file_types'   => array( 'type' => 'array' ),
 				),
-			),
-		) );
+			)
+		);
 
-		register_rest_route( WPMP_REST_NAMESPACE, '/settings', array(
-			'methods'             => 'POST',
-			'callback'            => array( $this, 'update_settings' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-			'args'                => array(
-				'recent_upload_days'   => array( 'sanitize_callback' => 'absint' ),
-				'trash_retention_days' => array( 'sanitize_callback' => 'absint' ),
-				'batch_size'           => array( 'sanitize_callback' => 'absint' ),
-				'scan_woocommerce'     => array( 'type' => 'boolean' ),
-				'skip_recent'          => array( 'type' => 'boolean' ),
-				'exclude_file_types'   => array( 'type' => 'array' ),
-			),
-		) );
-
-		register_rest_route( WPMP_REST_NAMESPACE, '/health', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'get_health' ),
-			'permission_callback' => array( $this, 'check_admin_permission' ),
-		) );
+		register_rest_route(
+			WPMP_REST_NAMESPACE,
+			'/health',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_health' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
 	}
 
 	/**
@@ -212,7 +278,7 @@ class WPMP_REST_API {
 			if ( ! is_array( $loc ) ) {
 				continue;
 			}
-			// Add post title and edit URL when we have a post_id
+			// Add post title and edit URL when we have a post_id.
 			if ( ! empty( $loc['post_id'] ) ) {
 				$post_id = (int) $loc['post_id'];
 				if ( empty( $loc['post_title'] ) ) {
@@ -246,12 +312,15 @@ class WPMP_REST_API {
 		$last_run = get_option( 'wpmp_scan_last_run', null );
 		$running  = get_transient( 'wpmp_scan_running' );
 
-		return new WP_REST_Response( array(
-			'running'   => (bool) $running,
-			'last_run'  => $last_run,
-			'progress'  => $running ? (int) get_transient( 'wpmp_scan_progress' ) : 100,
-			'phase'     => $running ? (string) get_transient( 'wpmp_scan_phase' ) : 'done',
-		), 200 );
+		return new WP_REST_Response(
+			array(
+				'running'  => (bool) $running,
+				'last_run' => $last_run,
+				'progress' => $running ? (int) get_transient( 'wpmp_scan_progress' ) : 100,
+				'phase'    => $running ? (string) get_transient( 'wpmp_scan_phase' ) : 'done',
+			),
+			200
+		);
 	}
 
 	/**
@@ -263,13 +332,17 @@ class WPMP_REST_API {
 	 */
 	public function start_scan( $request ) {
 		if ( get_transient( 'wpmp_scan_running' ) ) {
-			return new WP_REST_Response( array(
-				'success' => false,
-				'message' => __( 'A scan is already running.', 'wp-media-purge' ),
-			), 400 );
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => __( 'A scan is already running.', 'wp-media-purge' ),
+				),
+				400
+			);
 		}
 
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- count check; caching would give stale results on large libraries.
 		$total = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s",
@@ -283,31 +356,40 @@ class WPMP_REST_API {
 			set_transient( 'wpmp_scan_running', true, 3600 );
 			set_transient( 'wpmp_scan_progress', 0, 3600 );
 
-			$url = add_query_arg( array(
-				'action' => 'wpmp_run_scan',
-				'token'  => $token,
-			), admin_url( 'admin-ajax.php' ) );
-
-			wp_remote_post( $url, array(
-				'timeout'  => 0.01,
-				'blocking' => false,
-				'headers'  => array(
-					'Cookie' => isset( $_SERVER['HTTP_COOKIE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_COOKIE'] ) ) : '',
+			$url = add_query_arg(
+				array(
+					'action' => 'wpmp_run_scan',
+					'token'  => $token,
 				),
-			) );
+				admin_url( 'admin-ajax.php' )
+			);
 
-			return new WP_REST_Response( array(
-				'success' => true,
-				'message' => __( 'Scan started in background (large library).', 'wp-media-purge' ),
-			), 200 );
+			wp_remote_post(
+				$url,
+				array(
+					'timeout'  => 0.01,
+					'blocking' => false,
+				)
+			);
+
+			return new WP_REST_Response(
+				array(
+					'success' => true,
+					'message' => __( 'Scan started in background (large library).', 'wp-media-purge' ),
+				),
+				200
+			);
 		}
 
 		do_action( 'wpmp_start_scan' );
 
-		return new WP_REST_Response( array(
-			'success' => true,
-			'message' => __( 'Scan started.', 'wp-media-purge' ),
-		), 200 );
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => __( 'Scan started.', 'wp-media-purge' ),
+			),
+			200
+		);
 	}
 
 	/**
@@ -321,10 +403,13 @@ class WPMP_REST_API {
 		delete_transient( 'wpmp_scan_running' );
 		delete_transient( 'wpmp_scan_progress' );
 
-		return new WP_REST_Response( array(
-			'success' => true,
-			'message' => __( 'Scan cancelled.', 'wp-media-purge' ),
-		), 200 );
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => __( 'Scan cancelled.', 'wp-media-purge' ),
+			),
+			200
+		);
 	}
 
 	/**
@@ -345,8 +430,8 @@ class WPMP_REST_API {
 
 		// Build a fully parameterised query using wpdb::prepare().
 		// All LIKE patterns come from a hardcoded allowlist — never from user input.
-		$where_sql  = "WHERE status = 'unused'";
-		$args       = array();
+		$where_sql = "WHERE status = 'unused'";
+		$args      = array();
 
 		if ( $type ) {
 			if ( 'image' === $type ) {
@@ -363,11 +448,11 @@ class WPMP_REST_API {
 					mime_type LIKE %s OR
 					mime_type LIKE %s
 				)';
-				$args[] = 'application/pdf';
-				$args[] = 'application/msword';
-				$args[] = 'text/plain';
-				$args[] = 'application/vnd.ms-excel';
-				$args[] = 'application/vnd.openxmlformats-officedocument%';
+				$args[]     = 'application/pdf';
+				$args[]     = 'application/msword';
+				$args[]     = 'text/plain';
+				$args[]     = 'application/vnd.ms-excel';
+				$args[]     = 'application/vnd.openxmlformats-officedocument%';
 			} elseif ( 'other' === $type ) {
 				$where_sql .= ' AND mime_type NOT LIKE %s AND mime_type NOT LIKE %s AND mime_type NOT LIKE %s';
 				$args[]     = 'image/%';
@@ -377,41 +462,43 @@ class WPMP_REST_API {
 		}
 
 		// Build COUNT query.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is plugin's own table; $where_sql is built from a hardcoded allowlist.
 		if ( $args ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $where_sql is built from a hardcoded allowlist, never user data.
 			$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} {$where_sql}", $args ) );
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- static query, no user input.
 			$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where_sql}" );
 		}
 
 		// Build results query — LIMIT and OFFSET are safe integers, never user strings.
-		$args[] = $per_page;
-		$args[] = $offset;
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $where_sql is from a hardcoded allowlist.
+		$args[]  = $per_page;
+		$args[]  = $offset;
 		$results = $wpdb->get_results(
 			$wpdb->prepare( "SELECT * FROM {$table} {$where_sql} ORDER BY file_size DESC LIMIT %d OFFSET %d", $args ),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		foreach ( $results as &$row ) {
-			$att_id = (int) $row['attachment_id'];
+			$att_id                = (int) $row['attachment_id'];
 			$row['thumbnail_url']  = wp_get_attachment_image_url( $att_id, 'thumbnail' );
 			$row['attachment_url'] = wp_get_attachment_url( $att_id );
 			$row['filename']       = basename( $row['file_path'] );
 
-			// Decode and enrich "Used In" data with post titles/edit links
+			// Decode and enrich "Used In" data with post titles/edit links.
 			$row['used_in_data'] = $this->enrich_used_in( $row['used_in'] );
-			unset( $row['used_in'] ); // Don't expose raw JSON
+			unset( $row['used_in'] ); // Don't expose raw JSON.
 		}
 
-		return new WP_REST_Response( array(
-			'items'       => $results,
-			'total'       => $total,
-			'page'        => $page,
-			'per_page'    => $per_page,
-			'total_pages' => $total > 0 ? (int) ceil( $total / $per_page ) : 0,
-		), 200 );
+		return new WP_REST_Response(
+			array(
+				'items'       => $results,
+				'total'       => $total,
+				'page'        => $page,
+				'per_page'    => $per_page,
+				'total_pages' => $total > 0 ? (int) ceil( $total / $per_page ) : 0,
+			),
+			200
+		);
 	}
 
 	/**
@@ -428,6 +515,7 @@ class WPMP_REST_API {
 		$offset   = ( $page - 1 ) * $per_page;
 		$table    = $wpdb->prefix . 'wpmp_scan_results';
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$total = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$table} WHERE status = %s",
@@ -443,9 +531,10 @@ class WPMP_REST_API {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		foreach ( $results as &$row ) {
-			$att_id = (int) $row['attachment_id'];
+			$att_id                = (int) $row['attachment_id'];
 			$row['thumbnail_url']  = wp_get_attachment_image_url( $att_id, 'thumbnail' );
 			$row['attachment_url'] = wp_get_attachment_url( $att_id );
 			$row['filename']       = basename( $row['file_path'] );
@@ -453,13 +542,16 @@ class WPMP_REST_API {
 			unset( $row['used_in'] );
 		}
 
-		return new WP_REST_Response( array(
-			'items'       => $results,
-			'total'       => $total,
-			'page'        => $page,
-			'per_page'    => $per_page,
-			'total_pages' => $total > 0 ? (int) ceil( $total / $per_page ) : 0,
-		), 200 );
+		return new WP_REST_Response(
+			array(
+				'items'       => $results,
+				'total'       => $total,
+				'page'        => $page,
+				'per_page'    => $per_page,
+				'total_pages' => $total > 0 ? (int) ceil( $total / $per_page ) : 0,
+			),
+			200
+		);
 	}
 
 	/**
@@ -476,10 +568,13 @@ class WPMP_REST_API {
 		$table  = $wpdb->prefix . 'wpmp_scan_results';
 
 		if ( empty( $ids ) ) {
-			return new WP_REST_Response( array(
-				'success' => false,
-				'message' => __( 'No files selected.', 'wp-media-purge' ),
-			), 400 );
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => __( 'No files selected.', 'wp-media-purge' ),
+				),
+				400
+			);
 		}
 
 		$trashed = 0;
@@ -491,6 +586,7 @@ class WPMP_REST_API {
 				continue;
 			}
 
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 			$row = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT * FROM {$table} WHERE attachment_id = %d AND status = 'unused'",
@@ -498,6 +594,7 @@ class WPMP_REST_API {
 				),
 				ARRAY_A
 			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 			if ( ! $row ) {
 				continue;
@@ -519,17 +616,20 @@ class WPMP_REST_API {
 			);
 		}
 
-		return new WP_REST_Response( array(
-			'success'  => true,
-			'trashed'  => $trashed,
-			'saved'    => $saved,
-			'message'  => sprintf(
-				/* translators: 1: number of files, 2: size saved */
-				__( '%1$d file(s) moved to trash. %2$s freed.', 'wp-media-purge' ),
-				$trashed,
-				size_format( $saved )
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'trashed' => $trashed,
+				'saved'   => $saved,
+				'message' => sprintf(
+				 /* translators: 1: number of files, 2: size saved */
+					__( '%1$d file(s) moved to trash. %2$s freed.', 'wp-media-purge' ),
+					$trashed,
+					size_format( $saved )
+				),
 			),
-		), 200 );
+			200
+		);
 	}
 
 	/**
@@ -546,10 +646,13 @@ class WPMP_REST_API {
 		$table  = $wpdb->prefix . 'wpmp_scan_results';
 
 		if ( empty( $ids ) ) {
-			return new WP_REST_Response( array(
-				'success' => false,
-				'message' => __( 'No files selected.', 'wp-media-purge' ),
-			), 400 );
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => __( 'No files selected.', 'wp-media-purge' ),
+				),
+				400
+			);
 		}
 
 		$restored = 0;
@@ -561,7 +664,7 @@ class WPMP_REST_API {
 			}
 
 			$post = get_post( $attachment_id );
-			if ( ! $post || $post->post_status !== 'trash' ) {
+			if ( ! $post || 'trash' !== $post->post_status ) {
 				continue;
 			}
 
@@ -570,22 +673,28 @@ class WPMP_REST_API {
 
 			$wpdb->update(
 				$table,
-				array( 'status' => 'unused', 'trashed_date' => null ),
+				array(
+					'status'       => 'unused',
+					'trashed_date' => null,
+				),
 				array( 'attachment_id' => $attachment_id ),
 				array( '%s', '%s' ),
 				array( '%d' )
 			);
 		}
 
-		return new WP_REST_Response( array(
-			'success'  => true,
-			'restored' => $restored,
-			'message'  => sprintf(
-				/* translators: %d: number of files */
-				__( '%d file(s) restored.', 'wp-media-purge' ),
-				$restored
+		return new WP_REST_Response(
+			array(
+				'success'  => true,
+				'restored' => $restored,
+				'message'  => sprintf(
+				 /* translators: %d: number of files */
+					__( '%d file(s) restored.', 'wp-media-purge' ),
+					$restored
+				),
 			),
-		), 200 );
+			200
+		);
 	}
 
 	/**
@@ -602,10 +711,13 @@ class WPMP_REST_API {
 		$table  = $wpdb->prefix . 'wpmp_scan_results';
 
 		if ( empty( $ids ) ) {
-			return new WP_REST_Response( array(
-				'success' => false,
-				'message' => __( 'No files selected.', 'wp-media-purge' ),
-			), 400 );
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => __( 'No files selected.', 'wp-media-purge' ),
+				),
+				400
+			);
 		}
 
 		$deleted = 0;
@@ -617,6 +729,7 @@ class WPMP_REST_API {
 				continue;
 			}
 
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 			$row = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT file_size FROM {$table} WHERE attachment_id = %d AND status = 'trashed'",
@@ -624,6 +737,7 @@ class WPMP_REST_API {
 				),
 				ARRAY_A
 			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 			if ( ! $row ) {
 				continue;
@@ -636,17 +750,20 @@ class WPMP_REST_API {
 			$wpdb->delete( $table, array( 'attachment_id' => $attachment_id ), array( '%d' ) );
 		}
 
-		return new WP_REST_Response( array(
-			'success' => true,
-			'deleted' => $deleted,
-			'freed'   => $freed,
-			'message' => sprintf(
-				/* translators: 1: number of files, 2: size freed */
-				__( '%1$d file(s) permanently deleted. %2$s freed.', 'wp-media-purge' ),
-				$deleted,
-				size_format( $freed )
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'deleted' => $deleted,
+				'freed'   => $freed,
+				'message' => sprintf(
+				 /* translators: 1: number of files, 2: size freed */
+					__( '%1$d file(s) permanently deleted. %2$s freed.', 'wp-media-purge' ),
+					$deleted,
+					size_format( $freed )
+				),
 			),
-		), 200 );
+			200
+		);
 	}
 
 	/**
@@ -663,10 +780,13 @@ class WPMP_REST_API {
 		$table  = $wpdb->prefix . 'wpmp_scan_results';
 
 		if ( empty( $ids ) ) {
-			return new WP_REST_Response( array(
-				'success' => false,
-				'message' => __( 'No files selected.', 'wp-media-purge' ),
-			), 400 );
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => __( 'No files selected.', 'wp-media-purge' ),
+				),
+				400
+			);
 		}
 
 		$whitelisted = 0;
@@ -702,15 +822,18 @@ class WPMP_REST_API {
 			}
 		}
 
-		return new WP_REST_Response( array(
-			'success'     => true,
-			'whitelisted' => $whitelisted,
-			'message'     => sprintf(
-				/* translators: %d: number of files */
-				__( '%d file(s) whitelisted.', 'wp-media-purge' ),
-				$whitelisted
+		return new WP_REST_Response(
+			array(
+				'success'     => true,
+				'whitelisted' => $whitelisted,
+				'message'     => sprintf(
+				 /* translators: %d: number of files */
+					__( '%d file(s) whitelisted.', 'wp-media-purge' ),
+					$whitelisted
+				),
 			),
-		), 200 );
+			200
+		);
 	}
 
 	/**
@@ -724,21 +847,25 @@ class WPMP_REST_API {
 
 		$table = $wpdb->prefix . 'wpmp_scan_results';
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$total_size   = (int) $wpdb->get_var( "SELECT COALESCE(SUM(file_size), 0) FROM {$table}" );
 		$total_count  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 		$unused_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE status = 'unused'" );
 		$unused_size  = (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT COALESCE(SUM(file_size), 0) FROM {$table} WHERE status = %s", 'unused' )
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// Pre-scan fallback
+		// Pre-scan fallback.
 		if ( 0 === $total_count ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time fallback count.
 			$total_count = (int) $wpdb->get_var(
 				$wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s", 'attachment' )
 			);
 		}
 
-		// Storage breakdown by mime type group
+		// Storage breakdown by mime type group.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$type_rows = $wpdb->get_results(
 			"SELECT
 				CASE
@@ -755,6 +882,7 @@ class WPMP_REST_API {
 			 GROUP BY type_group",
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$by_type = array();
 		foreach ( (array) $type_rows as $row ) {
@@ -764,14 +892,17 @@ class WPMP_REST_API {
 			);
 		}
 
-		return new WP_REST_Response( array(
-			'total_size'   => $total_size,
-			'total_count'  => $total_count,
-			'unused_count' => $unused_count,
-			'unused_size'  => $unused_size,
-			'by_type'      => $by_type,
-			'last_scan'    => get_option( 'wpmp_scan_last_run', null ),
-		), 200 );
+		return new WP_REST_Response(
+			array(
+				'total_size'   => $total_size,
+				'total_count'  => $total_count,
+				'unused_count' => $unused_count,
+				'unused_size'  => $unused_size,
+				'by_type'      => $by_type,
+				'last_scan'    => get_option( 'wpmp_scan_last_run', null ),
+			),
+			200
+		);
 	}
 
 	/**
@@ -786,6 +917,7 @@ class WPMP_REST_API {
 		$limit = min( 50, max( 5, (int) $request->get_param( 'limit' ) ) );
 		$table = $wpdb->prefix . 'wpmp_scan_results';
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT attachment_id, file_path, file_size, mime_type, status
@@ -797,9 +929,10 @@ class WPMP_REST_API {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		foreach ( $rows as &$row ) {
-			$att_id = (int) $row['attachment_id'];
+			$att_id                = (int) $row['attachment_id'];
 			$row['thumbnail_url']  = wp_get_attachment_image_url( $att_id, 'thumbnail' );
 			$row['attachment_url'] = wp_get_attachment_url( $att_id );
 			$row['filename']       = basename( $row['file_path'] );
@@ -825,9 +958,10 @@ class WPMP_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function update_settings( $request ) {
-		$params  = $request->get_json_params() ?: $request->get_params();
-		$allowed = array( 'recent_upload_days', 'trash_retention_days', 'batch_size', 'scan_woocommerce', 'skip_recent', 'exclude_file_types', 'wizard_seen' );
-		$update  = array();
+		$json_params = $request->get_json_params();
+		$params      = ! empty( $json_params ) ? $json_params : $request->get_params();
+		$allowed     = array( 'recent_upload_days', 'trash_retention_days', 'batch_size', 'scan_woocommerce', 'skip_recent', 'exclude_file_types', 'wizard_seen' );
+		$update      = array();
 
 		foreach ( $allowed as $key ) {
 			if ( ! isset( $params[ $key ] ) ) {
@@ -864,6 +998,7 @@ class WPMP_REST_API {
 
 		$table = $wpdb->prefix . 'wpmp_scan_results';
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$groups = $wpdb->get_results(
 			"SELECT file_hash, GROUP_CONCAT(attachment_id) as ids, COUNT(*) as cnt, SUM(file_size) as total_size
 			FROM {$table}
@@ -873,27 +1008,30 @@ class WPMP_REST_API {
 			ORDER BY total_size DESC",
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$result = array();
 
 		foreach ( $groups as $row ) {
-			$ids   = array_map( 'absint', explode( ',', $row['ids'] ) );
+			$ids          = array_map( 'absint', explode( ',', $row['ids'] ) );
 			$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-			$rows  = $wpdb->get_results(
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table; $placeholders is built from absint IDs.
+			$rows = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT attachment_id, file_path, file_size FROM {$table} WHERE attachment_id IN ({$placeholders})",
 					...$ids
 				),
 				ARRAY_A
 			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$items = array();
 			foreach ( $rows as $r ) {
 				$items[] = array(
-					'attachment_id'   => (int) $r['attachment_id'],
-					'thumbnail_url'   => wp_get_attachment_image_url( $r['attachment_id'], 'thumbnail' ),
-					'attachment_url'  => wp_get_attachment_url( $r['attachment_id'] ),
-					'filename'        => basename( $r['file_path'] ),
-					'file_size'       => (int) $r['file_size'],
+					'attachment_id'  => (int) $r['attachment_id'],
+					'thumbnail_url'  => wp_get_attachment_image_url( $r['attachment_id'], 'thumbnail' ),
+					'attachment_url' => wp_get_attachment_url( $r['attachment_id'] ),
+					'filename'       => basename( $r['file_path'] ),
+					'file_size'      => (int) $r['file_size'],
 				);
 			}
 			$one_copy_size = ! empty( $items ) ? (int) $items[0]['file_size'] : 0;
@@ -907,10 +1045,13 @@ class WPMP_REST_API {
 			);
 		}
 
-		return new WP_REST_Response( array(
-			'groups' => $result,
-			'total_groups' => count( $result ),
-		), 200 );
+		return new WP_REST_Response(
+			array(
+				'groups'       => $result,
+				'total_groups' => count( $result ),
+			),
+			200
+		);
 	}
 
 	/**
@@ -937,8 +1078,9 @@ class WPMP_REST_API {
 			$wpdb->prefix . 'wpmp_scan_log',
 			$wpdb->prefix . 'wpmp_storage_snapshots',
 		);
-		$missing = array();
+		$missing       = array();
 		foreach ( $tables_needed as $table ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- SHOW TABLES is a one-time check; caching would give stale results.
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 			if ( ! $exists ) {
 				$missing[] = str_replace( $wpdb->prefix, '', $table );
@@ -953,8 +1095,8 @@ class WPMP_REST_API {
 		);
 
 		// 3. PHP version.
-		$php_version = phpversion();
-		$php_ok      = version_compare( $php_version, '7.4', '>=' );
+		$php_version           = phpversion();
+		$php_ok                = version_compare( $php_version, '7.4', '>=' );
 		$checks['php_version'] = array(
 			'label'  => 'PHP Version',
 			'status' => $php_ok ? 'ok' : 'error',
@@ -962,8 +1104,8 @@ class WPMP_REST_API {
 		);
 
 		// 4. WordPress version.
-		$wp_version = get_bloginfo( 'version' );
-		$wp_ok      = version_compare( $wp_version, '5.8', '>=' );
+		$wp_version           = get_bloginfo( 'version' );
+		$wp_ok                = version_compare( $wp_version, '5.8', '>=' );
 		$checks['wp_version'] = array(
 			'label'  => 'WordPress Version',
 			'status' => $wp_ok ? 'ok' : 'error',
@@ -980,8 +1122,8 @@ class WPMP_REST_API {
 		);
 
 		// 6. Upload directory writable.
-		$upload_dir = wp_upload_dir();
-		$writable   = wp_is_writable( $upload_dir['basedir'] );
+		$upload_dir           = wp_upload_dir();
+		$writable             = wp_is_writable( $upload_dir['basedir'] );
 		$checks['upload_dir'] = array(
 			'label'  => 'Upload Directory',
 			'status' => $writable ? 'ok' : 'error',
@@ -991,7 +1133,7 @@ class WPMP_REST_API {
 		);
 
 		// 7. WP Cron jobs.
-		$cron_hooks = array(
+		$cron_hooks   = array(
 			'wpmp_purge_old_trash'  => 'Auto-purge trash',
 			'wpmp_storage_snapshot' => 'Storage snapshots',
 		);
@@ -1013,9 +1155,9 @@ class WPMP_REST_API {
 		);
 
 		// 8. PHP memory limit.
-		$memory_limit = ini_get( 'memory_limit' );
-		$memory_bytes = wp_convert_hr_to_bytes( $memory_limit );
-		$mem_ok       = ( $memory_bytes >= 134217728 || '-1' === $memory_limit ); // 128MB
+		$memory_limit     = ini_get( 'memory_limit' );
+		$memory_bytes     = wp_convert_hr_to_bytes( $memory_limit );
+		$mem_ok           = ( $memory_bytes >= 134217728 || '-1' === $memory_limit ); // 128MB
 		$checks['memory'] = array(
 			'label'  => 'PHP Memory Limit',
 			'status' => $mem_ok ? 'ok' : 'warning',
@@ -1023,7 +1165,7 @@ class WPMP_REST_API {
 		);
 
 		// 9. WooCommerce.
-		$woo_active = class_exists( 'WooCommerce' );
+		$woo_active            = class_exists( 'WooCommerce' );
 		$checks['woocommerce'] = array(
 			'label'  => 'WooCommerce',
 			'status' => $woo_active ? 'ok' : 'info',
@@ -1033,8 +1175,8 @@ class WPMP_REST_API {
 		);
 
 		// 10. Last scan summary.
-		$last_run   = get_option( 'wpmp_scan_last_run', null );
-		$scan_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wpmp_scan_results" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$last_run            = get_option( 'wpmp_scan_last_run', null );
+		$scan_count          = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wpmp_scan_results" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$checks['last_scan'] = array(
 			'label'  => 'Last Scan',
 			'status' => $last_run ? 'ok' : 'info',
