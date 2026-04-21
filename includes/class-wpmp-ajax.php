@@ -23,21 +23,22 @@ class WPMP_Ajax {
 	 * Run scan (called via async spawn for large sites).
 	 */
 	public static function run_scan() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Token-based auth used; hash_equals() check below replaces nonce.
 		$token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : '';
 
 		if ( empty( $token ) ) {
-			wp_die( 'Invalid request', 403 );
+			wp_die( esc_html__( 'Invalid request.', 'wp-media-purge' ), '', array( 'response' => 403 ) );
 		}
 
 		$stored = get_transient( 'wpmp_scan_token' );
-		if ( ! $stored || $stored !== $token ) {
-			wp_die( 'Invalid or expired token', 403 );
+		if ( ! $stored || ! hash_equals( (string) $stored, $token ) ) {
+			wp_die( esc_html__( 'Invalid or expired token.', 'wp-media-purge' ), '', array( 'response' => 403 ) );
 		}
 
 		delete_transient( 'wpmp_scan_token' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'Unauthorized', 403 );
+			wp_die( esc_html__( 'Unauthorized.', 'wp-media-purge' ), '', array( 'response' => 403 ) );
 		}
 
 		if ( function_exists( 'set_time_limit' ) ) {

@@ -16,7 +16,7 @@ class WPMP_Cron {
 	 * Initialize cron handlers.
 	 */
 	public static function init() {
-		add_action( 'wpmp_purge_old_trash',  array( __CLASS__, 'purge_old_trash' ) );
+		add_action( 'wpmp_purge_old_trash', array( __CLASS__, 'purge_old_trash' ) );
 		add_action( 'wpmp_storage_snapshot', array( __CLASS__, 'take_storage_snapshot' ) );
 		// Note: wpmp_reset_monthly_count is intentionally not registered here.
 		// The monthly cleanup counter will be enforced and reset by the Pro tier add-on.
@@ -32,6 +32,7 @@ class WPMP_Cron {
 		$cutoff         = gmdate( 'Y-m-d H:i:s', strtotime( "-{$retention_days} days" ) );
 		$table          = $wpdb->prefix . 'wpmp_scan_results';
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$trashed = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT attachment_id, id FROM {$table}
@@ -41,6 +42,7 @@ class WPMP_Cron {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		foreach ( $trashed as $row ) {
 			wp_delete_attachment( (int) $row['attachment_id'], true );
@@ -57,6 +59,7 @@ class WPMP_Cron {
 
 		$table = $wpdb->prefix . 'wpmp_scan_results';
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$row = $wpdb->get_row(
 			"SELECT
 				SUM(file_size) AS unused_size,
@@ -65,10 +68,11 @@ class WPMP_Cron {
 			 WHERE status = 'unused'",
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$snapshot = array(
 			'date'         => gmdate( 'Y-m-d' ),
-			'unused_size'  => (int) ( $row['unused_size']  ?? 0 ),
+			'unused_size'  => (int) ( $row['unused_size'] ?? 0 ),
 			'unused_count' => (int) ( $row['unused_count'] ?? 0 ),
 		);
 

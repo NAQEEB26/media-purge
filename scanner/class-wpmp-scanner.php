@@ -35,10 +35,13 @@ class WPMP_Scanner {
 		$table_results = $wpdb->prefix . 'wpmp_scan_results';
 		$table_log     = $wpdb->prefix . 'wpmp_scan_log';
 
-		// Log scan start
+		// Log scan start.
 		$wpdb->insert(
 			$table_log,
-			array( 'trigger_type' => 'manual', 'status' => 'running' ),
+			array(
+				'trigger_type' => 'manual',
+				'status'       => 'running',
+			),
 			array( '%s', '%s' )
 		);
 		$scan_log_id = $wpdb->insert_id;
@@ -63,21 +66,25 @@ class WPMP_Scanner {
 		set_transient( 'wpmp_scan_phase', 'writing', 3600 );
 		set_transient( 'wpmp_scan_progress', 60, 3600 );
 
-		// Flat reference sets for quick "is used" checks
-		$reference_ids = array_unique( array_merge(
-			$content_refs['ids'],
-			$meta_refs['ids'],
-			$options_refs['ids'],
-			$pagebuilder_refs['ids']
-		) );
-		$reference_urls = array_unique( array_merge(
-			$content_refs['urls'],
-			$meta_refs['urls'],
-			$options_refs['urls'],
-			$pagebuilder_refs['urls']
-		) );
+		// Flat reference sets for quick "is used" checks.
+		$reference_ids  = array_unique(
+			array_merge(
+				$content_refs['ids'],
+				$meta_refs['ids'],
+				$options_refs['ids'],
+				$pagebuilder_refs['ids']
+			)
+		);
+		$reference_urls = array_unique(
+			array_merge(
+				$content_refs['urls'],
+				$meta_refs['urls'],
+				$options_refs['urls'],
+				$pagebuilder_refs['urls']
+			)
+		);
 
-		// Rich location maps: attachment_id → [ location_data, ... ]
+		// Rich location maps: attachment_id → [ location_data, ... ].
 		$id_locations = self::merge_location_maps(
 			$content_refs['id_locations'],
 			$meta_refs['id_locations'],
@@ -85,7 +92,7 @@ class WPMP_Scanner {
 			$pagebuilder_refs['id_locations']
 		);
 
-		// URL → location map: url → [ location_data, ... ]
+		// URL → location map: url → [ location_data, ... ].
 		$url_post_map = self::merge_location_maps(
 			$content_refs['url_post_map'],
 			$meta_refs['url_post_map'],
@@ -99,43 +106,48 @@ class WPMP_Scanner {
 		$attachments = array();
 
 		do {
-			$batch = get_posts( array(
-				'post_type'      => 'attachment',
-				'post_status'    => 'any',
-				'posts_per_page' => $batch_size,
-				'offset'         => $offset,
-				'fields'         => 'ids',
-				'orderby'        => 'ID',
-				'order'          => 'ASC',
-			) );
+			$batch       = get_posts(
+				array(
+					'post_type'      => 'attachment',
+					'post_status'    => 'any',
+					'posts_per_page' => $batch_size,
+					'offset'         => $offset,
+					'fields'         => 'ids',
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+				)
+			);
 			$attachments = array_merge( $attachments, $batch );
 			$offset     += $batch_size;
-		} while ( count( $batch ) === $batch_size );
+			$batch_count = count( $batch );
+		} while ( $batch_count === $batch_size );
 
-		$total        = count( $attachments );
-		$recent_days  = (int) WPMP_Settings::get( 'recent_upload_days', 30 );
-		$cutoff_date  = strtotime( "-{$recent_days} days" );
-		$unused_count = 0;
+		$total         = count( $attachments );
+		$recent_days   = (int) WPMP_Settings::get( 'recent_upload_days', 30 );
+		$cutoff_date   = strtotime( "-{$recent_days} days" );
+		$unused_count  = 0;
 		$exclude_types = array_map( 'strtolower', (array) WPMP_Settings::get( 'exclude_file_types', array() ) );
 
 		// Preserve whitelisted IDs — these are NEVER cleared.
-		$whitelisted_ids = array_map( 'absint', array_filter( (array) $wpdb->get_col(
-			$wpdb->prepare( "SELECT attachment_id FROM {$table_results} WHERE status = %s", 'whitelisted' )
-		) ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$whitelist_rows  = $wpdb->get_col( $wpdb->prepare( "SELECT attachment_id FROM {$table_results} WHERE status = %s", 'whitelisted' ) );
+		$whitelisted_ids = array_map( 'absint', array_filter( (array) $whitelist_rows ) );
 
 		// Delete only non-whitelisted previous results. This protects data if the scan
 		// fails partway through — whitelisted items survive and old results remain until
 		// replaced, preventing a complete data wipe on crash.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_results is plugin's own table.
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$table_results} WHERE status != %s",
 				'whitelisted'
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		foreach ( $attachments as $index => $attachment_id ) {
 			// Update progress every 5 items to reduce DB writes
-			// Map attachment loop progress from 60% to 100%
+				// Map attachment loop progress from 60% to 100%.
 			if ( 0 === $index % 5 || $index === $total - 1 ) {
 				$progress = $total > 0 ? 60 + (int) ( ( $index + 1 ) / $total * 40 ) : 100;
 				set_transient( 'wpmp_scan_progress', min( $progress, 100 ), 3600 );
@@ -146,7 +158,7 @@ class WPMP_Scanner {
 				continue;
 			}
 
-			// Skip excluded file types
+			// Skip excluded file types.
 			$file_ext = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
 			if ( ! empty( $exclude_types ) && in_array( $file_ext, $exclude_types, true ) ) {
 				continue;
@@ -163,14 +175,20 @@ class WPMP_Scanner {
 
 			// 1. User-whitelisted files
 			if ( in_array( (int) $attachment_id, $whitelisted_ids, true ) ) {
-				$is_used = true;
-				$used_in[] = array( 'type' => 'whitelisted', 'label' => 'Whitelisted by user' );
+				$is_used   = true;
+				$used_in[] = array(
+					'type'  => 'whitelisted',
+					'label' => 'Whitelisted by user',
+				);
 			}
 
 			// 2. Recently uploaded (may not be published yet)
 			if ( ! $is_used && $recent_days > 0 && $uploaded >= $cutoff_date ) {
-				$is_used = true;
-				$used_in[] = array( 'type' => 'recent_upload', 'label' => 'Recently uploaded' );
+				$is_used   = true;
+				$used_in[] = array(
+					'type'  => 'recent_upload',
+					'label' => 'Recently uploaded',
+				);
 			}
 
 			// --- Check by attachment ID ---
@@ -205,7 +223,10 @@ class WPMP_Scanner {
 							if ( isset( $url_post_map[ $ref_url ] ) ) {
 								$used_in = array_merge( $used_in, $url_post_map[ $ref_url ] );
 							} else {
-								$used_in[] = array( 'type' => 'thumbnail', 'label' => 'Used as image size variant' );
+								$used_in[] = array(
+									'type'  => 'thumbnail',
+									'label' => 'Used as image size variant',
+								);
 							}
 							break;
 						}
@@ -213,7 +234,7 @@ class WPMP_Scanner {
 				}
 			}
 
-			// Deduplicate location entries
+			// Deduplicate location entries.
 			$used_in = self::deduplicate_locations( $used_in );
 
 			$status = $is_used ? 'used' : 'unused';
@@ -239,7 +260,7 @@ class WPMP_Scanner {
 			);
 		}
 
-		// Update scan log
+		// Update scan log.
 		$wpdb->update(
 			$table_log,
 			array(
@@ -268,7 +289,9 @@ class WPMP_Scanner {
 	private static function merge_location_maps( ...$maps ) {
 		$result = array();
 		foreach ( $maps as $map ) {
-			if ( ! is_array( $map ) ) continue;
+			if ( ! is_array( $map ) ) {
+				continue;
+			}
 			foreach ( $map as $key => $locs ) {
 				if ( ! isset( $result[ $key ] ) ) {
 					$result[ $key ] = array();
@@ -289,7 +312,9 @@ class WPMP_Scanner {
 		$seen   = array();
 		$result = array();
 		foreach ( $locations as $loc ) {
-			if ( ! is_array( $loc ) ) continue;
+			if ( ! is_array( $loc ) ) {
+				continue;
+			}
 			$key = ( $loc['type'] ?? '' ) . '|' . ( $loc['post_id'] ?? '' ) . '|' . ( $loc['label'] ?? '' );
 			if ( ! isset( $seen[ $key ] ) ) {
 				$seen[ $key ] = true;
@@ -314,7 +339,7 @@ class WPMP_Scanner {
 			return true;
 		}
 
-		// Relative URL
+		// Relative URL.
 		if ( 0 === strpos( $ref_url, '/' ) ) {
 			$parsed = wp_parse_url( $file_url );
 			$path   = isset( $parsed['path'] ) ? $parsed['path'] : '';
