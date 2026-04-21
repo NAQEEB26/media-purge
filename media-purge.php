@@ -6,8 +6,8 @@
  * Version:     1.4.3
  * Author:      Naqeeb Ul Rehman
  * Author URI:  https://profiles.wordpress.org/naqeeb026/
- * License:     GPL-2.0+
- * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * License:     GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: media-purge
  * Domain Path: /languages
  * Requires at least: 5.8
