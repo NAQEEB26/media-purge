@@ -1,6 +1,6 @@
 === Media Purge ===
 
-Contributors: naqeebulrehman
+Contributors: naqeeb
 Donate link: https://getmediapurge.com/
 Tags: media, media library, unused media, cleanup, duplicates, storage, page builder, media manager, elementor
 Requires at least: 5.8
@@ -16,45 +16,45 @@ Find and safely remove unused media, detect duplicates, and reclaim disk space �
 
 **Media Purge** gives you complete visibility into your WordPress media library, surfaces every file that is not used anywhere on your site, and lets you clean it up safely — without any risk of breaking live content.
 
-Whether you have a small blog or a large WooCommerce store, media libraries accumulate hundreds of forgotten files over time.  Media Purge makes it effortless to spot them, verify whether they are truly unused, and move them to a recoverable trash — not a permanent delete.
+Whether you have a small blog or a large WooCommerce store, media libraries accumulate hundreds of forgotten files over time. Media Purge makes it effortless to spot them, verify whether they are truly unused, and move them to a recoverable trash — not a permanent delete.
 
-**Free to use.** All core cleanup features are available at no cost — scan, review, trash, restore, export.  No scan limits, no file caps.  A paid upgrade tier with advanced automation features is planned for a future release; those features are clearly marked "Coming Soon" inside the plugin.
+**Free to use.** All core cleanup features are available at no cost — scan, review, trash, restore, export. No scan limits, no file caps. A paid upgrade tier with advanced automation features is planned for a future release; those features are clearly marked "Coming Soon" inside the plugin.
 
 === Free Features ===
 
 **Smart Unused Media Scanner**
-Scans post content, post meta (featured images, WooCommerce product galleries), theme customizer options, widget areas, and all major page builder data (Elementor, Divi, WPBakery, Beaver Builder).  Results show the exact file size so you know how much storage you will reclaim.
+Scans post content, post meta (featured images, WooCommerce product galleries), theme customizer options, widget areas, and all major page builder data (Elementor, Divi, WPBakery, Beaver Builder). Results show the exact file size so you know how much storage you will reclaim.
 
 **"Used In" Display**
-Each media item shows exactly where it is used — post title, post type, and context (e.g. Featured Image in "About Us", Elementor widget in "Home") — with a direct link to edit that post.  Never accidentally delete a file that is still in use.
+Each media item shows exactly where it is used — post title, post type, and context (e.g. Featured Image in "About Us", Elementor widget in "Home") — with a direct link to edit that post. Never accidentally delete a file that is still in use.
 
 **Safe Trash Flow**
-Files are moved to an internal trash, not permanently deleted.  By default they remain recoverable for 30 days.  The retention window is adjustable in Settings.
+Files are moved to an internal trash, not permanently deleted. By default they remain recoverable for 30 days. The retention window is adjustable in Settings.
 
 **Recovery Tab**
-Browse all trashed media, restore individual files to your live library in one click, or bulk-restore.  Permanently delete only when you are ready.
+Browse all trashed media, restore individual files to your live library in one click, or bulk-restore. Permanently delete only when you are ready.
 
 **Storage Analytics Dashboard**
-See a visual breakdown of your total media storage by file type (Images / Videos / Audio / Documents / Other) with colour-coded segments.  At-a-glance stats show total media count, total unused count, total storage size, and potential savings.
+See a visual breakdown of your total media storage by file type (Images / Videos / Audio / Documents / Other) with colour-coded segments. At-a-glance stats show total media count, total unused count, total storage size, and potential savings.
 
 **Duplicate Detection (View)**
-Automatically groups files that are byte-for-byte identical using MD5 hashing.  See every duplicate group with its total wasted storage.  One-click duplicate *merge* (keep one copy, remove the rest) is coming in a future release and clearly marked as such in the plugin.
+Automatically groups files that are byte-for-byte identical using MD5 hashing. See every duplicate group with its total wasted storage. One-click duplicate merge is coming in a future release.
 
 **Type Filter & CSV Export**
-Filter unused media by file type (Images, Videos, Documents, Other) in one click.  Export the full unused media list to CSV for offline review or reporting.
+Filter unused media by file type in one click. Export the full unused media list to CSV for offline review or reporting.
 
 **Pagination & Bulk Actions**
-Handles large libraries with 30-items-per-page load-more pagination.  Bulk select, bulk trash, and bulk whitelist any number of files at once.
+Handles large libraries with 30-items-per-page load-more pagination. Bulk select, bulk trash, and bulk whitelist any number of files at once.
 
 **Whitelist**
-Files can be whitelisted so the scanner never flags them again, even if no URL reference is found (useful for email-campaign assets or programmatically served files).
+Files can be whitelisted so the scanner never flags them again, even if no URL reference is found.
 
 **Page Builder Support (Free)**
-Deep scanning of Elementor JSON data, Divi page meta, WPBakery shortcodes, and Beaver Builder layout data ensures no actively-used builder asset is ever flagged as unused.
+Deep scanning of Elementor JSON data, Divi page meta, WPBakery shortcodes, and Beaver Builder layout data.
 
 === Features Coming in a Future Release ===
 
-The following features are currently in development.  When ready, they will be part of a **paid upgrade tier**.  They are clearly labelled "Coming Soon" inside the plugin — no guessing about what is free and what is not.
+The following features are currently in development and will be part of a **paid upgrade tier**. They are clearly labelled "Coming Soon" inside the plugin.
 
 * **One-click Duplicate Merge** — keep the first copy, rewrite all references, delete the rest automatically.
 * **Scheduled Auto-Cleanup** — set a recurring schedule to automatically trash unused media older than N days, with optional email summary.
@@ -65,7 +65,7 @@ Core cleanup (scan → review → trash → restore) will always be free.
 
 === Who Is This For? ===
 
-- **Non-technical site owners** — the interface walks you through every step; no FTP, no command line, nothing to configure before you can start.
+- **Non-technical site owners** — the interface walks you through every step; no FTP, no command line.
 - Bloggers and content sites with years of uploaded but unreferenced media.
 - WooCommerce stores that have updated product images many times.
 - Agencies managing multiple client sites.
@@ -76,8 +76,6 @@ Core cleanup (scan → review → trash → restore) will always be free.
 **WordPress:** 5.8 or higher (tested up to 6.7).
 **PHP:** 7.4 or higher.
 **Multisite:** single-site installs only (multisite support is planned).
-
-**Works alongside (no configuration needed):**
 
 | Plugin / Theme | What is scanned |
 |---|---|
@@ -90,17 +88,9 @@ Core cleanup (scan → review → trash → restore) will always be free.
 | **Classic Editor** | All `<img>` tags and `[gallery]` shortcodes in post content |
 | **Widgets & Theme Customizer** | Any upload URLs stored in widget options or theme mod values |
 
-**Does not yet scan** (planned):
-- Bricks Builder, Oxygen Builder, Zion Builder, Breakdance
-- ACF Image/Gallery fields that use URLs instead of attachment IDs
-- Files referenced only in CSS/JS (theme stylesheets etc.)
-- WPML / Polylang translated attachments
-
-If a file is only referenced by a theme or custom plugin not listed above, use the **Whitelist** feature to permanently exclude it from scan results.
-
 == Installation ==
 
-1. Upload the `wp-media-purge` folder to `/wp-content/plugins/`
+1. Upload the `media-purge` folder to `/wp-content/plugins/`
    **or** install directly via WordPress → Plugins → Add New → search "Media Purge".
 2. Activate the plugin through the **Plugins** menu.
 3. Navigate to **Media → Media Purge** in the WordPress admin sidebar.
@@ -110,41 +100,37 @@ If a file is only referenced by a theme or custom plugin not listed above, use t
 == Frequently Asked Questions ==
 
 = Will it permanently delete my files? =
-No — not automatically, and not until you choose to.  Files are moved to the plugin's internal trash first.  They remain there for 30 days by default (you can change this in Settings) and can be restored to your live media library at any time from the **Recovery** tab.  Permanent deletion only happens when you click "Delete Permanently" yourself, or when the auto-purge retention period expires.
+No — not automatically, and not until you choose to. Files are moved to the plugin's internal trash first. They remain there for 30 days by default (adjustable in Settings) and can be restored at any time from the **Recovery** tab. Permanent deletion only happens when you click "Delete Permanently" yourself, or when the retention period expires.
 
 = Is it safe on live sites? =
-Yes.  The scanner is completely read-only — it never moves, modifies, or deletes anything while scanning.  Nothing changes on your site until you explicitly click a Trash button.  The "Used In" column shows every post, page, or widget where a file is referenced, so you can verify it is safe to remove before doing anything.
+Yes. The scanner is completely read-only — it never moves, modifies, or deletes anything while scanning. Nothing changes on your site until you explicitly click a Trash button.
 
 = Does it work with page builders? =
-Yes.  Elementor, Divi, WPBakery, and Beaver Builder are all scanned automatically — no settings to change.  The scanner detects which builders are active and only runs the relevant scan.  Image IDs and URLs stored inside builder JSON, meta, and shortcodes are all checked.
+Yes. Elementor, Divi, WPBakery, and Beaver Builder are all scanned automatically. For unsupported builders, use the **Whitelist** feature to exclude files you know are in use.
 
-Bricks Builder, Oxygen, and Zion Builder are not yet supported — those files will not be falsely flagged as unused (the scanner does not know about them), but they also will not show up in the "Used In" column.  Use the **Whitelist** feature to exclude any files you know are used in unsupported builders.
-
-= What if a file is used by a theme or plugin that the scanner doesn't know about? =
-Use the **Whitelist** feature.  Click "Keep" on any file in the Scanner tab to permanently exclude it from all future scan results.  The file stays in your media library and will never be flagged as unused again.  This is the right solution for files used by unsupported page builders, custom themes, or plugin-generated content.
+= What if a file is used by a theme or plugin the scanner doesn't know about? =
+Use the **Whitelist** feature. Click "Keep" on any file in the Scanner tab to permanently exclude it from all future scan results.
 
 = Does it work with WooCommerce? =
-Yes.  Product featured images and image galleries are scanned via post meta inspection.
+Yes. Product featured images and image galleries are scanned via post meta inspection.
 
 = How does duplicate detection work? =
-Files are grouped by their MD5 hash.  Byte-for-byte identical files are placed in the same duplicate group regardless of filename.
+Files are grouped by their MD5 hash. Byte-for-byte identical files are placed in the same duplicate group regardless of filename.
 
 = Will activating the plugin affect my site's performance? =
-No.  Scans run as a background async process — normal visitors are unaffected even while a scan is in progress.  The admin dashboard loads data via REST API calls that are completely separate from the front end.  Deactivating the plugin removes all hooks instantly with no performance trace left behind.
+No. Scans run as a background async process — normal visitors are unaffected even while a scan is in progress.
 
 = Can I export the list of unused files? =
-Yes.  Use the **Export CSV** button in the Scanner tab to download a CSV of all unused media with file path, size, MIME type, and usage status.
+Yes. Use the **Export CSV** button in the Scanner tab.
 
 = What happens if I deactivate the plugin? =
-Cron events are cleared immediately.  Plugin database tables are left intact so your scan history and whitelist are preserved if you reactivate.  Files in the plugin's trash remain in the media library — they are not deleted on deactivation.
+Cron events are cleared immediately. Plugin database tables are left intact so your scan history and whitelist are preserved if you reactivate.
 
 = What happens if I uninstall the plugin? =
-Database tables and all plugin options are fully removed.  This is irreversible.
+Database tables and all plugin options are fully removed.
 
 = Does the free version have any limits? =
-No artificial limits.  There are no scan caps, no file-count restrictions, and no time limits.  All core features — scanning, reviewing, trashing, restoring, bulk actions, whitelist, CSV export, and storage analytics — are fully available at no cost.
-
-Features labelled "Coming Soon" (duplicate merge, scheduled auto-cleanup, advanced analytics, virtual folder organizer) are not yet built.  When they are ready they will be part of a paid upgrade tier.  The core scan-and-cleanup workflow will always remain free.
+No artificial limits. There are no scan caps, no file-count restrictions, and no time limits. All core features are fully available at no cost.
 
 == Screenshots ==
 
@@ -154,84 +140,59 @@ Features labelled "Coming Soon" (duplicate merge, scheduled auto-cleanup, advanc
 4. **Recovery tab** — trashed files with one-click restore per file and bulk restore/delete options.
 5. **Duplicates tab** — duplicate groups showing each copy, total wasted space, and "Coming Soon" card for one-click merge.
 6. **Settings** — recent-upload protection days, trash retention days, WooCommerce toggle, and file-type exclusions.
-7. **Folders tab** — virtual folder organizer preview with "Coming Soon" card (available in a future paid release).
+7. **Folders tab** — virtual folder organizer preview with "Coming Soon" card.
 
 == Changelog ==
 
 = 1.4.3 =
 * Added: System Status tab — one-glance health check covering REST API, DB tables, PHP/WP versions, cron jobs, memory limit, upload directory, and WooCommerce
 * Added: REST API health endpoint `GET /wpmp/v1/health`
-* Fixed: Scanner no longer shows the "Start Scan" screen after a scan completes with 0 results — new sites and all-recent-content sites now see a clear "No Unused Files Found" message with an explanation
-* Improved: About tab now clearly lists all free features and planned future releases — no vague marketing
+* Fixed: Scanner no longer shows the "Start Scan" screen after a scan completes with 0 results — new sites now see a clear "No Unused Files Found" message
+* Improved: About tab now clearly lists all free features and planned future releases
 * Improved: Page builders (Elementor, Divi, WPBakery) correctly show as free — removed incorrect "Pro" badge
 * Added: "Adjust Protection Period" shortcut on scan-clean screen links directly to Settings tab
 
 = 1.4.2 =
-* Replaced Folders (Coming Soon) tab with functional Recovery tab — list trashed files, restore or delete permanently, Empty Trash and Restore All bulk actions.
+* Replaced Folders (Coming Soon) tab with functional Recovery tab.
 * Added first-run Setup Wizard — configures recent-upload protection, trash retention period, and WooCommerce scan preference on first visit.
-* Wizard auto-dismissed after completion; never shown again; skippable at any step.
+* Wizard auto-dismissed after completion; skippable at any step.
 * Fixed Help button and footer documentation links to use getmediapurge.com.
 
 = 1.4.1 =
 * Security: Rewrote `get_unused_media` query to use `$wpdb->prepare()` — eliminated SQL LIKE injection risk.
 * Security: Fixed negative OFFSET vulnerability when `?page=0` was passed to the media endpoint.
-* Performance: Scanner now fetches attachment IDs in configurable batches (default 200) instead of loading all IDs into memory at once — prevents PHP memory exhaustion on large libraries.
-* Reliability: Replaced TRUNCATE (full data wipe before scan) with a targeted DELETE that preserves whitelisted entries — scan results survive a mid-scan crash.
-* Reliability: Added `POST /scan/cancel` REST endpoint to force-clear a stuck scan lock without server access.
-* Reliability: Replaced `@set_time_limit(0)` with a `function_exists()` guard to comply with WP Coding Standards (WPCS).
-* GDPR / WP.org compliance: Removed Google Fonts CDN enqueue — admin UI now uses a fully system font stack.
-* Business logic: Removed "(Pro)" label from Divi, WPBakery, and Beaver Builder scanner labels — page builder scanning is free.
-* Code hygiene: Removed dead `reset_monthly_count()` cron method and its hook registration; monthly counter will be enforced by the Pro add-on when ready.
+* Performance: Scanner now fetches attachment IDs in configurable batches (default 200).
+* Reliability: Replaced TRUNCATE with a targeted DELETE that preserves whitelisted entries.
+* Reliability: Added `POST /scan/cancel` REST endpoint to force-clear a stuck scan lock.
+* GDPR / WP.org compliance: Removed Google Fonts CDN enqueue — admin UI now uses a system font stack.
+* Business logic: Removed "(Pro)" label from Divi, WPBakery, and Beaver Builder scanner labels.
+* Code hygiene: Removed dead `reset_monthly_count()` cron method.
 
 = 1.3.0 =
-* Complete UI overhaul — Navy/Blue premium design system matching mediapurge-ui.jsx reference.
-* System font stack for modern, distinctive typography (no external font loading).
-* SVG icon system replaces WordPress dashicons — crisp at every resolution.
-* New navy plugin header bar with integrated tab navigation and brand identity.
-* Dashboard stat cards with coloured icon squares, mono-weight values, and storage grid.
-* Quick actions card with last-scan indicator and one-click export/scan buttons.
-* Scanner pre-scan hero with source badges (free/pro) and large CTA.
-* Scan progress component with animated spinner box, gradient bar, and phase step indicators.
-* Horizontal media rows replace vertical grid cards — better information density.
-* Custom checkbox component with animated check SVG (18px, 5px radius).
-* Bottom-right toast notification system replaces WordPress admin notices.
-* Confirm modal with square icon (52px, 14px radius), safety box, and amber confirm.
-* Undo toast with 8-second countdown integrated into the new toast system.
-* Recovery tab with horizontal rows and updated empty state.
-* Settings redesigned as two-column card grid with toggle switches.
-* Exclusion tags, warning box, and pro features grid in settings.
-* Pro gate with purple gradient, feature cards, and 30-day guarantee.
-* Footer with version, docs, and support links.
-* 9 CSS keyframe animations (fadeUp, fadeIn, spin, barFill, slideIn, scaleIn, modal-in, toast-in, countUp).
-* 40+ new localized strings for complete i18n coverage.
-* Responsive breakpoints for tablet and mobile views.
+* Complete UI overhaul — Navy/Blue premium design system.
+* SVG icon system replaces WordPress dashicons.
+* New navy plugin header bar with integrated tab navigation.
+* Dashboard stat cards, storage grid, and quick actions card.
+* Scanner pre-scan hero with source badges and large CTA.
+* Scan progress component with animated spinner, gradient bar, and phase step indicators.
+* Horizontal media rows with improved information density.
+* Bottom-right toast notification system.
+* Confirm modal with safety box and amber confirm button.
+* Undo toast with 8-second countdown.
+* 9 CSS keyframe animations; 40+ new localised strings; responsive breakpoints.
 
 = 1.2.0 =
-* Undo toast after trash action — 5-second countdown with one-click undo to restore files immediately.
-* Scan phase labels during scan progress — shows which step is running (post content, meta, page builders, etc.).
-* Elementor page builder scanning moved to Free tier (was Pro) — no Pro licence required.
-* "Restorable within 30 days" green badge in trash confirmation modal — reduces user anxiety.
-* Full ARIA accessibility — tabs have role, aria-selected, aria-controls; modal has aria-labelledby/describedby; checkboxes have aria-checked; progress bar has progressbar role.
-* Selected media items highlight with blue outline and tinted background for clear visual feedback.
-* Focus rings on all interactive elements (WCAG 2.1 AA).
+* Undo toast after trash action with 5-second countdown and one-click undo.
+* Scan phase labels during scan progress.
+* Elementor scanning moved to Free tier.
+* Full ARIA accessibility (WCAG 2.1 AA).
+* Selected media items highlight with blue outline and tinted background.
 
 = 1.1.0 =
-* Complete UI/UX redesign with modern card-based interface and CSS custom properties design system.
-* Menu moved under Media → Media Purge (was a top-level menu item).
-* New page header with plugin icon, tagline, and version badge.
-* Dashboard stat cards with coloured top bars, dashicons, and hover effects.
-* Storage breakdown section with visual bar and colour-coded type legend.
-* "How it works" onboarding section with three illustrated steps.
-* Tab navigation with dashicons and contextual description banners.
-* Colour-coded action buttons — red for Trash, green for Keep/Restore.
-* Enhanced confirmation modal with file-count badge and animated backdrop.
-* Recovery and Duplicates tabs with illustrated empty-state placeholders.
-* Settings page redesign with icon headers and inline help text.
-* Upgrade-to-Pro banner with gradient styling.
-* Full internationalisation — all UI strings localised via wp_localize_script.
-* Responsive layout improvements for tablets and smaller screens.
-* Pre-scan hero section with safety note.
-* Scanner toolbar with dashicon-labeled filter and export buttons.
+* Complete UI/UX redesign with modern card-based interface and CSS custom properties.
+* Menu moved under Media → Media Purge.
+* Dashboard stat cards, storage breakdown, "How it works" onboarding section.
+* Full internationalisation — all UI strings localised.
 
 = 1.0.0 =
 * Initial public release.
@@ -239,21 +200,19 @@ Features labelled "Coming Soon" (duplicate merge, scheduled auto-cleanup, advanc
 * "Used In" display with clickable post links per media item.
 * Safe trash-and-recovery flow with configurable retention.
 * Storage analytics dashboard with type breakdown bar.
-* Type filter and CSV export in scanner.
-* Load-more pagination for large libraries.
+* Type filter and CSV export.
+* Load-more pagination.
 * Duplicate detection (view).
 * Whitelist support.
-* CSV export.
 * Full uninstall cleanup.
 
 == Upgrade Notice ==
 
-= 1.4.1 =
-Community-first release.  Removed all upgrade prompts and artificial usage meters from the UI.  Advanced features (duplicate merge, scheduled cleanup, virtual folders, advanced analytics) are now shown as "Coming Soon" cards so users can see the roadmap without being upsold.  Updated readme to accurately reflect the free feature set and planned paid tier.
+= 1.4.3 =
+System Status tab added. Scanner now shows a clear "No Unused Files Found" message for clean sites. Page builders correctly shown as free features.
 
 = 1.4.1 =
-Upgrade prompts and the artificial usage meter have been removed.  Advanced features are now shown as "Coming Soon" previews.  No behaviour change to core scan and cleanup functions.
-Major UI/UX redesign.  Modern card-based dashboard, improved navigation under Media menu, full i18n support, and responsive layout.  Hard-refresh your browser after updating to see all changes.
+Security and reliability improvements. Upgrade prompts and the artificial usage meter have been removed. Advanced features are now shown as "Coming Soon" previews.
 
 = 1.0.0 =
-First release.  After activation run a full scan to audit your media library.
+First release. After activation run a full scan to audit your media library.
