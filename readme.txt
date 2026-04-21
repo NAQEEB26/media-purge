@@ -6,7 +6,7 @@ Tags: media, media library, unused media, cleanup, duplicates, storage, page bui
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -157,6 +157,14 @@ Features labelled "Coming Soon" (duplicate merge, scheduled auto-cleanup, advanc
 7. **Folders tab** — virtual folder organizer preview with "Coming Soon" card (available in a future paid release).
 
 == Changelog ==
+
+= 1.4.3 =
+* Added: System Status tab — one-glance health check covering REST API, DB tables, PHP/WP versions, cron jobs, memory limit, upload directory, and WooCommerce
+* Added: REST API health endpoint `GET /wpmp/v1/health`
+* Fixed: Scanner no longer shows the "Start Scan" screen after a scan completes with 0 results — new sites and all-recent-content sites now see a clear "No Unused Files Found" message with an explanation
+* Improved: About tab now clearly lists all free features and planned future releases — no vague marketing
+* Improved: Page builders (Elementor, Divi, WPBakery) correctly show as free — removed incorrect "Pro" badge
+* Added: "Adjust Protection Period" shortcut on scan-clean screen links directly to Settings tab
 
 = 1.4.2 =
 * Replaced Folders (Coming Soon) tab with functional Recovery tab — list trashed files, restore or delete permanently, Empty Trash and Restore All bulk actions.

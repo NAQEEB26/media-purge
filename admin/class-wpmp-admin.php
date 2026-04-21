@@ -68,12 +68,13 @@ class WPMP_Admin {
 		);
 
 		wp_localize_script( 'wpmp-admin', 'wpmpAdmin', array(
-			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
-			'restUrl'        => rest_url( WPMP_REST_NAMESPACE . '/' ),
-			'nonce'          => wp_create_nonce( 'wp_rest' ),
-			'adminUrl'       => admin_url( 'admin.php' ),
-			'pluginVersion'  => WPMP_VERSION,
-			'wizardSeen'     => (bool) WPMP_Settings::get( 'wizard_seen', false ),
+			'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
+			'restUrl'           => rest_url( WPMP_REST_NAMESPACE . '/' ),
+			'nonce'             => wp_create_nonce( 'wp_rest' ),
+			'adminUrl'          => admin_url( 'admin.php' ),
+			'pluginVersion'     => WPMP_VERSION,
+			'recentUploadDays'  => (int) WPMP_Settings::get( 'recent_upload_days', 30 ),
+			'wizardSeen'        => (bool) WPMP_Settings::get( 'wizard_seen', false ),
 			'hasWooCommerce' => class_exists( 'WooCommerce' ),
 			'exportCsvUrl' => wp_nonce_url(
 				admin_url( 'admin.php?page=wp-media-purge&action=export_csv' ),
@@ -315,6 +316,22 @@ class WPMP_Admin {
 				/* Recovery tab */
 				'emptyTrash'         => __( 'Empty Trash', 'wp-media-purge' ),
 				'restore'            => __( 'Restore', 'wp-media-purge' ),
+				/* Scanner: scan-ran-but-clean state */
+				'scanCleanTitle'     => __( 'No Unused Files Found', 'wp-media-purge' ),
+				'scanCleanDesc'      => __( 'The scanner completed and found no unused files in your media library. Your site looks clean!', 'wp-media-purge' ),
+				'scanCleanProtected' => __( 'Files uploaded within the last %d days are protected from being flagged. On a new site or after recent content imports, this is why results may appear empty.', 'wp-media-purge' ),
+				'adjustSettings'     => __( 'Adjust Protection Period', 'wp-media-purge' ),
+				/* Status tab */
+				'statusTitle'        => __( 'System Status', 'wp-media-purge' ),
+				'statusSubtitle'     => __( 'Check that the plugin is working correctly on your site', 'wp-media-purge' ),
+				'statusAllGood'      => __( 'Everything looks good! The plugin is healthy and ready to use.', 'wp-media-purge' ),
+				'statusHasErrors'    => __( 'critical issue(s) need your attention.', 'wp-media-purge' ),
+				'statusHasWarnings'  => __( 'warning(s) found — plugin may not work at full capacity.', 'wp-media-purge' ),
+				'statusOk'           => __( 'OK', 'wp-media-purge' ),
+				'statusError'        => __( 'Error', 'wp-media-purge' ),
+				'statusWarning'      => __( 'Warning', 'wp-media-purge' ),
+				'statusInfo'         => __( 'Info', 'wp-media-purge' ),
+				'statusRestFailed'   => __( 'REST API is not accessible. This is the most common cause of plugin issues. A security plugin or server configuration may be blocking REST API requests. Check your security plugin settings or contact your hosting provider.', 'wp-media-purge' ),
 				/* About tab */
 				'aboutTitle'         => __( 'About WP Media Purge', 'wp-media-purge' ),
 				'aboutSubtitle'      => __( 'Built with care for the WordPress community', 'wp-media-purge' ),
@@ -438,7 +455,11 @@ class WPMP_Admin {
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
 						<?php esc_html_e( 'Settings', 'wp-media-purge' ); ?>
 					</button>
-					<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="about">
+				<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="status">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+					<?php esc_html_e( 'Status', 'wp-media-purge' ); ?>
+				</button>
+				<button class="wpmp-tab" role="tab" aria-selected="false" data-tab="about">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
 						<?php esc_html_e( 'About', 'wp-media-purge' ); ?>
 					</button>

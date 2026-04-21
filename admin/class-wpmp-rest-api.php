@@ -170,6 +170,12 @@ class WPMP_REST_API {
 				'exclude_file_types'   => array( 'type' => 'array' ),
 			),
 		) );
+
+		register_rest_route( WPMP_REST_NAMESPACE, '/health', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'get_health' ),
+			'permission_callback' => array( $this, 'check_admin_permission' ),
+		) );
 	}
 
 	/**
@@ -906,4 +912,136 @@ class WPMP_REST_API {
 			'total_groups' => count( $result ),
 		), 200 );
 	}
-}
+
+	/**
+	 * System health check endpoint.
+	 * Returns an array of checks so the Status tab can display them.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function get_health() {
+		global $wpdb;
+
+		$checks = array();
+
+		// 1. REST API — if we reached here, it's working.
+		$checks['rest_api'] = array(
+			'label'  => 'REST API',
+			'status' => 'ok',
+			'note'   => 'REST API is accessible. The plugin can communicate with WordPress correctly.',
+		);
+
+		// 2. Database tables.
+		$tables_needed = array(
+			$wpdb->prefix . 'wpmp_scan_results',
+			$wpdb->prefix . 'wpmp_scan_log',
+			$wpdb->prefix . 'wpmp_storage_snapshots',
+		);
+		$missing = array();
+		foreach ( $tables_needed as $table ) {
+			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+			if ( ! $exists ) {
+				$missing[] = str_replace( $wpdb->prefix, '', $table );
+			}
+		}
+		$checks['db_tables'] = array(
+			'label'  => 'Database Tables',
+			'status' => empty( $missing ) ? 'ok' : 'error',
+			'note'   => empty( $missing )
+				? 'All plugin database tables are present.'
+				: 'Missing tables: ' . implode( ', ', $missing ) . '. Try deactivating and reactivating the plugin to recreate them.',
+		);
+
+		// 3. PHP version.
+		$php_version = phpversion();
+		$php_ok      = version_compare( $php_version, '7.4', '>=' );
+		$checks['php_version'] = array(
+			'label'  => 'PHP Version',
+			'status' => $php_ok ? 'ok' : 'error',
+			'note'   => 'PHP ' . $php_version . ( $php_ok ? ' — meets the PHP 7.4+ requirement.' : ' — PHP 7.4 or higher is required. Please upgrade PHP.' ),
+		);
+
+		// 4. WordPress version.
+		$wp_version = get_bloginfo( 'version' );
+		$wp_ok      = version_compare( $wp_version, '5.8', '>=' );
+		$checks['wp_version'] = array(
+			'label'  => 'WordPress Version',
+			'status' => $wp_ok ? 'ok' : 'error',
+			'note'   => 'WordPress ' . $wp_version . ( $wp_ok ? ' — meets the WP 5.8+ requirement.' : ' — WordPress 5.8 or higher is required.' ),
+		);
+
+		// 5. PHP set_time_limit.
+		$checks['set_time_limit'] = array(
+			'label'  => 'PHP Execution Time',
+			'status' => function_exists( 'set_time_limit' ) ? 'ok' : 'warning',
+			'note'   => function_exists( 'set_time_limit' )
+				? 'Execution time can be extended. Large media libraries will scan without timing out.'
+				: 'set_time_limit() is disabled on your server. Large scans may time out. Contact your hosting provider.',
+		);
+
+		// 6. Upload directory writable.
+		$upload_dir = wp_upload_dir();
+		$writable   = wp_is_writable( $upload_dir['basedir'] );
+		$checks['upload_dir'] = array(
+			'label'  => 'Upload Directory',
+			'status' => $writable ? 'ok' : 'error',
+			'note'   => $writable
+				? 'Upload directory is writable (' . $upload_dir['basedir'] . ').'
+				: 'Upload directory is not writable. The plugin cannot trash or manage files. Check folder permissions.',
+		);
+
+		// 7. WP Cron jobs.
+		$cron_hooks = array(
+			'wpmp_purge_old_trash'  => 'Auto-purge trash',
+			'wpmp_storage_snapshot' => 'Storage snapshots',
+		);
+		$cron_notes   = array();
+		$cron_missing = array();
+		foreach ( $cron_hooks as $hook => $label ) {
+			$next = wp_next_scheduled( $hook );
+			if ( $next ) {
+				$cron_notes[] = $label . ': scheduled';
+			} else {
+				$cron_missing[] = $label;
+				$cron_notes[]   = $label . ': not scheduled';
+			}
+		}
+		$checks['cron'] = array(
+			'label'  => 'WP Cron Jobs',
+			'status' => empty( $cron_missing ) ? 'ok' : 'warning',
+			'note'   => implode( '; ', $cron_notes ) . ( ! empty( $cron_missing ) ? '. If WP Cron is disabled on your server, automatic trash cleanup will not run.' : '' ),
+		);
+
+		// 8. PHP memory limit.
+		$memory_limit = ini_get( 'memory_limit' );
+		$memory_bytes = wp_convert_hr_to_bytes( $memory_limit );
+		$mem_ok       = ( $memory_bytes >= 134217728 || '-1' === $memory_limit ); // 128MB
+		$checks['memory'] = array(
+			'label'  => 'PHP Memory Limit',
+			'status' => $mem_ok ? 'ok' : 'warning',
+			'note'   => 'Memory limit: ' . $memory_limit . ( $mem_ok ? ' — adequate for scanning large libraries.' : ' — 128MB or more recommended. Large libraries may fail to scan.' ),
+		);
+
+		// 9. WooCommerce.
+		$woo_active = class_exists( 'WooCommerce' );
+		$checks['woocommerce'] = array(
+			'label'  => 'WooCommerce',
+			'status' => $woo_active ? 'ok' : 'info',
+			'note'   => $woo_active
+				? 'WooCommerce detected — product gallery images will be scanned.'
+				: 'WooCommerce not active. Product gallery scanning is not needed.',
+		);
+
+		// 10. Last scan summary.
+		$last_run   = get_option( 'wpmp_scan_last_run', null );
+		$scan_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wpmp_scan_results" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$checks['last_scan'] = array(
+			'label'  => 'Last Scan',
+			'status' => $last_run ? 'ok' : 'info',
+			'note'   => $last_run
+				? 'Last run: ' . $last_run . ' — ' . $scan_count . ' file(s) in results database.'
+				: 'No scan has been run yet. Go to the Scanner tab to start your first scan.',
+		);
+
+		return new WP_REST_Response( array( 'checks' => $checks ), 200 );
+	}

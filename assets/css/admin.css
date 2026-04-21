@@ -3280,3 +3280,117 @@
 .wpmp-skip-link:focus {
    top: 0;
 }
+
+/* ================================================================
+   STATUS / HEALTH TAB
+   ================================================================ */
+.wpmp-status-summary {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   padding: 14px 18px;
+   border-radius: 10px;
+   font-size: 13px;
+   font-weight: 500;
+   margin-bottom: 16px;
+   line-height: 1.4;
+}
+.wpmp-status-summary-ok      { background: var(--wpmp-green-light); color: var(--wpmp-green); border: 1px solid #A7F3D0; }
+.wpmp-status-summary-warning { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+.wpmp-status-summary-error   { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+
+.wpmp-status-row {
+   display: flex;
+   align-items: flex-start;
+   gap: 14px;
+   padding: 14px 18px;
+   border-bottom: 1px solid var(--wpmp-gray1);
+   transition: background 0.15s;
+}
+.wpmp-status-row:last-child { border-bottom: none; }
+.wpmp-status-row:hover      { background: var(--wpmp-gray0); }
+
+.wpmp-status-icon { flex-shrink: 0; margin-top: 1px; }
+
+.wpmp-status-info { flex: 1; min-width: 0; }
+
+.wpmp-status-label {
+   font-size: 13px;
+   font-weight: 600;
+   color: var(--wpmp-navy);
+   margin-bottom: 3px;
+}
+.wpmp-status-note {
+   font-size: 12px;
+   color: var(--wpmp-gray6);
+   line-height: 1.55;
+   word-break: break-word;
+}
+
+.wpmp-status-badge {
+   flex-shrink: 0;
+   font-size: 11px;
+   font-weight: 700;
+   padding: 3px 10px;
+   border-radius: 20px;
+   align-self: flex-start;
+   letter-spacing: 0.02em;
+}
+.wpmp-status-badge-ok      { background: var(--wpmp-green-light); color: var(--wpmp-green); }
+.wpmp-status-badge-warning { background: #FEF3C7; color: #92400E; }
+.wpmp-status-badge-error   { background: #FEE2E2; color: #991B1B; }
+.wpmp-status-badge-info    { background: var(--wpmp-sky); color: var(--wpmp-blue); }
+
+.wpmp-status-help {
+   display: flex;
+   align-items: flex-start;
+   gap: 8px;
+   font-size: 12px;
+   color: var(--wpmp-gray6);
+   line-height: 1.5;
+   padding: 14px 18px;
+   background: var(--wpmp-gray0);
+   border: 1px solid var(--wpmp-gray1);
+   border-radius: 10px;
+}
+.wpmp-status-help a { color: var(--wpmp-blue); text-decoration: none; }
+.wpmp-status-help a:hover { text-decoration: underline; }
+
+/* ================================================================
+   SCANNER — Scan-ran-but-clean state
+   ================================================================ */
+.wpmp-prescan-clean { }
+
+.wpmp-prescan-icon-clean {
+   background: var(--wpmp-green-light) !important;
+   color: var(--wpmp-green) !important;
+}
+
+.wpmp-scan-date-note {
+   font-size: 12px;
+   color: var(--wpmp-gray5);
+   margin: -4px 0 12px;
+}
+
+.wpmp-prescan-notice {
+   display: flex;
+   align-items: flex-start;
+   gap: 8px;
+   background: var(--wpmp-sky);
+   border: 1px solid #BFDBFE;
+   border-radius: 8px;
+   padding: 12px 14px;
+   font-size: 12px;
+   color: var(--wpmp-navy);
+   line-height: 1.55;
+   margin: 14px 0;
+   text-align: left;
+}
+
+.wpmp-prescan-actions {
+   display: flex;
+   gap: 10px;
+   justify-content: center;
+   flex-wrap: wrap;
+   margin-top: 20px;
+}
