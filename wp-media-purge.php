@@ -105,6 +105,9 @@ function wpmp_init() {
 	// Scanner runs on scan start (admin or cron).
 	add_action( 'wpmp_start_scan', array( 'WPMP_Scanner', 'run' ) );
 
+	// Run a silent DB upgrade check — creates any missing tables added in new versions.
+	wpmp_maybe_upgrade_db();
+
 	$loader = new WPMP_Loader();
 	$loader->run();
 }
@@ -138,4 +141,16 @@ function wpmp_plugin_action_links( $links ) {
 		. esc_html__( 'Settings', 'wp-media-purge' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	return $links;
+}
+
+/**
+ * Run silent DB upgrade when the stored DB version is behind the current one.
+ * This ensures new tables are created for existing installs without requiring
+ * a manual deactivate/reactivate cycle.
+ */
+function wpmp_maybe_upgrade_db() {
+	if ( get_option( 'wpmp_db_version' ) !== WPMP_DB_VERSION ) {
+		require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-activator.php';
+		WPMP_Activator::create_tables();
+	}
 }
