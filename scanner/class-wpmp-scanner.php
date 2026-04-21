@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Main scan orchestrator.
  *
@@ -20,7 +20,7 @@ class WPMP_Scanner {
 	 */
 	public static function run() {
 		if ( function_exists( 'set_time_limit' ) ) {
-			set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+			set_time_limit( 0 );
 		}
 		set_transient( 'wpmp_scan_running', true, 3600 );
 		set_transient( 'wpmp_scan_progress', 0, 3600 );
@@ -129,25 +129,21 @@ class WPMP_Scanner {
 		$exclude_types = array_map( 'strtolower', (array) WPMP_Settings::get( 'exclude_file_types', array() ) );
 
 		// Preserve whitelisted IDs — these are NEVER cleared.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$whitelist_rows  = $wpdb->get_col( $wpdb->prepare( "SELECT attachment_id FROM {$table_results} WHERE status = %s", 'whitelisted' ) );
 		$whitelisted_ids = array_map( 'absint', array_filter( (array) $whitelist_rows ) );
 
 		// Delete only non-whitelisted previous results. This protects data if the scan
 		// fails partway through — whitelisted items survive and old results remain until
 		// replaced, preventing a complete data wipe on crash.
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_results is plugin's own table.
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$table_results} WHERE status != %s",
 				'whitelisted'
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		foreach ( $attachments as $index => $attachment_id ) {
-			// Update progress every 5 items to reduce DB writes
-				// Map attachment loop progress from 60% to 100%.
+			// Update progress every 5 items — maps scan progress from 60% to 100%.
 			if ( 0 === $index % 5 || $index === $total - 1 ) {
 				$progress = $total > 0 ? 60 + (int) ( ( $index + 1 ) / $total * 40 ) : 100;
 				set_transient( 'wpmp_scan_progress', min( $progress, 100 ), 3600 );
