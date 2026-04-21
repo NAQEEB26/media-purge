@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Plugin Name: WP Media Purge
  * Plugin URI:  https://getmediapurge.com/

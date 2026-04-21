@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Filesystem Scanner — finds upload files not registered in WordPress.
  *
