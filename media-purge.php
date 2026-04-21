@@ -5,7 +5,7 @@
  * Description: Find and safely remove unused media, detect duplicates, and reclaim disk space — free to use, with advanced features planned.
  * Version:     1.4.3
  * Author:      Naqeeb Ul Rehman
- * Author URI:  https://getmediapurge.com/
+ * Author URI:  https://profiles.wordpress.org/naqeeb26/
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: media-purge
