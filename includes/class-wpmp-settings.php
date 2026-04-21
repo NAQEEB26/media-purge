@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Plugin settings management.
  *

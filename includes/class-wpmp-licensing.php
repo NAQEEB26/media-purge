@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Licensing and feature gate.
  *

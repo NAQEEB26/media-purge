@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Cron job handlers.
  *
