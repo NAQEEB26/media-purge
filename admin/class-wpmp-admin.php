@@ -420,17 +420,37 @@ class WPMP_Admin {
 				$out,
 				array(
 					$row['attachment_id'],
-					$row['file_path'],
+					self::csv_safe( $row['file_path'] ),
 					$row['file_size'],
-					$row['mime_type'],
+					self::csv_safe( $row['mime_type'] ),
 					$row['status'],
-					$row['used_in'],
+					self::csv_safe( $row['used_in'] ),
 					$row['scan_date'],
 				)
 			);
 		}
 		fclose( $out );
 		exit;
+	}
+
+	/**
+	 * Sanitize a CSV cell value against spreadsheet formula injection (OWASP CSV injection).
+	 * Any cell beginning with =, +, -, @, tab, or carriage-return is prefixed with a single
+	 * apostrophe so that spreadsheet software treats it as a literal string, not a formula.
+	 *
+	 * @param string|null $value Raw cell value.
+	 * @return string Safe cell value.
+	 */
+	private static function csv_safe( $value ) {
+		$value = (string) $value;
+		if ( $value !== '' && strpbrk( $value[0], '=+-@' ) !== false ) {
+			return "'" . $value;
+		}
+		// Also handle leading tab or CR which Excel treats as formula prefixes.
+		if ( $value !== '' && ( "\t" === $value[0] || "\r" === $value[0] ) ) {
+			return "'" . $value;
+		}
+		return $value;
 	}
 
 	/**
