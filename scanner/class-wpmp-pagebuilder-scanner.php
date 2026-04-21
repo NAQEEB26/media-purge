@@ -346,7 +346,8 @@ class WPMP_PageBuilder_Scanner {
 		);
 
 		foreach ( $rows as $row ) {
-			$data = maybe_unserialize( $row['meta_value'] );
+			// Use allowed_classes=false to block PHP Object Injection via magic methods.
+			$data = @unserialize( $row['meta_value'], array( 'allowed_classes' => false ) );
 			if ( is_array( $data ) ) {
 				$found     = self::extract_from_beaver_data( $data );
 				$post_info = array(

@@ -131,7 +131,8 @@ class WPMP_Options_Scanner {
 		$urls = array();
 
 		if ( is_serialized( $value ) ) {
-			$value = wp_json_encode( maybe_unserialize( $value ) );
+			// Use allowed_classes=false to block PHP Object Injection via magic methods.
+			$value = wp_json_encode( @unserialize( $value, array( 'allowed_classes' => false ) ) );
 		}
 
 		if ( preg_match_all( '#(https?://[^"\'\s]+/wp-content/uploads/[^"\'\s]+)#i', $value, $matches ) ) {
@@ -154,7 +155,8 @@ class WPMP_Options_Scanner {
 		$ids = array();
 
 		if ( is_serialized( $value ) ) {
-			$value = wp_json_encode( maybe_unserialize( $value ) );
+			// Use allowed_classes=false to block PHP Object Injection via magic methods.
+			$value = wp_json_encode( @unserialize( $value, array( 'allowed_classes' => false ) ) );
 		}
 
 		if ( preg_match_all( '#"attachment_id"|"id"\s*:\s*(\d+)#', $value, $matches ) ) {

@@ -30,16 +30,18 @@ class WPMP_Ajax {
 			wp_die( esc_html__( 'Invalid request.', 'wp-media-purge' ), '', array( 'response' => 403 ) );
 		}
 
+		// Capability check must run before token consumption so a low-privileged user
+		// cannot burn the one-shot token and prevent the admin's own spawn from running.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Unauthorized.', 'wp-media-purge' ), '', array( 'response' => 403 ) );
+		}
+
 		$stored = get_transient( 'wpmp_scan_token' );
 		if ( ! $stored || ! hash_equals( (string) $stored, $token ) ) {
 			wp_die( esc_html__( 'Invalid or expired token.', 'wp-media-purge' ), '', array( 'response' => 403 ) );
 		}
 
 		delete_transient( 'wpmp_scan_token' );
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized.', 'wp-media-purge' ), '', array( 'response' => 403 ) );
-		}
 
 		if ( function_exists( 'set_time_limit' ) ) {
 			set_time_limit( 0 );
