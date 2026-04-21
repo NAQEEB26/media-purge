@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Fired when the plugin is uninstalled.
  *
@@ -13,11 +13,8 @@ $table_results   = $wpdb->prefix . 'wpmp_scan_results';
 $table_log       = $wpdb->prefix . 'wpmp_scan_log';
 $table_snapshots = $wpdb->prefix . 'wpmp_storage_snapshots';
 
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 $wpdb->query( "DROP TABLE IF EXISTS {$table_results}" );
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 $wpdb->query( "DROP TABLE IF EXISTS {$table_log}" );
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 $wpdb->query( "DROP TABLE IF EXISTS {$table_snapshots}" );
 
 delete_option( 'wpmp_db_version' );

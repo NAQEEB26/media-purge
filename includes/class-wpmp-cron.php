@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Cron job handlers.
  *
@@ -32,7 +32,6 @@ class WPMP_Cron {
 		$cutoff         = gmdate( 'Y-m-d H:i:s', strtotime( "-{$retention_days} days" ) );
 		$table          = $wpdb->prefix . 'wpmp_scan_results';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$trashed = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT attachment_id, id FROM {$table}
@@ -42,7 +41,6 @@ class WPMP_Cron {
 			),
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		foreach ( $trashed as $row ) {
 			wp_delete_attachment( (int) $row['attachment_id'], true );
@@ -59,7 +57,6 @@ class WPMP_Cron {
 
 		$table = $wpdb->prefix . 'wpmp_scan_results';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$row = $wpdb->get_row(
 			"SELECT
 				SUM(file_size) AS unused_size,
@@ -68,7 +65,6 @@ class WPMP_Cron {
 			 WHERE status = 'unused'",
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$snapshot = array(
 			'date'         => gmdate( 'Y-m-d' ),

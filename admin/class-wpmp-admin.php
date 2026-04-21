@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Admin-specific functionality.
  *
@@ -399,7 +399,6 @@ class WPMP_Admin {
 
 		global $wpdb;
 		$table = $wpdb->prefix . 'wpmp_scan_results';
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$results = $wpdb->get_results(
 			"SELECT attachment_id, file_path, file_size, mime_type, status, used_in, scan_date
 			 FROM {$table}
@@ -407,7 +406,6 @@ class WPMP_Admin {
 			 ORDER BY file_size DESC",
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$filename = 'wpmp-unused-media-' . gmdate( 'Y-m-d' ) . '.csv';
 		header( 'Content-Type: text/csv; charset=utf-8' );
@@ -431,7 +429,6 @@ class WPMP_Admin {
 				)
 			);
 		}
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $out );
 		exit;
 	}

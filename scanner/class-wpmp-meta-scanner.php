@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Post meta scanner.
  *
@@ -29,7 +29,6 @@ class WPMP_Meta_Scanner {
 		$url_post_map = array();
 
 		// 1. Featured images — join to get post title in one query
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$thumbnail_rows = $wpdb->get_results(
 			"SELECT pm.post_id, pm.meta_value, p.post_title
 			FROM {$wpdb->postmeta} pm
@@ -56,7 +55,6 @@ class WPMP_Meta_Scanner {
 		}
 
 		// 2. Meta values containing upload URLs
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$meta_rows = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT meta_value FROM {$wpdb->postmeta}
@@ -83,7 +81,6 @@ class WPMP_Meta_Scanner {
 		}
 
 		// 3. WooCommerce product gallery — with product title
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$gallery_rows = $wpdb->get_results(
 			"SELECT pm.post_id, pm.meta_value, p.post_title
 			FROM {$wpdb->postmeta} pm

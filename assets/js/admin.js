@@ -973,7 +973,7 @@
 
       function buildRecoveryRow(item) {
         var attId = parseInt(item.attachment_id || 0, 10);
-        var size  = parseInt(item.file_size || 0, 10);
+        var size = parseInt(item.file_size || 0, 10);
         var thumb = item.thumbnail_url
           ? '<img src="' + wpmp.esc(item.thumbnail_url) + '" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--wpmp-gray2)">'
           : '<div style="width:44px;height:44px;border-radius:6px;background:var(--wpmp-gray1);border:1px solid var(--wpmp-gray2);display:flex;align-items:center;justify-content:center;color:var(--wpmp-gray4)">' + icon('file', 18) + '</div>';
@@ -994,8 +994,8 @@
       function fetchAndRender(page, append) {
         var $ph = append ? null : $('.wpmp-recovery-placeholder');
         wpmp.api('media/trashed?page=' + page + '&per_page=20').then(function (data) {
-          var items      = data.items || [];
-          var total      = data.total || 0;
+          var items = data.items || [];
+          var total = data.total || 0;
           var totalPages = data.total_pages || 1;
 
           if (!append) {
@@ -1039,7 +1039,7 @@
 
             /* Restore individual */
             $(document).on('click.wpmpRecovery', '.wpmp-restore-one', function () {
-              var id   = parseInt($(this).data('id'), 10);
+              var id = parseInt($(this).data('id'), 10);
               var $row = $(this).closest('.wpmp-recovery-row');
               $(this).prop('disabled', true).text('\u2026');
               wpmp.api('media/restore', { method: 'POST', body: JSON.stringify({ ids: [id] }) })
@@ -1054,7 +1054,7 @@
 
             /* Delete individual permanently */
             $(document).on('click.wpmpRecovery', '.wpmp-delete-one', function () {
-              var id   = parseInt($(this).data('id'), 10);
+              var id = parseInt($(this).data('id'), 10);
               var size = parseInt($(this).data('size'), 10) || 0;
               var $row = $(this).closest('.wpmp-recovery-row');
               wpmp.showConfirmModal([id], size, 'delete', function () {
@@ -1090,8 +1090,8 @@
               wpmp.api('media/trashed?per_page=500').then(function (data) {
                 var items2 = data.items || [];
                 if (!items2.length) { wpmp.showToast(s.trashEmpty || 'Trash is already empty.', 'info'); return; }
-                var ids      = items2.map(function (i) { return parseInt(i.attachment_id, 10); });
-                var totalSz  = items2.reduce(function (a, i) { return a + parseInt(i.file_size || 0, 10); }, 0);
+                var ids = items2.map(function (i) { return parseInt(i.attachment_id, 10); });
+                var totalSz = items2.reduce(function (a, i) { return a + parseInt(i.file_size || 0, 10); }, 0);
                 wpmp.showConfirmModal(ids, totalSz, 'delete', function () {
                   wpmp.api('media/delete', { method: 'POST', body: JSON.stringify({ ids: ids }) })
                     .then(function (resp) {
@@ -1536,7 +1536,7 @@
       }
 
       function dismissWizard() {
-        wpmp.api('settings', { method: 'POST', body: JSON.stringify({ wizard_seen: true }) }).catch(function () {});
+        wpmp.api('settings', { method: 'POST', body: JSON.stringify({ wizard_seen: true }) }).catch(function () { });
         if (typeof wpmpAdmin !== 'undefined') wpmpAdmin.wizardSeen = true;
         $('.wpmp-wizard-overlay').fadeOut(200, function () { $(this).remove(); });
       }
