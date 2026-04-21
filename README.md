@@ -76,7 +76,7 @@ All core cleanup features are **free** — scan, review, trash, restore, export.
 
 **Requirements**
 
-- WordPress 5.8 or higher (tested up to 6.7)
+- WordPress 5.8 or higher (tested up to 6.9)
 - PHP 7.4 or higher
 - Single-site installs (multisite support is planned)
 

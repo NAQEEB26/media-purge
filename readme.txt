@@ -4,7 +4,7 @@ Contributors: naqeeb
 Donate link: https://getmediapurge.com/
 Tags: media, media library, unused media, cleanup, duplicates, storage, page builder, media manager, elementor
 Requires at least: 5.8
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 1.4.3
 License: GPLv2 or later
