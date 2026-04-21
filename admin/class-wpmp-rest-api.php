@@ -1045,3 +1045,4 @@ class WPMP_REST_API {
 
 		return new WP_REST_Response( array( 'checks' => $checks ), 200 );
 	}
+}
