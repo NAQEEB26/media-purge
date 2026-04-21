@@ -335,7 +335,7 @@ class WPMP_REST_API {
 			return new WP_REST_Response(
 				array(
 					'success' => false,
-					'message' => __( 'A scan is already running.', 'wp-media-purge' ),
+					'message' => __( 'A scan is already running.', 'media-purge' ),
 				),
 				400
 			);
@@ -374,7 +374,7 @@ class WPMP_REST_API {
 			return new WP_REST_Response(
 				array(
 					'success' => true,
-					'message' => __( 'Scan started in background (large library).', 'wp-media-purge' ),
+					'message' => __( 'Scan started in background (large library).', 'media-purge' ),
 				),
 				200
 			);
@@ -385,7 +385,7 @@ class WPMP_REST_API {
 		return new WP_REST_Response(
 			array(
 				'success' => true,
-				'message' => __( 'Scan started.', 'wp-media-purge' ),
+				'message' => __( 'Scan started.', 'media-purge' ),
 			),
 			200
 		);
@@ -405,7 +405,7 @@ class WPMP_REST_API {
 		return new WP_REST_Response(
 			array(
 				'success' => true,
-				'message' => __( 'Scan cancelled.', 'wp-media-purge' ),
+				'message' => __( 'Scan cancelled.', 'media-purge' ),
 			),
 			200
 		);
@@ -566,7 +566,7 @@ class WPMP_REST_API {
 			return new WP_REST_Response(
 				array(
 					'success' => false,
-					'message' => __( 'No files selected.', 'wp-media-purge' ),
+					'message' => __( 'No files selected.', 'media-purge' ),
 				),
 				400
 			);
@@ -616,7 +616,7 @@ class WPMP_REST_API {
 				'saved'   => $saved,
 				'message' => sprintf(
 				 /* translators: 1: number of files, 2: size saved */
-					__( '%1$d file(s) moved to trash. %2$s freed.', 'wp-media-purge' ),
+					__( '%1$d file(s) moved to trash. %2$s freed.', 'media-purge' ),
 					$trashed,
 					size_format( $saved )
 				),
@@ -642,7 +642,7 @@ class WPMP_REST_API {
 			return new WP_REST_Response(
 				array(
 					'success' => false,
-					'message' => __( 'No files selected.', 'wp-media-purge' ),
+					'message' => __( 'No files selected.', 'media-purge' ),
 				),
 				400
 			);
@@ -682,7 +682,7 @@ class WPMP_REST_API {
 				'restored' => $restored,
 				'message'  => sprintf(
 				 /* translators: %d: number of files */
-					__( '%d file(s) restored.', 'wp-media-purge' ),
+					__( '%d file(s) restored.', 'media-purge' ),
 					$restored
 				),
 			),
@@ -707,7 +707,7 @@ class WPMP_REST_API {
 			return new WP_REST_Response(
 				array(
 					'success' => false,
-					'message' => __( 'No files selected.', 'wp-media-purge' ),
+					'message' => __( 'No files selected.', 'media-purge' ),
 				),
 				400
 			);
@@ -748,7 +748,7 @@ class WPMP_REST_API {
 				'freed'   => $freed,
 				'message' => sprintf(
 				 /* translators: 1: number of files, 2: size freed */
-					__( '%1$d file(s) permanently deleted. %2$s freed.', 'wp-media-purge' ),
+					__( '%1$d file(s) permanently deleted. %2$s freed.', 'media-purge' ),
 					$deleted,
 					size_format( $freed )
 				),
@@ -774,7 +774,7 @@ class WPMP_REST_API {
 			return new WP_REST_Response(
 				array(
 					'success' => false,
-					'message' => __( 'No files selected.', 'wp-media-purge' ),
+					'message' => __( 'No files selected.', 'media-purge' ),
 				),
 				400
 			);
@@ -819,7 +819,7 @@ class WPMP_REST_API {
 				'whitelisted' => $whitelisted,
 				'message'     => sprintf(
 				 /* translators: %d: number of files */
-					__( '%d file(s) whitelisted.', 'wp-media-purge' ),
+					__( '%d file(s) whitelisted.', 'media-purge' ),
 					$whitelisted
 				),
 			),

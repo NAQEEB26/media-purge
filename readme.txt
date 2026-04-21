@@ -1,4 +1,4 @@
-﻿=== WP Media Purge ===
+=== Media Purge ===
 
 Contributors: naqeebulrehman
 Donate link: https://getmediapurge.com/
@@ -14,9 +14,9 @@ Find and safely remove unused media, detect duplicates, and reclaim disk space �
 
 == Description ==
 
-**WP Media Purge** gives you complete visibility into your WordPress media library, surfaces every file that is not used anywhere on your site, and lets you clean it up safely — without any risk of breaking live content.
+**Media Purge** gives you complete visibility into your WordPress media library, surfaces every file that is not used anywhere on your site, and lets you clean it up safely — without any risk of breaking live content.
 
-Whether you have a small blog or a large WooCommerce store, media libraries accumulate hundreds of forgotten files over time.  WP Media Purge makes it effortless to spot them, verify whether they are truly unused, and move them to a recoverable trash — not a permanent delete.
+Whether you have a small blog or a large WooCommerce store, media libraries accumulate hundreds of forgotten files over time.  Media Purge makes it effortless to spot them, verify whether they are truly unused, and move them to a recoverable trash — not a permanent delete.
 
 **Free to use.** All core cleanup features are available at no cost — scan, review, trash, restore, export.  No scan limits, no file caps.  A paid upgrade tier with advanced automation features is planned for a future release; those features are clearly marked "Coming Soon" inside the plugin.
 
@@ -101,7 +101,7 @@ If a file is only referenced by a theme or custom plugin not listed above, use t
 == Installation ==
 
 1. Upload the `wp-media-purge` folder to `/wp-content/plugins/`
-   **or** install directly via WordPress → Plugins → Add New → search "WP Media Purge".
+   **or** install directly via WordPress → Plugins → Add New → search "Media Purge".
 2. Activate the plugin through the **Plugins** menu.
 3. Navigate to **Media → Media Purge** in the WordPress admin sidebar.
 4. Click **Run Scan Now** to perform your first media audit.
