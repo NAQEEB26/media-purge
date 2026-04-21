@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WP Media Purge
+ * Plugin Name: Media Purge
  * Plugin URI:  https://getmediapurge.com/
  * Description: Find and safely remove unused media, detect duplicates, and reclaim disk space — free to use, with advanced features planned.
  * Version:     1.4.3
@@ -8,7 +8,7 @@
  * Author URI:  https://getmediapurge.com/
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain: wp-media-purge
+ * Text Domain: media-purge
  * Domain Path: /languages
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -67,7 +67,7 @@ function wpmp_init() {
 	add_filter( 'cron_schedules', 'wpmp_add_cron_schedules' );
 
 	// Load text domain.
-	load_plugin_textdomain( 'wp-media-purge', false, dirname( WPMP_PLUGIN_BASENAME ) . '/languages' );
+	load_plugin_textdomain( 'media-purge', false, dirname( WPMP_PLUGIN_BASENAME ) . '/languages' );
 
 	// Plugin action links on Plugins page.
 	add_filter( 'plugin_action_links_' . WPMP_PLUGIN_BASENAME, 'wpmp_plugin_action_links' );
@@ -124,7 +124,7 @@ function wpmp_add_cron_schedules( $schedules ) {
 	if ( ! isset( $schedules['monthly'] ) ) {
 		$schedules['monthly'] = array(
 			'interval' => 30 * DAY_IN_SECONDS,
-			'display'  => __( 'Once Monthly', 'wp-media-purge' ),
+			'display'  => __( 'Once Monthly', 'media-purge' ),
 		);
 	}
 	return $schedules;
@@ -137,8 +137,8 @@ function wpmp_add_cron_schedules( $schedules ) {
  * @return array
  */
 function wpmp_plugin_action_links( $links ) {
-	$settings_link = '<a href="' . esc_url( admin_url( 'upload.php?page=wp-media-purge' ) ) . '">'
-		. esc_html__( 'Settings', 'wp-media-purge' ) . '</a>';
+	$settings_link = '<a href="' . esc_url( admin_url( 'upload.php?page=media-purge' ) ) . '">'
+		. esc_html__( 'Settings', 'media-purge' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	return $links;
 }
