@@ -125,7 +125,8 @@ class WPMP_Meta_Scanner {
 		$urls = array();
 
 		if ( is_serialized( $string ) ) {
-			$unserialized = maybe_unserialize( $string );
+			// Use allowed_classes=false to block PHP Object Injection via magic methods.
+			$unserialized = @unserialize( $string, array( 'allowed_classes' => false ) );
 			$string       = is_string( $unserialized ) ? $unserialized : wp_json_encode( $unserialized );
 		}
 
@@ -149,7 +150,8 @@ class WPMP_Meta_Scanner {
 		$ids = array();
 
 		if ( is_serialized( $string ) ) {
-			$unserialized = maybe_unserialize( $string );
+			// Use allowed_classes=false to block PHP Object Injection via magic methods.
+			$unserialized = @unserialize( $string, array( 'allowed_classes' => false ) );
 			$string       = wp_json_encode( $unserialized );
 		}
 
