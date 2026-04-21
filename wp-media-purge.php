@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * Plugin global constants.
  * Use these throughout the plugin for consistency.
  */
-define( 'WPMP_VERSION', '1.4.2' );
+define( 'WPMP_VERSION', '1.4.3' );
 define( 'WPMP_PLUGIN_FILE', __FILE__ );
 define( 'WPMP_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WPMP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
