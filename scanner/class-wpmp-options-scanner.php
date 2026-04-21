@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Options scanner.
  *
@@ -29,7 +29,6 @@ class WPMP_Options_Scanner {
 		$url_post_map = array();
 
 		// 1. Options containing upload URLs (exclude transients)
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$option_rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT option_name, option_value FROM {$wpdb->options}
@@ -77,7 +76,6 @@ class WPMP_Options_Scanner {
 		}
 
 		// 2. Theme mods (customizer)
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$theme_mod_rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT option_name, option_value FROM {$wpdb->options}

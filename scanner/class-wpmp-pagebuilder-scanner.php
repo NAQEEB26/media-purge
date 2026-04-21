@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Page builder scanner.
  *
@@ -120,7 +120,6 @@ class WPMP_PageBuilder_Scanner {
 		$id_locations = array();
 		$url_post_map = array();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(
 			"SELECT pm.post_id, pm.meta_value, p.post_title
 			FROM {$wpdb->postmeta} pm
@@ -224,7 +223,6 @@ class WPMP_PageBuilder_Scanner {
 		$id_locations = array();
 		$url_post_map = array();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$posts = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title, post_content FROM {$wpdb->posts}
@@ -276,7 +274,6 @@ class WPMP_PageBuilder_Scanner {
 		$id_locations = array();
 		$url_post_map = array();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$posts = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title, post_content FROM {$wpdb->posts}
@@ -338,7 +335,6 @@ class WPMP_PageBuilder_Scanner {
 		$id_locations = array();
 		$url_post_map = array();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(
 			"SELECT pm.post_id, pm.meta_value, p.post_title
 			FROM {$wpdb->postmeta} pm

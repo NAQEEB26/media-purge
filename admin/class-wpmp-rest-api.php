@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * REST API endpoints.
  *
@@ -342,7 +342,6 @@ class WPMP_REST_API {
 		}
 
 		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- count check; caching would give stale results on large libraries.
 		$total = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s",
@@ -462,7 +461,6 @@ class WPMP_REST_API {
 		}
 
 		// Build COUNT query.
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is plugin's own table; $where_sql is built from a hardcoded allowlist.
 		if ( $args ) {
 			$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} {$where_sql}", $args ) );
 		} else {
@@ -476,7 +474,6 @@ class WPMP_REST_API {
 			$wpdb->prepare( "SELECT * FROM {$table} {$where_sql} ORDER BY file_size DESC LIMIT %d OFFSET %d", $args ),
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		foreach ( $results as &$row ) {
 			$att_id                = (int) $row['attachment_id'];
@@ -515,7 +512,6 @@ class WPMP_REST_API {
 		$offset   = ( $page - 1 ) * $per_page;
 		$table    = $wpdb->prefix . 'wpmp_scan_results';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$total = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$table} WHERE status = %s",
@@ -531,7 +527,6 @@ class WPMP_REST_API {
 			),
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		foreach ( $results as &$row ) {
 			$att_id                = (int) $row['attachment_id'];
@@ -586,7 +581,6 @@ class WPMP_REST_API {
 				continue;
 			}
 
-			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 			$row = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT * FROM {$table} WHERE attachment_id = %d AND status = 'unused'",
@@ -594,7 +588,6 @@ class WPMP_REST_API {
 				),
 				ARRAY_A
 			);
-			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 			if ( ! $row ) {
 				continue;
@@ -729,7 +722,6 @@ class WPMP_REST_API {
 				continue;
 			}
 
-			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 			$row = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT file_size FROM {$table} WHERE attachment_id = %d AND status = 'trashed'",
@@ -737,7 +729,6 @@ class WPMP_REST_API {
 				),
 				ARRAY_A
 			);
-			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 			if ( ! $row ) {
 				continue;
@@ -847,25 +838,21 @@ class WPMP_REST_API {
 
 		$table = $wpdb->prefix . 'wpmp_scan_results';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$total_size   = (int) $wpdb->get_var( "SELECT COALESCE(SUM(file_size), 0) FROM {$table}" );
 		$total_count  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 		$unused_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE status = 'unused'" );
 		$unused_size  = (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT COALESCE(SUM(file_size), 0) FROM {$table} WHERE status = %s", 'unused' )
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Pre-scan fallback.
 		if ( 0 === $total_count ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time fallback count.
 			$total_count = (int) $wpdb->get_var(
 				$wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s", 'attachment' )
 			);
 		}
 
 		// Storage breakdown by mime type group.
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$type_rows = $wpdb->get_results(
 			"SELECT
 				CASE
@@ -882,7 +869,6 @@ class WPMP_REST_API {
 			 GROUP BY type_group",
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$by_type = array();
 		foreach ( (array) $type_rows as $row ) {
@@ -917,7 +903,6 @@ class WPMP_REST_API {
 		$limit = min( 50, max( 5, (int) $request->get_param( 'limit' ) ) );
 		$table = $wpdb->prefix . 'wpmp_scan_results';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT attachment_id, file_path, file_size, mime_type, status
@@ -929,7 +914,6 @@ class WPMP_REST_API {
 			),
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		foreach ( $rows as &$row ) {
 			$att_id                = (int) $row['attachment_id'];
@@ -998,7 +982,6 @@ class WPMP_REST_API {
 
 		$table = $wpdb->prefix . 'wpmp_scan_results';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table.
 		$groups = $wpdb->get_results(
 			"SELECT file_hash, GROUP_CONCAT(attachment_id) as ids, COUNT(*) as cnt, SUM(file_size) as total_size
 			FROM {$table}
@@ -1008,14 +991,12 @@ class WPMP_REST_API {
 			ORDER BY total_size DESC",
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$result = array();
 
 		foreach ( $groups as $row ) {
 			$ids          = array_map( 'absint', explode( ',', $row['ids'] ) );
 			$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is plugin's own table; $placeholders is built from absint IDs.
 			$rows = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT attachment_id, file_path, file_size FROM {$table} WHERE attachment_id IN ({$placeholders})",
@@ -1023,7 +1004,6 @@ class WPMP_REST_API {
 				),
 				ARRAY_A
 			);
-			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$items = array();
 			foreach ( $rows as $r ) {
 				$items[] = array(
@@ -1080,7 +1060,6 @@ class WPMP_REST_API {
 		);
 		$missing       = array();
 		foreach ( $tables_needed as $table ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- SHOW TABLES is a one-time check; caching would give stale results.
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 			if ( ! $exists ) {
 				$missing[] = str_replace( $wpdb->prefix, '', $table );
@@ -1176,7 +1155,7 @@ class WPMP_REST_API {
 
 		// 10. Last scan summary.
 		$last_run            = get_option( 'wpmp_scan_last_run', null );
-		$scan_count          = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wpmp_scan_results" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$scan_count          = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wpmp_scan_results" );
 		$checks['last_scan'] = array(
 			'label'  => 'Last Scan',
 			'status' => $last_run ? 'ok' : 'info',

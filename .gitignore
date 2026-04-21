@@ -2,7 +2,7 @@
 # WP Media Purge — .gitignore
 # ============================
 # Only distributable plugin files belong in this repo.
-# Planning docs, AI skills, and build artifacts live in the parent workspace.
+# Dev tools, AI assistant configs, and build artifacts stay out.
 
 # Build artifacts
 *.zip
@@ -28,20 +28,35 @@ Thumbs.db
 .idea/
 *.sublime-workspace
 
-# PHP dev
+# PHP dev tools
 vendor/
 composer.lock
+composer.json
+*.phar
+CodeSniffer.conf
+wpcs/
+phpcs-*.txt
+phpcbf-*.txt
+
+# Backup files
+*.bak
+*.orig
+
+# AI assistant configs
+.claude/
+.qodo/
 
 # Test coverage
 coverage/
 .phpunit.result.cache
 tests/output/
 
-# Planning docs (keep in _project-docs/ at workspace level)
+# Planning docs (live in dev-tools/ at workspace level)
 FREEMIUM-PLAN.md
 *-PLAN.md
 *-plan.txt
 design*.txt
+PLUGIN-GUIDE.md
 
 # WP.org upload staging
 svn/

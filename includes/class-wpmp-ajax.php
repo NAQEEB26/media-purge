@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * AJAX handlers for background operations.
  *
@@ -23,7 +23,7 @@ class WPMP_Ajax {
 	 * Run scan (called via async spawn for large sites).
 	 */
 	public static function run_scan() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Token-based auth used; hash_equals() check below replaces nonce.
+		// Token-based auth: the scan token is validated with hash_equals() below.
 		$token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : '';
 
 		if ( empty( $token ) ) {
