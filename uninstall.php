@@ -20,10 +20,6 @@ $wpdb->query( "DROP TABLE IF EXISTS {$table_snapshots}" );
 delete_option( 'wpmp_db_version' );
 delete_option( 'wpmp_scan_last_run' );
 delete_option( 'wpmp_settings' );
-delete_option( 'wpmp_license_key' );
-delete_option( 'wpmp_license_valid' );
-delete_option( 'wpmp_monthly_count' );
-delete_option( 'wpmp_monthly_reset' );
 delete_option( 'wpmp_storage_snapshots' );
 
 delete_transient( 'wpmp_scan_status' );
@@ -34,5 +30,4 @@ delete_transient( 'wpmp_scan_phase' );
 delete_transient( 'wpmp_scan_token' );
 
 wp_clear_scheduled_hook( 'wpmp_purge_old_trash' );
-wp_clear_scheduled_hook( 'wpmp_reset_monthly_count' );
 wp_clear_scheduled_hook( 'wpmp_storage_snapshot' );

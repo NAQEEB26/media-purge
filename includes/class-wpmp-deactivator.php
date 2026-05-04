@@ -26,7 +26,6 @@ class WPMP_Deactivator {
 	 */
 	public static function clear_cron_events() {
 		wp_clear_scheduled_hook( 'wpmp_purge_old_trash' );
-		wp_clear_scheduled_hook( 'wpmp_reset_monthly_count' );
 		wp_clear_scheduled_hook( 'wpmp_storage_snapshot' );
 		wp_clear_scheduled_hook( 'wpmp_auto_scan' );
 	}

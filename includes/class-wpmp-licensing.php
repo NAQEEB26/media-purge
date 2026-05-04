@@ -1,6 +1,6 @@
 <?php
 /**
- * Licensing and feature gate.
+ * Licensing stub — no licence checking in the free plugin.
  *
  * @package WP_Media_Purge
  */
@@ -13,13 +13,12 @@ defined( 'ABSPATH' ) || exit;
 class WPMP_Licensing {
 
 	/**
-	 * Check if Pro features are available.
+	 * Always returns false in the free plugin hosted on WordPress.org.
+	 * A future Pro add-on distributed separately may override this.
 	 *
 	 * @return bool
 	 */
 	public static function is_pro() {
-		$license = get_option( 'wpmp_license_key', '' );
-		$valid   = get_option( 'wpmp_license_valid', false );
-		return ! empty( $license ) && $valid;
+		return false;
 	}
 }

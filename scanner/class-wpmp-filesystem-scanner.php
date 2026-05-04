@@ -4,8 +4,7 @@
  *
  * This scanner walks wp-content/uploads/ and compares every file against
  * the _wp_attached_file postmeta table to detect orphaned files that have
- * no attachment record.  Orphan detection is a Phase-2 Pro feature; this
- * class provides the foundation used by the main scanner on activation.
+ * no attachment record.
  *
  * @package WP_Media_Purge
  */
@@ -101,18 +100,12 @@ class WPMP_Filesystem_Scanner {
 	/**
 	 * Return files on disk that have no corresponding attachment record.
 	 *
-	 * NOTE: This is a preparatory stub — orphaned file management is a
-	 * Phase-2 feature gated behind the Pro licence.  The return value is
-	 * intentionally empty in the free tier.
+	 * Walks the uploads directory and returns any file that is not registered
+	 * as a WordPress attachment in postmeta.
 	 *
 	 * @return array[] Each entry: ['path' => string, 'size' => int]
 	 */
 	public function get_orphaned_files() {
-		/* Pro gate — return empty in free tier */
-		if ( ! apply_filters( 'wpmp_is_pro', false ) ) {
-			return array();
-		}
-
 		$all_files  = $this->get_all_upload_files();
 		$registered = array_values( $this->get_registered_files() );
 
