@@ -18,8 +18,6 @@ class WPMP_Cron {
 	public static function init() {
 		add_action( 'wpmp_purge_old_trash', array( __CLASS__, 'purge_old_trash' ) );
 		add_action( 'wpmp_storage_snapshot', array( __CLASS__, 'take_storage_snapshot' ) );
-		// Note: wpmp_reset_monthly_count is intentionally not registered here.
-		// The monthly cleanup counter will be enforced and reset by the Pro tier add-on.
 	}
 
 	/**
@@ -49,7 +47,7 @@ class WPMP_Cron {
 	}
 
 	/**
-	 * Record a daily storage snapshot for trend analytics (Pro).
+	 * Record a daily storage snapshot for trend analytics.
 	 * Stores compact data in wpmp_storage_snapshots option (ring-buffer, 90 days).
 	 */
 	public static function take_storage_snapshot() {

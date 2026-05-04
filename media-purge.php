@@ -33,15 +33,6 @@ define( 'WPMP_REST_NAMESPACE', 'wpmp/v1' );
 define( 'WPMP_DB_VERSION', '1.0' );
 
 /**
- * Check if Pro is active.
- *
- * @return bool
- */
-function wpmp_is_pro() {
-	return class_exists( 'WPMP_Licensing' ) && WPMP_Licensing::is_pro();
-}
-
-/**
  * Activate plugin.
  */
 function wpmp_activate() {
@@ -67,9 +58,6 @@ function wpmp_init() {
 	// Register custom cron schedules.
 	add_filter( 'cron_schedules', 'wpmp_add_cron_schedules' );
 
-	// Load text domain.
-	load_plugin_textdomain( 'media-purge', false, dirname( WPMP_PLUGIN_BASENAME ) . '/languages' );
-
 	// Plugin action links on Plugins page.
 	add_filter( 'plugin_action_links_' . WPMP_PLUGIN_BASENAME, 'wpmp_plugin_action_links' );
 
@@ -77,7 +65,6 @@ function wpmp_init() {
 	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-loader.php';
 	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-settings.php';
 	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-cron.php';
-	require_once WPMP_PLUGIN_DIR . 'includes/class-wpmp-licensing.php';
 
 	// Scanners.
 	require_once WPMP_PLUGIN_DIR . 'scanner/class-wpmp-filesystem-scanner.php';
@@ -86,9 +73,6 @@ function wpmp_init() {
 	require_once WPMP_PLUGIN_DIR . 'scanner/class-wpmp-options-scanner.php';
 	require_once WPMP_PLUGIN_DIR . 'scanner/class-wpmp-pagebuilder-scanner.php';
 	require_once WPMP_PLUGIN_DIR . 'scanner/class-wpmp-scanner.php';
-
-	/* Hook the is_pro filter to licensing class */
-	add_filter( 'wpmp_is_pro', 'wpmp_is_pro' );
 
 	WPMP_Cron::init();
 

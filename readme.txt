@@ -1,6 +1,6 @@
 === Media Purge ===
 
-Contributors: naqeeb
+Contributors: naqeeb026
 Donate link: https://getmediapurge.com/
 Tags: media, media library, unused media, cleanup, duplicates, storage, page builder, media manager, elementor
 Requires at least: 5.8
