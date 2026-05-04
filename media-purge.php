@@ -3,7 +3,7 @@
  * Plugin Name: Media Purge
  * Plugin URI:  https://getmediapurge.com/
  * Description: Find and safely remove unused media, detect duplicates, and reclaim disk space — free to use, with advanced features planned.
- * Version:     1.4.3
+ * Version:     1.4.4
  * Author:      Naqeeb Ul Rehman
  * Author URI:  https://profiles.wordpress.org/naqeeb026/
  * License:     GPL-2.0-or-later
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * Plugin global constants.
  * Use these throughout the plugin for consistency.
  */
-define( 'WPMP_VERSION', '1.4.3' );
+define( 'WPMP_VERSION', '1.4.4' );
 define( 'WPMP_PLUGIN_FILE', __FILE__ );
 define( 'WPMP_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WPMP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

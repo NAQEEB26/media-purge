@@ -6,7 +6,7 @@ Tags: media, media library, unused media, cleanup, duplicates, storage, page bui
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -143,6 +143,9 @@ No artificial limits. There are no scan caps, no file-count restrictions, and no
 7. **Folders tab** — virtual folder organizer preview with "Coming Soon" card.
 
 == Changelog ==
+
+= 1.4.4 =
+* Fixed: Rebuilt admin JavaScript from scratch — previous build was corrupted and caused the admin UI to display only a loading spinner
 
 = 1.4.3 =
 * Added: System Status tab — one-glance health check covering REST API, DB tables, PHP/WP versions, cron jobs, memory limit, upload directory, and WooCommerce
