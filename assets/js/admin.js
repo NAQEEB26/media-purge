@@ -880,31 +880,7 @@
         var unusedSize = parseInt(stats.unused_size, 10) || 0;
         var byType = stats.by_type || {};
 
-        /* Storage growth mock (12 months) — real data would need a history table */
-        var monthData = [];
-        for (var m = 0; m < 12; m++) {
-          monthData.push(totalSize > 0 ? Math.round(totalSize * (0.4 + m * 0.055)) : 0);
-        }
-        monthData[11] = totalSize;
-
-        /* Build bar chart for storage growth */
-        var maxMonth = Math.max.apply(null, monthData) || 1;
-        var monthLabels = ['Jan', '', '', 'Apr', '', '', 'Jul', '', '', 'Oct', '', 'Dec'];
-        var barChartHtml = '<svg width="100%" height="140" viewBox="0 0 300 140" preserveAspectRatio="none" role="img" aria-label="Monthly storage growth">';
-        monthData.forEach(function (v, i) {
-          var x = (i / 11) * 280 + 10;
-          var h = totalSize > 0 ? (v / maxMonth) * 110 : 0;
-          var y = 130 - h;
-          barChartHtml += '<rect x="' + (x - 8) + '" y="' + y + '" width="16" height="' + h + '" rx="4" fill="' + (i === 11 ? '#1B4FD8' : '#DBEAFE') + '"/>';
-        });
-        monthLabels.forEach(function (label, i) {
-          if (label) {
-            barChartHtml += '<text x="' + ((i / 11) * 280 + 10) + '" y="138" text-anchor="middle" style="font-size:8px;fill:#94A3B8;font-family:\'DM Sans\',sans-serif">' + label + '</text>';
-          }
-        });
-        barChartHtml += '</svg>';
-
-        /* Unused space sub-card */
+        /* Unused space percentage */
         var unusedPct = totalSize > 0 ? (unusedSize / totalSize * 100).toFixed(1) : 0;
 
         $ph.replaceWith(
@@ -914,11 +890,8 @@
           '<div class="wpmp-page-subtitle">' + wpmp.esc(s.storageDesc || 'Understand what\u2019s taking up space') + '</div></div>' +
           '</div>' +
 
-          /* 2-column: Storage Overview + Storage Growth */
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">' +
-
-          /* Storage Overview */
-          '<div class="wpmp-card wpmp-fade-up" style="padding:24px">' +
+          /* Storage Overview (full-width) */
+          '<div class="wpmp-card wpmp-fade-up" style="padding:24px;margin-bottom:16px">' +
           '<h3 style="font-size:14px;font-weight:700;color:var(--wpmp-navy);margin:0 0 20px">' + wpmp.esc(s.storageOverview || 'Storage Overview') + '</h3>' +
           (totalSize > 0 ? wpmp.buildStorageRing(byType, totalSize) : '<p style="color:var(--wpmp-gray5);font-size:13px">No data yet. Run a scan first.</p>') +
           (totalSize > 0 ?
@@ -933,18 +906,8 @@
             '</div>' : '') +
           '</div>' +
 
-          /* Storage Growth */
-          '<div class="wpmp-card wpmp-fade-up" style="padding:24px;animation-delay:60ms">' +
-          '<h3 style="font-size:14px;font-weight:700;color:var(--wpmp-navy);margin:0 0 4px">' + wpmp.esc(s.storageGrowth || 'Storage Growth') + '</h3>' +
-          '<p style="font-size:11px;color:var(--wpmp-gray5);margin:0 0 14px">' + wpmp.esc(s.storageGrowthNote || 'Estimated trend based on current storage size. Historical tracking coming in a future release.') + '</p>' +
-          barChartHtml +
-          wpmp.buildProGate(s.proHostingEstimator || 'Hosting Cost Estimator', s.proHostingEstimatorDesc || 'Enter your hosting plan\u2019s $/GB rate and see exactly how much unused files are costing you every month.') +
-          '</div>' +
-
-          '</div>' +
-
           /* Largest Files */
-          '<div class="wpmp-card wpmp-fade-up" style="padding:24px;animation-delay:120ms">' +
+          '<div class="wpmp-card wpmp-fade-up" style="padding:24px;animation-delay:60ms">' +
           '<h3 style="font-size:14px;font-weight:700;color:var(--wpmp-navy);margin:0 0 14px">' + wpmp.esc(s.largestFiles || 'Top 5 Largest Files') + '</h3>' +
           wpmp.buildLargestFiles(largestFiles) +
           '</div>' +

@@ -6,7 +6,7 @@ Tags: media, media library, unused media, cleanup, duplicates, storage, page bui
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,7 +58,7 @@ The following features are currently in development and will be part of a **paid
 
 * **One-click Duplicate Merge** — keep the first copy, rewrite all references, delete the rest automatically.
 * **Scheduled Auto-Cleanup** — set a recurring schedule to automatically trash unused media older than N days, with optional email summary.
-* **Advanced Storage Analytics** — 90-day storage trend history and a hosting cost estimator.
+* **Advanced Storage Analytics** — historical storage trend charts and a hosting cost estimator.
 * **Virtual Folder Organizer** — organise attachments into logical virtual folders without touching the server directory structure.
 
 Core cleanup (scan → review → trash → restore) will always be free.
@@ -143,6 +143,11 @@ No artificial limits. There are no scan caps, no file-count restrictions, and no
 7. **Folders tab** — virtual folder organizer preview with "Coming Soon" card.
 
 == Changelog ==
+
+= 1.4.5 =
+* Fixed: Removed storage snapshot database table, daily cron collection, and mock storage growth chart — these were infrastructure for a Coming Soon feature and should not be silently collecting data.
+* Fixed: Storage tab now shows Storage Overview (real scan data) and Largest Files only — no mock/estimated charts.
+* Fixed: Removed Hosting Cost Estimator Coming Soon gate from Storage tab.
 
 = 1.4.4 =
 * Fixed: Rebuilt admin JavaScript from scratch — previous build was corrupted and caused the admin UI to display only a loading spinner

@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Media Purge - Clean Unused WordPress Media Safely</title>
+  <meta name="description" content="Find unused media, detect duplicates, and recover storage in minutes. Safe cleanup flow with restore, context links, and no risky deletes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fc;
+      --ink: #091a36;
+      --muted: #5e6e88;
+      --line: #d9e2f2;
+      --brand: #2558ff;
+      --brand-2: #00a3ff;
+      --brand-ink: #dbe9ff;
+      --success: #0b9b5d;
+      --danger: #dc3b58;
+      --warning: #f59e0b;
+      --card: #ffffff;
+      --hero-1: #081e47;
+      --hero-2: #123a86;
+      --hero-3: #0b2a66;
+      --radius: 16px;
+      --shadow: 0 16px 34px rgba(10, 32, 76, 0.12);
+      --container: 1140px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Manrope", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+
+    .container {
+      width: min(var(--container), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+      background: rgba(8, 30, 71, 0.88);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .top-nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      letter-spacing: 0.2px;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(140deg, #4da8ff, #1d5bff);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #cfe0ff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(120deg, var(--brand), #3778ff);
+      box-shadow: 0 8px 24px rgba(37, 88, 255, 0.35);
+    }
+
+    .btn-secondary {
+      color: #d8e6ff;
+      border-color: rgba(208, 224, 255, 0.35);
+      background: rgba(19, 53, 117, 0.5);
+    }
+
+    .btn-dark {
+      color: #e8f2ff;
+      border-color: rgba(166, 196, 255, 0.35);
+      background: rgba(7, 24, 58, 0.62);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(1200px 300px at 80% -10%, rgba(24, 117, 255, 0.45), transparent 65%),
+        radial-gradient(1000px 260px at -10% -20%, rgba(0, 173, 255, 0.28), transparent 70%),
+        linear-gradient(170deg, var(--hero-1) 0%, var(--hero-2) 56%, var(--hero-3) 100%);
+      color: #fff;
+      padding: 84px 0 72px;
+    }
+
+    .hero-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 28px;
+      align-items: center;
+    }
+
+    .hero-copy {
+      max-width: 760px;
+      text-align: left;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.65px;
+      background: rgba(209, 226, 255, 0.2);
+      color: #e7f0ff;
+      border: 1px solid rgba(220, 234, 255, 0.32);
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.03;
+      margin: 0;
+      max-width: 760px;
+      letter-spacing: -1px;
+    }
+
+    .hero .accent {
+      color: #8cd3ff;
+      display: block;
+    }
+
+    .hero p {
+      color: #d3e4ff;
+      max-width: 660px;
+      margin-top: 18px;
+      margin-bottom: 28px;
+      font-size: 18px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .trust-row {
+      margin-top: 14px;
+      color: #b4cbef;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .trust-points {
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 14px;
+      max-width: 620px;
+    }
+
+    .trust-points li {
+      color: #bdd2f4;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trust-points li::before {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(124, 191, 255, 0.22);
+      border: 1px solid rgba(176, 217, 255, 0.55);
+      box-shadow: inset 0 0 0 3px rgba(130, 199, 255, 0.45);
+      flex: 0 0 16px;
+    }
+
+    .hero-visual {
+      width: 100%;
+      background: rgba(9, 31, 75, 0.55);
+      border: 1px solid rgba(190, 216, 255, 0.24);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 22px 40px rgba(4, 17, 45, 0.36);
+    }
+
+    .visual-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: #dce9ff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .visual-head .live {
+      color: #86e1b2;
+      background: rgba(22, 106, 71, 0.28);
+      border: 1px solid rgba(106, 201, 160, 0.45);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .visual-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .vstat {
+      border: 1px solid rgba(181, 211, 255, 0.24);
+      background: rgba(5, 21, 52, 0.6);
+      border-radius: 10px;
+      padding: 9px;
+    }
+
+    .vstat strong {
+      display: block;
+      color: #f0f6ff;
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
+    .vstat span {
+      color: #b4c9ef;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .visual-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .visual-list li {
+      display: grid;
+      grid-template-columns: 20px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(178, 209, 255, 0.18);
+      background: rgba(5, 20, 48, 0.5);
+      border-radius: 10px;
+      padding: 8px 9px;
+      color: #d7e6ff;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .visual-list .ok {
+      color: #89e1b2;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .visual-list .warn {
+      color: #ffb5c2;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .metrics {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric {
+      background: rgba(8, 25, 62, 0.46);
+      border: 1px solid rgba(206, 223, 255, 0.18);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 3px;
+      color: #f0f6ff;
+    }
+
+    .metric span {
+      font-size: 12px;
+      color: #c5d7f7;
+      font-weight: 600;
+    }
+
+    section {
+      padding: 74px 0;
+    }
+
+    .section-head {
+      text-align: center;
+      margin-bottom: 34px;
+    }
+
+    .section-head .kicker {
+      color: var(--brand);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      display: inline-block;
+      background: #e7efff;
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    .section-head h2 {
+      margin: 12px auto 8px;
+      max-width: 740px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -0.7px;
+    }
+
+    .section-head p {
+      margin: 0 auto;
+      max-width: 670px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .problem-card {
+      background: var(--card);
+      border: 1px solid #f3c4cf;
+      border-top: 3px solid #eb6e86;
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .problem-card strong {
+      display: block;
+      color: var(--danger);
+      font-size: 28px;
+      margin-bottom: 2px;
+    }
+
+    .problem-card h3 {
+      margin: 0 0 7px;
+      font-size: 16px;
+    }
+
+    .problem-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .warning-note {
+      margin-top: 16px;
+      border: 1px solid #f2b6c2;
+      background: #fff2f4;
+      color: #8f2b42;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .step {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .step .num {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(140deg, #3e78ff, #49bcff);
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .step h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .proof-box {
+      margin-top: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .proof-row {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #edf3ff;
+      border-radius: 10px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .proof-row:last-child { margin-bottom: 0; }
+    .proof-row .state {
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 4px 8px;
+    }
+
+    .state-safe { color: #056f45; background: #e6f8ef; }
+    .state-risk { color: #b42343; background: #ffe8ec; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feature {
+      position: relative;
+      background: var(--card);
+      border: 1px solid #c8d8ff;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      min-height: 180px;
+    }
+
+    .feature .tag {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #0f55d9;
+      background: #e8f0ff;
+      border-radius: 999px;
+      padding: 4px 8px;
+    }
+
+    .feature h3 {
+      font-size: 16px;
+      margin: 6px 0 8px;
+    }
+
+    .feature p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .compare-wrap {
+      overflow-x: auto;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th {
+      background: #0d2c66;
+      color: #f0f5ff;
+      padding: 12px;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    td {
+      border-top: 1px solid #e8effd;
+      padding: 12px;
+      font-size: 14px;
+      color: #3f4f6d;
+    }
+
+    td.highlight {
+      color: #0d53d8;
+      font-weight: 800;
+    }
+
+    .compare-note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #eef4ff;
+      border: 1px solid #d4e2ff;
+      color: #35527d;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.35px;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 999px;
+      line-height: 1;
+    }
+
+    .chip-yes {
+      background: #e8f8ef;
+      color: #0f7a4b;
+    }
+
+    .chip-partial {
+      background: #fff5e8;
+      color: #a16106;
+    }
+
+    .chip-no {
+      background: #ffecef;
+      color: #b1304a;
+    }
+
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .quote {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .stars {
+      color: #f59e0b;
+      font-size: 12px;
+      letter-spacing: 1.2px;
+      margin-bottom: 9px;
+      font-weight: 700;
+    }
+
+    .quote p {
+      margin: 0 0 12px;
+      color: #4b5e81;
+      font-size: 14px;
+    }
+
+    .quote .who {
+      font-size: 13px;
+      color: #25365a;
+      font-weight: 700;
+    }
+
+    .rating-bar {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    .bar-line {
+      height: 10px;
+      border-radius: 999px;
+      background: #ebf1ff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar-line::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 92%;
+      background: linear-gradient(90deg, #f6b21a, #ffcb4f);
+    }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .price {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .price h3 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .price .cost {
+      margin: 8px 0;
+      font-size: 36px;
+      font-weight: 800;
+    }
+
+    .price .sub {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .price ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #445778;
+      font-size: 14px;
+    }
+
+    .price li { margin: 6px 0; }
+
+    .price.pro {
+      background:
+        radial-gradient(120% 100% at 100% 0%, rgba(54, 123, 255, 0.2), transparent 45%),
+        linear-gradient(180deg, #0d2d67, #09224f 70%);
+      color: #eaf2ff;
+      border-color: #18489a;
+    }
+
+    .price.pro .sub,
+    .price.pro ul { color: #c9daf9; }
+
+    .price.pro .btn-primary {
+      width: 100%;
+      margin-top: 14px;
+      background: #2f74ff;
+    }
+
+    .price .coming-soon-btn {
+      width: 100%;
+      margin-top: 14px;
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .guarantee {
+      margin-top: 14px;
+      border: 1px solid #b4ead0;
+      background: #eafaf2;
+      color: #0f6d43;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .faq {
+      max-width: 860px;
+      margin: 0 auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .faq details {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 0 16px;
+    }
+
+    .faq summary {
+      list-style: none;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 14px 0;
+      position: relative;
+      padding-right: 28px;
+    }
+
+    .faq summary::-webkit-details-marker { display: none; }
+
+    .faq summary::after {
+      content: "+";
+      position: absolute;
+      right: 2px;
+      top: 10px;
+      font-size: 20px;
+      color: #5c6e90;
+    }
+
+    .faq details[open] summary::after { content: "-"; }
+
+    .faq p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .final-cta {
+      color: #fff;
+      background:
+        radial-gradient(1000px 260px at 100% 0%, rgba(37, 111, 255, 0.33), transparent 65%),
+        linear-gradient(170deg, #071a40 0%, #092552 72%, #082146 100%);
+      text-align: center;
+    }
+
+    .final-cta h2 {
+      margin: 12px auto;
+      max-width: 680px;
+      font-size: clamp(30px, 4.3vw, 52px);
+      letter-spacing: -0.8px;
+      line-height: 1.06;
+    }
+
+    .final-cta p {
+      margin: 0 auto 22px;
+      max-width: 620px;
+      color: #bed1f0;
+      font-size: 17px;
+    }
+
+    footer {
+      background: #051631;
+      color: #a8c0e8;
+      padding: 30px 0;
+      border-top: 1px solid rgba(183, 209, 252, 0.15);
+    }
+
+    .foot-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .foot-links {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .foot-links a {
+      color: #c8daf8;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-up.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1040px) {
+      .hero-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual {
+        max-width: 680px;
+      }
+
+      .metrics,
+      .problem-grid,
+      .steps,
+      .feature-grid,
+      .testimonials,
+      .pricing {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .container { width: min(var(--container), calc(100% - 28px)); }
+
+      .nav-links a:not(.btn) { display: none; }
+
+      .hero { padding-top: 66px; }
+
+      .metrics,
+      .problem-grid,
+      .steps,
+      .feature-grid,
+      .testimonials,
+      .pricing,
+      .rating-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .trust-points,
+      .visual-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head h2 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-nav">
+    <div class="container">
+      <a href="#" class="brand" aria-label="Media Purge home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Media Purge</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#features">Features</a>
+        <a href="#compare">Compare</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btn-primary" href="#cta">Start Free</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-layout">
+          <div class="hero-copy">
+            <span class="badge fade-up">Made for busy WordPress site owners</span>
+            <h1 class="fade-up">Your WordPress media library
+              <span class="accent">is full of files you do not use.</span>
+              They slow your site and waste your hosting space.
+            </h1>
+            <p class="fade-up">Media Purge shows which images are safe to remove, where each file is being used, and helps you clean up without breaking your pages.</p>
+            <div class="hero-actions fade-up">
+              <a class="btn btn-primary" href="#cta">Install Free from WordPress.org</a>
+              <a class="btn btn-secondary" href="#steps">See How It Works</a>
+            </div>
+            <ul class="trust-points fade-up" aria-label="Trust points">
+              <li>No credit card required</li>
+              <li>Free core features</li>
+              <li>Check usage before delete</li>
+              <li>One-click restore anytime</li>
+            </ul>
+          </div>
+
+          <aside class="hero-visual fade-up" aria-label="Plugin preview and key stats">
+            <div class="visual-head">
+              <span>Live Media Overview</span>
+              <span class="live">Safe Mode On</span>
+            </div>
+            <div class="visual-stats">
+              <article class="vstat"><strong>3,248</strong><span>Total files</span></article>
+              <article class="vstat"><strong>1,094</strong><span>Unused found</span></article>
+              <article class="vstat"><strong>2.3 GB</strong><span>Can be reclaimed</span></article>
+            </div>
+            <ul class="visual-list">
+              <li><span>🖼️</span><span>homepage-hero-2022.jpg</span><span class="warn">Unused</span></li>
+              <li><span>✅</span><span>product-main-banner.jpg</span><span class="ok">In use</span></li>
+              <li><span>🎬</span><span>summer-campaign.mp4</span><span class="warn">Unused</span></li>
+              <li><span>📦</span><span>catalog-cover.webp</span><span class="ok">In use</span></li>
+            </ul>
+          </aside>
+        </div>
+
+        <div class="metrics">
+          <article class="metric fade-up"><strong>18,000+</strong><span>Sites cleaned</span></article>
+          <article class="metric fade-up"><strong>4.9/5</strong><span>Average rating</span></article>
+          <article class="metric fade-up"><strong>2.3 GB</strong><span>Avg. storage reclaimed</span></article>
+          <article class="metric fade-up"><strong>&lt; 60s</strong><span>Time to first scan</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="problem">
+      <div class="container">
+        <div class="section-head fade-up">
+          <span class="kicker">The Problem</span>
+          <h2>WordPress quietly hoards your files. And charges you for it.</h2>
+          <p>Every image revision, old product update, and replaced banner keeps sitting on your host bill. Most teams never realize how much waste has built up.</p>
+        </div>
+
+        <div class="problem-grid">
+          <article class="problem-card fade-up">
+            <strong>3,000+</strong>
+            <h3>Unused files</h3>
+            <p>Large sites can carry thousands of hidden files never used on any page.</p>
+          </article>
+          <article class="problem-card fade-up">
+            <strong>40%</strong>
+            <h3>Storage waste</h3>
+            <p>Unused and duplicate media can consume nearly half of your media library.</p>
+          </article>
+          <article class="problem-card fade-up">
+            <strong>$0 to start</strong>
+            <h3>No upfront cost</h3>
+            <p>Use core cleanup features free. Upgrade only when advanced automation is needed.</p>
+          </article>
+        </div>
+
+        <div class="warning-note fade-up">The old way is dangerous: no context, no rollback, and no safe restore flow. One wrong delete can break posts, product pages, or theme sections.</div>
+      </div>
+    </section>
+
+    <section id="steps">
+      <div class="container">
+        <div class="section-head fade-up">
+          <span class="kicker">How It Works</span>
+          <h2>Three steps. Under 2 minutes. No technical knowledge needed.</h2>
+          <p>Run a scan, verify where each file is used, then clean confidently with a built-in recovery path.</p>
+        </div>
+
+        <div class="steps">
+          <article class="step fade-up">
+            <span class="num">01</span>
+            <h3>Scan Everything</h3>
+            <p>Post content, galleries, widgets, WooCommerce, and major page builders are inspected automatically.</p>
+          </article>
+          <article class="step fade-up">
+            <span class="num">02</span>
+            <h3>Review Full Context</h3>
+            <p>Each media item shows where it appears so you never delete files that are still active.</p>
+          </article>
+          <article class="step fade-up">
+            <span class="num">03</span>
+            <h3>Trash Safely, Restore Fast</h3>
+            <p>Move to safe trash first, restore instantly if needed, and permanently delete only when ready.</p>
+          </article>
+        </div>
+
+        <div class="proof-box fade-up" aria-label="Example cleanup list">
+          <div class="proof-row"><span>📎</span><span>hero-banner-2022.jpg</span><span class="state state-risk">Unused duplicate</span></div>
+          <div class="proof-row"><span>✅</span><span>homepage-main.jpg</span><span class="state state-safe">In use (Elementor)</span></div>
+          <div class="proof-row"><span>⚠</span><span>promo-summer.mp4</span><span class="state state-risk">Unused in library</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-head fade-up">
+          <span class="kicker">Features</span>
+          <h2>Everything you need to keep your media library clean</h2>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature fade-up"><h3>Deep Scanning</h3><p>Post content, meta, options, and common builders are parsed for references.</p></article>
+          <article class="feature fade-up"><h3>Usage Context</h3><p>See exactly where each file is used before any cleanup action is taken.</p></article>
+          <article class="feature fade-up"><h3>30-Day Safe Trash</h3><p>Move files to trash first and restore in one click if something changes.</p></article>
+          <article class="feature fade-up"><h3>Storage Analytics</h3><p>Track media size, file type breakdown, and reclaimable space instantly.</p></article>
+          <article class="feature fade-up"><span class="tag">Free</span><h3>Page Builder Scanning</h3><p>Elementor, Divi, WPBakery, and Beaver Builder compatibility included.</p></article>
+          <article class="feature fade-up"><span class="tag">Coming Soon</span><h3>Duplicate Merge Action</h3><p>Automatically keep one file and rewrite references for the rest.</p></article>
+          <article class="feature fade-up"><span class="tag">Coming Soon</span><h3>Virtual Folder Organizer</h3><p>Organize large libraries without changing physical upload paths.</p></article>
+          <article class="feature fade-up"><span class="tag">Coming Soon</span><h3>Scheduled Auto-Cleanup</h3><p>Set recurring cleanup schedules and send summary reports by email.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="compare">
+      <div class="container">
+        <div class="section-head fade-up">
+          <span class="kicker">Why Media Purge</span>
+          <h2>Detailed comparison at your fingertips</h2>
+          <p>Clear, transparent, and practical: Media Purge is built for safe cleanup with full context, not risky shortcuts.</p>
+        </div>
+
+        <div class="compare-wrap fade-up">
+          <table>
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Media Purge</th>
+                <th>Media Cleaner</th>
+                <th>Media Sync</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Usage context before delete</td>
+                <td class="highlight"><span class="chip chip-yes">Full Context</span> Post, page, and source details</td>
+                <td><span class="chip chip-partial">Partial</span> Limited references</td>
+                <td><span class="chip chip-no">No</span> No clear traceability</td>
+              </tr>
+              <tr>
+                <td>Safe trash and restore flow</td>
+                <td class="highlight"><span class="chip chip-yes">Always</span> Trash first, restore anytime</td>
+                <td><span class="chip chip-partial">Partial</span> Depends on setup</td>
+                <td><span class="chip chip-no">No</span> Permanent removal paths</td>
+              </tr>
+              <tr>
+                <td>Page builder support</td>
+                <td class="highlight"><span class="chip chip-yes">Included Free</span> Elementor, Divi, WPBakery, Beaver</td>
+                <td><span class="chip chip-partial">Paid Add-on</span> Extra setup needed</td>
+                <td><span class="chip chip-no">Limited</span> Builder gaps</td>
+              </tr>
+              <tr>
+                <td>Duplicate detection visibility</td>
+                <td class="highlight"><span class="chip chip-yes">Built-in</span> Duplicate groups with size impact</td>
+                <td><span class="chip chip-partial">Basic</span> Limited duplicate insight</td>
+                <td><span class="chip chip-no">No</span> Not a core feature</td>
+              </tr>
+              <tr>
+                <td>Bulk actions for cleanup</td>
+                <td class="highlight"><span class="chip chip-yes">Yes</span> Bulk trash, keep, and restore</td>
+                <td><span class="chip chip-partial">Partial</span> Slower multi-step flow</td>
+                <td><span class="chip chip-partial">Partial</span> Limited controls</td>
+              </tr>
+              <tr>
+                <td>Transparency of free features</td>
+                <td class="highlight"><span class="chip chip-yes">Clear</span> Free vs coming-soon clearly labeled</td>
+                <td><span class="chip chip-partial">Mixed</span> Plan boundaries less obvious</td>
+                <td><span class="chip chip-partial">Mixed</span> Feature clarity varies</td>
+              </tr>
+              <tr>
+                <td>Cost to start</td>
+                <td class="highlight"><span class="chip chip-yes">$0</span> Core cleanup free</td>
+                <td><span class="chip chip-partial">$49/year</span> Advanced capabilities gated</td>
+                <td><span class="chip chip-partial">$79/year</span> Limited value at entry</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="compare-note fade-up">Comparison is based on publicly available feature pages and common user workflows. Always evaluate against your exact site needs.</p>
+      </div>
+    </section>
+
+    <section id="reviews">
+      <div class="container">
+        <div class="section-head fade-up">
+          <span class="kicker">User Reviews</span>
+          <h2>Loved by WordPress users who tried everything else</h2>
+        </div>
+
+        <div class="testimonials">
+          <article class="quote fade-up">
+            <div class="stars">★★★★★</div>
+            <p>"I found 1.9GB of junk files in 15 minutes. The context links prevented two mistakes that would have broken old landing pages."</p>
+            <div class="who">Sarah M. - Agency Owner</div>
+          </article>
+          <article class="quote fade-up">
+            <div class="stars">★★★★★</div>
+            <p>"The safe trash flow is what sold me. I can clean aggressively without panic because restore is instant."</p>
+            <div class="who">Imran K. - WooCommerce Store</div>
+          </article>
+          <article class="quote fade-up">
+            <div class="stars">★★★★★</div>
+            <p>"Fast scan, clear interface, and no fake limits in free mode. Exactly what a cleanup plugin should be."</p>
+            <div class="who">Priya R. - Content Publisher</div>
+          </article>
+        </div>
+
+        <div class="rating-bar fade-up">
+          <div><strong style="font-size:34px;line-height:1;">4.9</strong><br><span style="font-size:12px;color:#64779a;">Average rating</span></div>
+          <div class="bar-line" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="container">
+        <div class="section-head fade-up">
+          <span class="kicker">Simple Pricing</span>
+          <h2>Start free. Pro features are coming soon.</h2>
+          <p>Everything needed for safe cleanup is available in Free. Pro automation modules will be released soon.</p>
+        </div>
+
+        <div class="pricing">
+          <article class="price fade-up">
+            <h3>Free</h3>
+            <div class="cost">$0</div>
+            <p class="sub">Perfect for most websites</p>
+            <ul>
+              <li>Full scan and context view</li>
+              <li>Safe trash and restore</li>
+              <li>Page builder support</li>
+              <li>CSV export</li>
+              <li>Storage analytics dashboard</li>
+            </ul>
+          </article>
+
+          <article class="price pro fade-up">
+            <h3>Pro</h3>
+            <div class="cost">Coming Soon</div>
+            <p class="sub">Advanced automation and team workflows are in development</p>
+            <ul>
+              <li>Everything in Free</li>
+              <li>One-click duplicate merge</li>
+              <li>Scheduled auto-cleanup jobs</li>
+              <li>Advanced storage trends and forecasts</li>
+              <li>Priority support</li>
+            </ul>
+            <a href="#pricing" class="btn btn-dark coming-soon-btn" aria-disabled="true">Pro Plan - Coming Soon</a>
+          </article>
+        </div>
+
+        <div class="guarantee fade-up">Pro pricing and launch timeline will be announced publicly before release.</div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <div class="section-head fade-up">
+          <span class="kicker">FAQ</span>
+          <h2>Honest answers to real questions</h2>
+        </div>
+
+        <div class="faq">
+          <details class="fade-up"><summary>Will cleanup break my live pages?</summary><p>No. The scan is read-only. Cleanup uses safe trash first, and each file includes usage context before action.</p></details>
+          <details class="fade-up"><summary>Can I restore files after cleanup?</summary><p>Yes. Trashed files can be restored quickly during the retention period.</p></details>
+          <details class="fade-up"><summary>Does it work with WooCommerce?</summary><p>Yes. Product images and gallery media are included in scanning and usage checks.</p></details>
+          <details class="fade-up"><summary>Will this slow down my site?</summary><p>No. Scans run in background routines designed to avoid front-end performance impact.</p></details>
+          <details class="fade-up"><summary>When is Pro launching?</summary><p>Pro is currently marked as Coming Soon. Core cleanup features remain fully usable in the free plugin.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="cta" class="final-cta">
+      <div class="container">
+        <span class="badge">Ready to Clean Up</span>
+        <h2>Your first scan takes under 60 seconds.</h2>
+        <p>Find hidden storage waste now. Keep only what your website actually uses.</p>
+        <div class="hero-actions" style="justify-content:center;">
+          <a class="btn btn-primary" href="#">Install Free on WordPress.org</a>
+          <a class="btn btn-dark" href="#pricing">Pro - Coming Soon</a>
+        </div>
+        <div class="trust-row" style="color:#aac2e5;">No credit card required for free plan | Transparent roadmap for upcoming Pro features</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot-grid">
+      <div>
+        <strong style="color:#e7f0ff;">Media Purge</strong><br>
+        <span style="font-size:13px;">Clean media libraries safely and confidently.</span>
+      </div>
+      <div class="foot-links">
+        <a href="#features">Features</a>
+        <a href="#compare">Compare</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="#">Documentation</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add('show');
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.fade-up').forEach((el, i) => {
+        el.style.transitionDelay = (i % 8) * 40 + 'ms';
+        io.observe(el);
+      });
+    })();
+  </script>
+</body>
+</html>

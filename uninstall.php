@@ -9,18 +9,15 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 global $wpdb;
 
-$table_results   = $wpdb->prefix . 'wpmp_scan_results';
-$table_log       = $wpdb->prefix . 'wpmp_scan_log';
-$table_snapshots = $wpdb->prefix . 'wpmp_storage_snapshots';
+$table_results = $wpdb->prefix . 'wpmp_scan_results';
+$table_log     = $wpdb->prefix . 'wpmp_scan_log';
 
 $wpdb->query( "DROP TABLE IF EXISTS {$table_results}" );
 $wpdb->query( "DROP TABLE IF EXISTS {$table_log}" );
-$wpdb->query( "DROP TABLE IF EXISTS {$table_snapshots}" );
 
 delete_option( 'wpmp_db_version' );
 delete_option( 'wpmp_scan_last_run' );
 delete_option( 'wpmp_settings' );
-delete_option( 'wpmp_storage_snapshots' );
 
 delete_transient( 'wpmp_scan_status' );
 delete_transient( 'wpmp_storage_stats' );
@@ -30,4 +27,3 @@ delete_transient( 'wpmp_scan_phase' );
 delete_transient( 'wpmp_scan_token' );
 
 wp_clear_scheduled_hook( 'wpmp_purge_old_trash' );
-wp_clear_scheduled_hook( 'wpmp_storage_snapshot' );

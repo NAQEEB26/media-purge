@@ -29,10 +29,9 @@ class WPMP_Activator {
 	public static function create_tables() {
 		global $wpdb;
 
-		$charset_collate    = $wpdb->get_charset_collate();
-		$table_results      = $wpdb->prefix . 'wpmp_scan_results';
-		$table_log          = $wpdb->prefix . 'wpmp_scan_log';
-		$table_snapshots    = $wpdb->prefix . 'wpmp_storage_snapshots';
+		$charset_collate = $wpdb->get_charset_collate();
+		$table_results   = $wpdb->prefix . 'wpmp_scan_results';
+		$table_log       = $wpdb->prefix . 'wpmp_scan_log';
 
 		$sql_results = "CREATE TABLE {$table_results} (
 			id            BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -64,19 +63,9 @@ class WPMP_Activator {
 			PRIMARY KEY (id)
 		) {$charset_collate};";
 
-		$sql_snapshots = "CREATE TABLE {$table_snapshots} (
-			id            BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-			snapshot_date DATE NOT NULL,
-			unused_size   BIGINT(20) DEFAULT 0,
-			unused_count  INT(11) DEFAULT 0,
-			PRIMARY KEY (id),
-			UNIQUE KEY snapshot_date (snapshot_date)
-		) {$charset_collate};";
-
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql_results );
 		dbDelta( $sql_log );
-		dbDelta( $sql_snapshots );
 
 		update_option( 'wpmp_db_version', WPMP_DB_VERSION );
 	}
@@ -106,9 +95,6 @@ class WPMP_Activator {
 	public static function schedule_cron_events() {
 		if ( ! wp_next_scheduled( 'wpmp_purge_old_trash' ) ) {
 			wp_schedule_event( time(), 'daily', 'wpmp_purge_old_trash' );
-		}
-		if ( ! wp_next_scheduled( 'wpmp_storage_snapshot' ) ) {
-			wp_schedule_event( time(), 'daily', 'wpmp_storage_snapshot' );
 		}
 	}
 }

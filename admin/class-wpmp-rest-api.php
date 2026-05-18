@@ -1056,7 +1056,6 @@ class WPMP_REST_API {
 		$tables_needed = array(
 			$wpdb->prefix . 'wpmp_scan_results',
 			$wpdb->prefix . 'wpmp_scan_log',
-			$wpdb->prefix . 'wpmp_storage_snapshots',
 		);
 		$missing       = array();
 		foreach ( $tables_needed as $table ) {
@@ -1112,9 +1111,8 @@ class WPMP_REST_API {
 		);
 
 		// 7. WP Cron jobs.
-		$cron_hooks   = array(
-			'wpmp_purge_old_trash'  => 'Auto-purge trash',
-			'wpmp_storage_snapshot' => 'Storage snapshots',
+		$cron_hooks = array(
+			'wpmp_purge_old_trash' => 'Auto-purge trash',
 		);
 		$cron_notes   = array();
 		$cron_missing = array();
