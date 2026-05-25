@@ -1,0 +1,17 @@
+# Developer/IDE tooling — must not be included in plugin submissions
+.claude/
+.qodo/
+.cursor/
+.vscode/
+
+# Project files not part of the plugin package
+landing-page.html
+README.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+node_modules/
+*.log
