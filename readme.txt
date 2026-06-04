@@ -6,7 +6,7 @@ Tags: media, cleanup, duplicates, unused, storage
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -143,6 +143,10 @@ No artificial limits. There are no scan caps, no file-count restrictions, and no
 7. **Folders tab** — virtual folder organizer preview with "Coming Soon" card.
 
 == Changelog ==
+
+= 1.4.6 =
+* Fixed: Support URL corrected from wp-media-purge to media-purge for proper WP.org forum links.
+* Fixed: Storage Analytics subtitle apostrophe display issue.
 
 = 1.4.5 =
 * Fixed: Removed storage snapshot database table, daily cron collection, and mock storage growth chart — these were infrastructure for a Coming Soon feature and should not be silently collecting data.

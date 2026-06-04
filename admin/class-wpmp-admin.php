@@ -277,7 +277,7 @@ class WPMP_Admin {
 					/* v1.4 — page titles */
 					'overview'                => __( 'Overview', 'media-purge' ),
 					'storageAnalytics'        => __( 'Storage Analytics', 'media-purge' ),
-					'storageDesc'             => __( 'Understand what\u2019s taking up space', 'media-purge' ),
+					'storageDesc'             => __( 'Understand what&rsquo;s taking up space', 'media-purge' ),
 					'folderOrganizer'         => __( 'Folder Organizer', 'media-purge' ),
 					'foldersDesc'             => __( 'Organize your media into virtual folders', 'media-purge' ),
 					'storageOverview'         => __( 'Storage Overview', 'media-purge' ),
@@ -506,7 +506,7 @@ class WPMP_Admin {
 					&middot;
 					<a href="https://getmediapurge.com/docs" target="_blank" rel="noopener"><?php esc_html_e( 'Documentation', 'media-purge' ); ?></a>
 					&middot;
-					<a href="https://wordpress.org/support/plugin/wp-media-purge/" target="_blank" rel="noopener"><?php esc_html_e( 'Support', 'media-purge' ); ?></a>
+					<a href="https://wordpress.org/support/plugin/media-purge/" target="_blank" rel="noopener"><?php esc_html_e( 'Support', 'media-purge' ); ?></a>
 				</span>
 				<span>
 				<?php esc_html_e( 'Free', 'media-purge' ); ?>

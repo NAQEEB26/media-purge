@@ -887,7 +887,7 @@
           '<div class="wpmp-storage wpmp-fade-up">' +
           '<div class="wpmp-page-title-row">' +
           '<div><h1>' + wpmp.esc(s.storageAnalytics || 'Storage Analytics') + '</h1>' +
-          '<div class="wpmp-page-subtitle">' + wpmp.esc(s.storageDesc || 'Understand what\u2019s taking up space') + '</div></div>' +
+          '<div class="wpmp-page-subtitle">' + wpmp.esc(s.storageDesc || 'Understand what&rsquo;s taking up space') + '</div></div>' +
           '</div>' +
 
           /* Storage Overview (full-width) */
@@ -1305,7 +1305,7 @@
           '</div>' +
           '<div class="wpmp-status-help">' +
           icon('cloud', 14) + ' ' +
-          '<span>If you see errors, try deactivating security plugins temporarily to test. For help, visit <a href="https://getmediapurge.com/docs" target="_blank" rel="noopener">getmediapurge.com/docs</a> or the <a href="https://wordpress.org/support/plugin/wp-media-purge/" target="_blank" rel="noopener">support forum</a>.</span>' +
+          '<span>If you see errors, try deactivating security plugins temporarily to test. For help, visit <a href="https://getmediapurge.com/docs" target="_blank" rel="noopener">getmediapurge.com/docs</a> or the <a href="https://wordpress.org/support/plugin/media-purge/" target="_blank" rel="noopener">support forum</a>.</span>' +
           '</div>' +
           '</div>'
         );
@@ -1431,7 +1431,7 @@
         aboutSection('cloud', s.aboutSupport || 'Need Help?',
           '<p>' + wpmp.esc(s.aboutSupportDesc || 'If you have questions, need support, or want to suggest a feature \u2014 we are here for you.') + '</p>' +
           '<div class="wpmp-about-links">' +
-          '<a href="https://wordpress.org/support/plugin/wp-media-purge/" target="_blank" rel="noopener" class="wpmp-btn-primary" style="font-size:13px;padding:8px 18px">' + icon('cloud', 14) + ' ' + wpmp.esc(s.support || 'Support Forum') + '</a>' +
+          '<a href="https://wordpress.org/support/plugin/media-purge/" target="_blank" rel="noopener" class="wpmp-btn-primary" style="font-size:13px;padding:8px 18px">' + icon('cloud', 14) + ' ' + wpmp.esc(s.support || 'Support Forum') + '</a>' +
           '<a href="https://getmediapurge.com/docs" target="_blank" rel="noopener" class="wpmp-btn-ghost" style="font-size:13px;padding:8px 18px">' + icon('file', 14) + ' ' + wpmp.esc(s.documentation || 'Documentation') + '</a>' +
           '</div>'
         ) +
