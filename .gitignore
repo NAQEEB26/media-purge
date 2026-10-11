@@ -1,0 +1,26 @@
+# IDE / agent tooling — never ship to WordPress.org
+.claude/
+.qodo/
+.cursor/
+.vscode/
+.idea/
+
+# Local / marketing (not part of the plugin package)
+landing-page.html
+notes/
+.env
+.env.*
+*.local.md
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Maintainer tools — keep locally, never publish on GitHub
+build-release.ps1
+deploy-to-wporg.ps1
+
+# Build / logs
+node_modules/
+*.log
+*.zip
