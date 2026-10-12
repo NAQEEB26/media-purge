@@ -3474,3 +3474,8 @@
    flex-wrap: wrap;
    margin-top: 20px;
 }
+
+/* Review prompt sits in the core admin-notices area, outside .wpmp-wrap. */
+#wpmp-review-notice .wpmp-review-actions .button {
+   margin: 0 8px 4px 0;
+}
