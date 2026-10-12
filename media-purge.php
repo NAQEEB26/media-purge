@@ -76,6 +76,10 @@ function wpmp_init() {
 
 	WPMP_Cron::init();
 
+	// Review prompt counts successful cleanups on REST requests (is_admin() is false there).
+	require_once WPMP_PLUGIN_DIR . 'admin/class-wpmp-review-prompt.php';
+	WPMP_Review_Prompt::init();
+
 	// REST API must load on ALL requests (fetch hits frontend, not admin).
 	require_once WPMP_PLUGIN_DIR . 'admin/class-wpmp-rest-api.php';
 	new WPMP_REST_API();

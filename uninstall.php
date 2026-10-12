@@ -19,6 +19,9 @@ delete_option( 'wpmp_db_version' );
 delete_option( 'wpmp_scan_last_run' );
 delete_option( 'wpmp_settings' );
 
+require_once __DIR__ . '/admin/class-wpmp-review-prompt.php';
+WPMP_Review_Prompt::uninstall();
+
 delete_transient( 'wpmp_scan_status' );
 delete_transient( 'wpmp_storage_stats' );
 delete_transient( 'wpmp_scan_running' );

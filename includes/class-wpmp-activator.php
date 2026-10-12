@@ -21,6 +21,7 @@ class WPMP_Activator {
 		self::create_tables();
 		self::set_default_options();
 		self::schedule_cron_events();
+		self::record_install_time();
 	}
 
 	/**
@@ -87,6 +88,19 @@ class WPMP_Activator {
 		if ( false === get_option( 'wpmp_settings' ) ) {
 			add_option( 'wpmp_settings', wp_json_encode( $defaults ) );
 		}
+	}
+
+	/**
+	 * Store the first activation time used by the review prompt.
+	 *
+	 * Does not overwrite an existing timestamp.
+	 */
+	public static function record_install_time() {
+		if ( ! class_exists( 'WPMP_Review_Prompt', false ) ) {
+			require_once WPMP_PLUGIN_DIR . 'admin/class-wpmp-review-prompt.php';
+		}
+
+		WPMP_Review_Prompt::ensure_installed_at();
 	}
 
 	/**

@@ -572,8 +572,9 @@ class WPMP_REST_API {
 			);
 		}
 
-		$trashed = 0;
-		$saved   = 0;
+		$trashed   = 0;
+		$saved     = 0;
+		$succeeded = 0;
 
 		foreach ( $ids as $attachment_id ) {
 			$attachment_id = absint( $attachment_id );
@@ -593,9 +594,13 @@ class WPMP_REST_API {
 				continue;
 			}
 
-			wp_trash_post( $attachment_id );
-			$saved += (int) $row['file_size'];
+			$trash_result = wp_trash_post( $attachment_id );
+			$saved       += (int) $row['file_size'];
 			$trashed++;
+
+			if ( $trash_result && ! is_wp_error( $trash_result ) ) {
+				++$succeeded;
+			}
 
 			$wpdb->update(
 				$table,
@@ -607,6 +612,17 @@ class WPMP_REST_API {
 				array( '%s', '%s' ),
 				array( '%d' )
 			);
+		}
+
+		if ( $succeeded >= 1 ) {
+			/**
+			 * Fires after at least one attachment was moved to trash without an error.
+			 *
+			 * Restores and permanent deletes do not fire this hook.
+			 *
+			 * @param int $succeeded Number of attachments trashed successfully.
+			 */
+			do_action( 'wpmp_cleanup_succeeded', $succeeded );
 		}
 
 		return new WP_REST_Response(
