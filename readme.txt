@@ -5,7 +5,7 @@ Tags: unused images, media cleaner, media library, duplicate images, cleanup
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.6
+Stable tag: 1.4.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -148,6 +148,12 @@ On deactivation, scheduled events are cleared and plugin tables are kept, so you
 
 == Changelog ==
 
+= 1.4.7 =
+* Added: Dismissible review notice on the Media Purge screen, for users who can manage options, after 2 successful cleanups and 3 days since the install time was recorded. A successful cleanup is one request that trashed at least one file. An update that does not reactivate the plugin starts that 3-day wait on the next admin page load by a user who can manage options.
+* Added: Notice choices are stored per user. Maybe later hides it for 14 days, up to 2 times. Leave a review, I already did, No thanks, and the dismiss button hide it permanently.
+* Added: Rate us link on this plugin's row on the Plugins screen. It uses the WordPress.org review form, with no tracking, and it is not limited by the notice rules.
+* Fixed: Plugin header Tested up to is 7.1, matching readme.txt. WordPress.org reads the plugin file first, so the listing was showing 7.0.
+
 = 1.4.6 =
 * Fixed: Support URL corrected from wp-media-purge to media-purge for proper WP.org forum links.
 * Fixed: Storage Analytics subtitle apostrophe display issue.
@@ -223,6 +229,9 @@ On deactivation, scheduled events are cleared and plugin tables are kept, so you
 * Full uninstall cleanup.
 
 == Upgrade Notice ==
+
+= 1.4.7 =
+Review notice on the Media Purge screen after two successful cleanups and three days installed, plus a Rate us link on the Plugins screen. The plugin header now says Tested up to 7.1.
 
 = 1.4.6 =
 Fixes the support forum link and a display issue on the Storage Analytics screen.

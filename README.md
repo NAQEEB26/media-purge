@@ -1,7 +1,7 @@
 # Media Purge
 
 <p>
-  <a href="https://wordpress.org/plugins/media-purge/"><img src="assets/badges/version.svg" alt="version 1.4.6"></a>
+  <a href="https://wordpress.org/plugins/media-purge/"><img src="assets/badges/version.svg" alt="version 1.4.7"></a>
   <a href="https://www.gnu.org/licenses/gpl-2.0.html"><img src="assets/badges/license.svg" alt="license GPL v2"></a>
   <a href="https://www.php.net/"><img src="assets/badges/php.svg" alt="PHP 7.4+"></a>
   <a href="https://wordpress.org/"><img src="assets/badges/wordpress.svg" alt="WordPress 5.8+"></a>
@@ -106,7 +106,7 @@ For live-site support, use the [WordPress.org support forum](https://wordpress.o
 
 See [readme.txt](readme.txt) for the full WordPress.org changelog.
 
-**Current stable: 1.4.6**
+**Current stable: 1.4.7**
 
 ---
 
