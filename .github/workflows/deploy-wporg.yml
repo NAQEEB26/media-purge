@@ -1,0 +1,53 @@
+# Deploys a release tag to https://plugins.svn.wordpress.org/media-purge.
+#
+# Tag format: v1.4.7 or 1.4.7. A leading v is removed. The value that
+# remains must match the Version header in media-purge.php. The action
+# copies trunk to tags/<version> (tags/1.4.7 for that example).
+#
+# There is no .wordpress-org directory. The action defaults ASSETS_DIR
+# to that path and skips banner, icon, and screenshot copy when it is
+# missing. Do not point ASSETS_DIR at assets/; those files are the plugin.
+
+name: Deploy to WordPress.org
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to deploy (v1.4.7 or 1.4.7)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: Set version from tag
+        env:
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          version="${TAG#v}"
+          header=$(sed -n 's/^ \* Version:[[:space:]]*//p' media-purge.php | tr -d '[:space:]')
+          if [ -z "$version" ] || [ "$version" != "$header" ]; then
+            echo "Tag '${TAG}' does not match plugin header version '${header}'."
+            exit 1
+          fi
+          echo "VERSION=${version}" >> "$GITHUB_ENV"
+
+      - name: Deploy
+        uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: media-purge
+          VERSION: ${{ env.VERSION }}

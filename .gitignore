@@ -1,7 +1,4 @@
-# IDE / agent tooling — never ship to WordPress.org
-.claude/
-.qodo/
-.cursor/
+# Editor and IDE folders
 .vscode/
 .idea/
 

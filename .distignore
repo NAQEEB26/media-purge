@@ -1,0 +1,43 @@
+# Excluded from the WordPress.org package (rsync).
+# Shipped: plugin PHP, assets/css, assets/js, languages, uninstall.php,
+# readme.txt, and LICENSE.
+
+/.git
+/.github
+/.gitignore
+/.gitattributes
+/.distignore
+/.wordpress-org
+/.vscode
+/.idea
+
+/tests
+/phpcs.xml
+/phpcs.xml.dist
+/phpunit.xml
+/phpunit.xml.dist
+/composer.json
+/composer.lock
+/vendor
+/package.json
+/package-lock.json
+/yarn.lock
+/node_modules
+/build-release.ps1
+/deploy-to-wporg.ps1
+
+/README.md
+/CODE_OF_CONDUCT.md
+/CONTRIBUTING.md
+/SECURITY.md
+/notes
+/landing-page.html
+/assets/badges
+
+.DS_Store
+Thumbs.db
+*.log
+*.zip
+.env
+.env.*
+*.local.md
