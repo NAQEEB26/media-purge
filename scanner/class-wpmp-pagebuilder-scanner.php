@@ -167,6 +167,10 @@ class WPMP_PageBuilder_Scanner {
 	/**
 	 * Recursively extract IDs and URLs from Elementor data.
 	 *
+	 * Walks every widget setting rather than a fixed list of keys, so galleries,
+	 * carousels, responsive and overlay backgrounds are covered. Elementor stores
+	 * media controls as { "id": 123, "url": "..." }.
+	 *
 	 * @param array $data Elementor JSON data.
 	 * @return array{ids: int[], urls: string[]}
 	 */
@@ -178,26 +182,10 @@ class WPMP_PageBuilder_Scanner {
 			if ( ! is_array( $item ) ) {
 				continue;
 			}
-			$settings = isset( $item['settings'] ) && is_array( $item['settings'] ) ? $item['settings'] : array();
-			foreach ( array( 'image', 'background_image', 'image_url', 'photo', 'logo' ) as $key ) {
-				if ( ! empty( $settings[ $key ] ) ) {
-					$val = $settings[ $key ];
-					if ( is_array( $val ) ) {
-						if ( ! empty( $val['id'] ) && is_numeric( $val['id'] ) ) {
-							$ids[] = (int) $val['id'];
-						}
-						if ( ! empty( $val['url'] ) && is_string( $val['url'] ) ) {
-							$urls[] = $val['url'];
-						}
-					} elseif ( is_string( $val ) && strpos( $val, '/wp-content/uploads/' ) !== false ) {
-						$urls[] = $val;
-					}
-				}
+			if ( isset( $item['settings'] ) && is_array( $item['settings'] ) ) {
+				self::collect_elementor_media( $item['settings'], $ids, $urls );
 			}
-			if ( ! empty( $settings['url'] ) && is_string( $settings['url'] ) && strpos( $settings['url'], '/wp-content/uploads/' ) !== false ) {
-				$urls[] = $settings['url'];
-			}
-			if ( ! empty( $item['elements'] ) ) {
+			if ( ! empty( $item['elements'] ) && is_array( $item['elements'] ) ) {
 				$child = self::extract_from_elementor_data( $item['elements'] );
 				$ids   = array_merge( $ids, $child['ids'] );
 				$urls  = array_merge( $urls, $child['urls'] );
@@ -208,6 +196,28 @@ class WPMP_PageBuilder_Scanner {
 			'ids'  => $ids,
 			'urls' => $urls,
 		);
+	}
+
+	/**
+	 * Collect media IDs and upload URLs from one Elementor settings array.
+	 *
+	 * @param array $settings Widget settings (any depth).
+	 * @param int[] $ids      Collected IDs (by reference).
+	 * @param array $urls     Collected URLs (by reference).
+	 */
+	private static function collect_elementor_media( $settings, &$ids, &$urls ) {
+		if ( isset( $settings['url'], $settings['id'] ) && is_numeric( $settings['id'] ) && (int) $settings['id'] > 0 ) {
+			$ids[] = (int) $settings['id'];
+		}
+		foreach ( $settings as $value ) {
+			if ( is_array( $value ) ) {
+				self::collect_elementor_media( $value, $ids, $urls );
+			} elseif ( is_string( $value ) && false !== strpos( $value, '/wp-content/uploads/' )
+				&& preg_match_all( '#(?:https?:)?(?://[^"\'\s<>]+)?/wp-content/uploads/[^"\'\s<>)]+#i', $value, $matches ) ) {
+				// Plain URL settings and <img> tags inside text editor HTML.
+				$urls = array_merge( $urls, $matches[0] );
+			}
+		}
 	}
 
 	/**

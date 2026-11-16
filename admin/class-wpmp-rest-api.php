@@ -311,6 +311,28 @@ class WPMP_REST_API {
 	public function get_scan_status( $request ) {
 		$last_run = get_option( 'wpmp_scan_last_run', null );
 		$running  = get_transient( 'wpmp_scan_running' );
+		$spawned  = (int) get_transient( 'wpmp_scan_spawned' );
+
+		// A background scan that has not picked up its token within a minute is not
+		// going to start (the loopback request was blocked or failed). Release the
+		// lock so the UI does not sit at 0% until the transient expires.
+		if ( $running && $spawned && ( time() - $spawned ) > MINUTE_IN_SECONDS ) {
+			delete_transient( 'wpmp_scan_running' );
+			delete_transient( 'wpmp_scan_progress' );
+			delete_transient( 'wpmp_scan_token' );
+			delete_transient( 'wpmp_scan_spawned' );
+
+			return new WP_REST_Response(
+				array(
+					'running'  => false,
+					'last_run' => $last_run,
+					'progress' => 0,
+					'phase'    => '',
+					'error'    => __( 'The background scan could not start. Your server may be blocking requests to itself (loopback requests). Please check Tools > Site Health or ask your host.', 'media-purge' ),
+				),
+				200
+			);
+		}
 
 		return new WP_REST_Response(
 			array(
@@ -352,8 +374,10 @@ class WPMP_REST_API {
 		if ( $total > 300 ) {
 			$token = wp_generate_password( 32, false );
 			set_transient( 'wpmp_scan_token', $token, 120 );
+			set_transient( 'wpmp_scan_spawned', time(), 120 );
 			set_transient( 'wpmp_scan_running', true, 3600 );
 			set_transient( 'wpmp_scan_progress', 0, 3600 );
+			delete_transient( 'wpmp_scan_phase' );
 
 			$url = add_query_arg(
 				array(
@@ -366,8 +390,10 @@ class WPMP_REST_API {
 			wp_remote_post(
 				$url,
 				array(
-					'timeout'  => 0.01,
-					'blocking' => false,
+					'timeout'   => 0.01,
+					'blocking'  => false,
+					/** This filter is documented in wp-includes/class-wp-http-streams.php */
+					'sslverify' => apply_filters( 'https_local_ssl_verify', false, $url ),
 				)
 			);
 
@@ -401,6 +427,8 @@ class WPMP_REST_API {
 	public function cancel_scan( $request ) {
 		delete_transient( 'wpmp_scan_running' );
 		delete_transient( 'wpmp_scan_progress' );
+		delete_transient( 'wpmp_scan_token' );
+		delete_transient( 'wpmp_scan_spawned' );
 
 		return new WP_REST_Response(
 			array(

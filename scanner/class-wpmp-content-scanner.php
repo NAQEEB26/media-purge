@@ -123,12 +123,7 @@ class WPMP_Content_Scanner {
 	 * @return int[]
 	 */
 	private static function extract_attachment_ids_from_content( $content ) {
-		$ids = array();
-
-		// Match Gutenberg block JSON: "id":123.
-		if ( preg_match_all( '#"id"\s*:\s*(\d+)#', $content, $matches ) ) {
-			$ids = array_merge( $ids, $matches[1] );
-		}
+		$ids = self::extract_ids_from_text( $content );
 
 		// Shortcode pattern: attachment id=123.
 		if ( preg_match_all( '#(?:attachment[-_]?id|id)\s*=\s*["\']?(\d+)#i', $content, $matches ) ) {
@@ -146,6 +141,44 @@ class WPMP_Content_Scanner {
 	}
 
 	/**
+	 * Extract attachment IDs from block attributes, JSON or serialized data.
+	 *
+	 * Shared by the meta and options scanners. Escaped JSON (\" and \/) is
+	 * unescaped first so IDs inside stored block markup are found too. Any
+	 * number under one of these keys is treated as a reference, which can only
+	 * keep a file, never flag one.
+	 *
+	 * @param string $text Raw text.
+	 * @return int[]
+	 */
+	public static function extract_ids_from_text( $text ) {
+		$text = str_replace( array( '\\"', '\\/' ), array( '"', '/' ), (string) $text );
+		$ids  = array();
+
+		// Block and widget attributes such as id, mediaId and attachment_id.
+		if ( preg_match_all( '#"(?:id|attachment_id|attachmentId|mediaId|media_id|image_id|imageId|thumbnail_id|custom_logo|site_logo|site_icon)"\s*:\s*"?(\d+)#', $text, $matches ) ) {
+			$ids = array_merge( $ids, $matches[1] );
+		}
+
+		// ID lists from the gallery block and gallery widget, as an array or a comma list.
+		if ( preg_match_all( '#"ids"\s*:\s*(?:\[([\d,\s"]*)\]|"([\d,\s]*)")#', $text, $matches, PREG_SET_ORDER ) ) {
+			foreach ( $matches as $match ) {
+				$list = isset( $match[2] ) && '' !== $match[2] ? $match[2] : $match[1];
+				if ( preg_match_all( '#\d+#', $list, $numbers ) ) {
+					$ids = array_merge( $ids, $numbers[0] );
+				}
+			}
+		}
+
+		// Classic editor image class wp-image-N.
+		if ( preg_match_all( '#wp-image-(\d+)#', $text, $matches ) ) {
+			$ids = array_merge( $ids, $matches[1] );
+		}
+
+		return $ids;
+	}
+
+	/**
 	 * Extract attachment IDs from Gutenberg blocks, with post attribution.
 	 *
 	 * @return array attachment_id => [ location_data, ... ]
@@ -155,30 +188,32 @@ class WPMP_Content_Scanner {
 
 		$result = array();
 
+		// Blocks, gallery shortcodes and classic wp-image-N classes can reference an
+		// attachment by ID alone, without an upload URL in the content.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title, post_content FROM {$wpdb->posts}
-				WHERE post_content LIKE %s
+				WHERE ( post_content LIKE %s OR post_content LIKE %s OR post_content LIKE %s )
 				AND post_status != %s",
-				'%<!-- wp:%',
+				'%' . $wpdb->esc_like( '<!-- wp:' ) . '%',
+				'%' . $wpdb->esc_like( '[gallery' ) . '%',
+				'%' . $wpdb->esc_like( 'wp-image-' ) . '%',
 				'trash'
 			)
 		);
 
 		foreach ( $rows as $post ) {
-			if ( preg_match_all( '#"id"\s*:\s*(\d+)#', $post->post_content, $matches ) ) {
-				foreach ( $matches[1] as $id ) {
-					$id = (int) $id;
-					if ( $id > 0 ) {
-						if ( ! isset( $result[ $id ] ) ) {
-							$result[ $id ] = array();
-						}
-						$result[ $id ][] = array(
-							'type'       => 'post_content',
-							'post_id'    => (int) $post->ID,
-							'post_title' => $post->post_title ? $post->post_title : '(no title)',
-						);
+			foreach ( self::extract_attachment_ids_from_content( $post->post_content ) as $id ) {
+				$id = (int) $id;
+				if ( $id > 0 ) {
+					if ( ! isset( $result[ $id ] ) ) {
+						$result[ $id ] = array();
 					}
+					$result[ $id ][] = array(
+						'type'       => 'post_content',
+						'post_id'    => (int) $post->ID,
+						'post_title' => $post->post_title ? $post->post_title : '(no title)',
+					);
 				}
 			}
 		}

@@ -13,6 +13,7 @@
   var exportUrl = (typeof wpmpAdmin !== 'undefined' && wpmpAdmin.exportCsvUrl) ? wpmpAdmin.exportCsvUrl : '#';
   var currentTab = 'dashboard';
   var scanPollTimer = null;
+  var lastProgressHtml = '';
   var scannerPage = 1;
   var scannerType = '';
   var scannerTotalPages = 1;
@@ -64,7 +65,15 @@
       if (typeof wpmpAdmin === 'undefined') {
         return Promise.reject(new Error('Plugin not configured'));
       }
-      var url = (wpmpAdmin.restUrl + endpoint).replace(/([^:]\/)\/+/g, '$1');
+      /* With plain permalinks restUrl already has a query string (?rest_route=),
+         so query args on the endpoint must be joined with & instead of ?. */
+      var queryPos = endpoint.indexOf('?');
+      var path = queryPos === -1 ? endpoint : endpoint.slice(0, queryPos);
+      var query = queryPos === -1 ? '' : endpoint.slice(queryPos + 1);
+      var url = (wpmpAdmin.restUrl + path).replace(/([^:]\/)\/+/g, '$1');
+      if (query) {
+        url += (url.indexOf('?') === -1 ? '?' : '&') + query;
+      }
       return fetch(url, $.extend({}, options, {
         headers: $.extend({
           'X-WP-Nonce': wpmpAdmin.nonce,
@@ -424,11 +433,12 @@
         }
 
         if (!append && scanStatus.running) {
+          lastProgressHtml = wpmp.buildScanProgressHtml(scanStatus);
           $ph.replaceWith(
             '<div class="wpmp-fade-up">' +
             '<div class="wpmp-page-title-row"><div><h1>' + wpmp.esc(s.scanner || 'Media Scanner') + '</h1>' +
             '<div class="wpmp-page-subtitle">' + wpmp.esc(s.scannerDesc || 'Find and safely remove unused files') + '</div></div></div>' +
-            wpmp.buildScanProgressHtml(scanStatus) +
+            lastProgressHtml +
             '</div>'
           );
           return;
@@ -1098,7 +1108,10 @@
       var $ph = $('.wpmp-settings-placeholder');
       wpmp.api('settings').then(function (settings) {
         settings = settings || {};
-        var recentDays = parseInt(settings.recent_upload_days, 10) || 7;
+        /* 0 is a valid value, so only fall back when the setting is missing. */
+        var recentDays = parseInt(settings.recent_upload_days, 10);
+        if (isNaN(recentDays)) recentDays = 30;
+        var skipRecent = settings.skip_recent !== false;
         var trashDays = parseInt(settings.trash_retention_days, 10) || 30;
         var scanWoo = settings.scan_woocommerce !== false;
 
@@ -1115,8 +1128,8 @@
           '<div class="wpmp-settings-card">' +
           '<h3>' + wpmp.esc(s.scanSettings || 'Scan Settings') + '</h3>' +
           '<p class="card-desc">' + wpmp.esc(s.scanSettingsDesc || 'Control what MediaPurge scans and how') + '</p>' +
-          wpmp.buildToggleRow('skip-recent', s.skipRecentUploads || 'Skip files newer than 30 days', s.skipRecentDesc || 'Protect recently uploaded files from being flagged as unused.', recentDays > 0) +
-          wpmp.buildToggleRow('scan-woo', s.scanWoo || 'Scan WooCommerce galleries', s.scanWooDesc || 'Include product gallery images in the unused file check.', scanWoo) +
+          wpmp.buildToggleRow('skip-recent', s.skipRecentUploads || 'Skip files newer than 30 days', s.skipRecentDesc || 'Protect recently uploaded files from being flagged as unused.', skipRecent) +
+          wpmp.buildToggleRow('scan-woo', s.scanWoo || 'Scan WooCommerce galleries', s.scanWooDesc || 'Count images in WooCommerce product galleries as in use. When off, images that are only in a product gallery can be listed as unused.', scanWoo) +
           wpmp.buildToggleRow('page-builders', s.proPageBuilders || 'Page builder scanning', s.proBuildersDesc || 'Detect images inside Elementor, Divi, WPBakery, and Beaver Builder.', false, true) +
           wpmp.buildToggleRow('scheduled-scan', s.proScheduledClean || 'Scheduled weekly scan', s.proScheduledDesc || 'Automatically scan your media library every 7 days.', false, true) +
           '<div class="wpmp-settings-field" style="margin-top:16px">' +
@@ -1237,6 +1250,8 @@
         excludeTypes.push($(this).data('ext'));
       });
       data.exclude_file_types = excludeTypes;
+      data.skip_recent = $('.wpmp-toggle[data-toggle="skip-recent"]').hasClass('on');
+      data.scan_woocommerce = $('.wpmp-toggle[data-toggle="scan-woo"]').hasClass('on');
       wpmp.api('settings', { method: 'POST', body: JSON.stringify(data) })
         .then(function () {
           wpmp.showToast(s.settingsSaved || 'Settings saved.', 'success');
@@ -1483,13 +1498,22 @@
       scanPollTimer = setInterval(function () {
         wpmp.api('scan/status').then(function (status) {
           if (currentTab === 'scanner' && $('.wpmp-scan-progress').length) {
+            /* Only redraw when something changed; each redraw replays the fade-in animation. */
             var newHtml = wpmp.buildScanProgressHtml(status);
-            $('.wpmp-scan-progress').replaceWith(newHtml);
+            if (newHtml !== lastProgressHtml) {
+              lastProgressHtml = newHtml;
+              $('.wpmp-scan-progress').replaceWith(newHtml);
+            }
           }
           if (!status.running) {
             clearInterval(scanPollTimer);
             scanPollTimer = null;
-            wpmp.showToast(s.scanComplete || 'Scan complete.', 'success');
+            lastProgressHtml = '';
+            if (status.error) {
+              wpmp.showToast(status.error, 'error', 10000);
+            } else {
+              wpmp.showToast(s.scanComplete || 'Scan complete.', 'success');
+            }
             wpmp.renderContent();
           }
         });
@@ -1558,7 +1582,7 @@
             wooRow =
               '<div class="wpmp-wizard-toggle-row">' +
               '<div><div class="wpmp-wizard-toggle-label">' + wpmp.esc(s.scanWoo || 'Scan WooCommerce galleries') + '</div>' +
-              '<div class="wpmp-wizard-toggle-desc">' + wpmp.esc(s.scanWooDesc || 'Include product gallery images in scans.') + '</div></div>' +
+              '<div class="wpmp-wizard-toggle-desc">' + wpmp.esc(s.scanWooDesc || 'Count images in WooCommerce product galleries as in use.') + '</div></div>' +
               '<button type="button" class="wpmp-toggle' + (wizardData.scan_woocommerce ? ' on' : '') + '" id="wpmp-wizard-woo"><div class="wpmp-toggle-knob"></div></button>' +
               '</div>';
           }
