@@ -13,6 +13,7 @@
   var exportUrl = (typeof wpmpAdmin !== 'undefined' && wpmpAdmin.exportCsvUrl) ? wpmpAdmin.exportCsvUrl : '#';
   var currentTab = 'dashboard';
   var scanPollTimer = null;
+  var lastProgressHtml = '';
   var scannerPage = 1;
   var scannerType = '';
   var scannerTotalPages = 1;
@@ -424,11 +425,12 @@
         }
 
         if (!append && scanStatus.running) {
+          lastProgressHtml = wpmp.buildScanProgressHtml(scanStatus);
           $ph.replaceWith(
             '<div class="wpmp-fade-up">' +
             '<div class="wpmp-page-title-row"><div><h1>' + wpmp.esc(s.scanner || 'Media Scanner') + '</h1>' +
             '<div class="wpmp-page-subtitle">' + wpmp.esc(s.scannerDesc || 'Find and safely remove unused files') + '</div></div></div>' +
-            wpmp.buildScanProgressHtml(scanStatus) +
+            lastProgressHtml +
             '</div>'
           );
           return;
@@ -1483,13 +1485,22 @@
       scanPollTimer = setInterval(function () {
         wpmp.api('scan/status').then(function (status) {
           if (currentTab === 'scanner' && $('.wpmp-scan-progress').length) {
+            /* Only redraw when something changed; each redraw replays the fade-in animation. */
             var newHtml = wpmp.buildScanProgressHtml(status);
-            $('.wpmp-scan-progress').replaceWith(newHtml);
+            if (newHtml !== lastProgressHtml) {
+              lastProgressHtml = newHtml;
+              $('.wpmp-scan-progress').replaceWith(newHtml);
+            }
           }
           if (!status.running) {
             clearInterval(scanPollTimer);
             scanPollTimer = null;
-            wpmp.showToast(s.scanComplete || 'Scan complete.', 'success');
+            lastProgressHtml = '';
+            if (status.error) {
+              wpmp.showToast(status.error, 'error', 10000);
+            } else {
+              wpmp.showToast(s.scanComplete || 'Scan complete.', 'success');
+            }
             wpmp.renderContent();
           }
         });
