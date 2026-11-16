@@ -122,6 +122,25 @@ class WPMP_Scanner {
 			$batch_count = count( $batch );
 		} while ( $batch_count === $batch_size );
 
+		// Index referenced upload paths once, so each attachment is a quick lookup.
+		$upload_dir      = wp_get_upload_dir();
+		$uploads_path    = (string) wp_parse_url( $upload_dir['baseurl'], PHP_URL_PATH );
+		$reference_paths = array();
+		$reference_stems = array();
+		foreach ( $reference_urls as $ref_url ) {
+			$rel_path = self::upload_relative_path( $ref_url, $uploads_path );
+			if ( '' === $rel_path ) {
+				continue;
+			}
+			if ( ! isset( $reference_paths[ $rel_path ] ) ) {
+				$reference_paths[ $rel_path ] = $ref_url;
+			}
+			$stem = self::file_stem( $rel_path );
+			if ( ! isset( $reference_stems[ $stem ] ) ) {
+				$reference_stems[ $stem ] = $ref_url;
+			}
+		}
+
 		$total         = count( $attachments );
 		$recent_days   = (int) WPMP_Settings::get( 'recent_upload_days', 30 );
 		$skip_recent   = (bool) WPMP_Settings::get( 'skip_recent', true );
@@ -209,24 +228,20 @@ class WPMP_Scanner {
 				}
 			}
 
-			// --- Check thumbnails: if any size of this image is referenced, all are used ---
-			if ( ! $is_used && $file_url && wp_attachment_is_image( $attachment_id ) ) {
-				$metadata = wp_get_attachment_metadata( $attachment_id );
-				if ( ! empty( $metadata['file'] ) ) {
-					$base_dir = dirname( $file_url );
-					foreach ( $reference_urls as $ref_url ) {
-						if ( strpos( $ref_url, $base_dir ) !== false ) {
-							$is_used = true;
-							if ( isset( $url_post_map[ $ref_url ] ) ) {
-								$used_in = array_merge( $used_in, $url_post_map[ $ref_url ] );
-							} else {
-								$used_in[] = array(
-									'type'  => 'thumbnail',
-									'label' => 'Used as image size variant',
-								);
-							}
-							break;
-						}
+			// --- Check every file that belongs to this attachment ---
+			// The original upload, each generated size, the pre-scaled/rotated
+			// original and edited copies. A hit on any of them keeps them all.
+			if ( ! $is_used ) {
+				$ref_url = self::find_referenced_variant( (int) $attachment_id, $reference_paths, $reference_stems );
+				if ( null !== $ref_url ) {
+					$is_used = true;
+					if ( isset( $url_post_map[ $ref_url ] ) ) {
+						$used_in = array_merge( $used_in, $url_post_map[ $ref_url ] );
+					} else {
+						$used_in[] = array(
+							'type'  => 'thumbnail',
+							'label' => 'Used as image size variant',
+						);
 					}
 				}
 			}
@@ -275,6 +290,137 @@ class WPMP_Scanner {
 		set_transient( 'wpmp_scan_phase', 'done', 60 );
 		delete_transient( 'wpmp_scan_running' );
 		delete_transient( 'wpmp_scan_progress' );
+	}
+
+	/**
+	 * Find a reference to any file that belongs to an attachment.
+	 *
+	 * Matches, in this order:
+	 * 1. the exact path (relative to the uploads folder) of the original upload,
+	 *    any generated size from the metadata, the original_image kept before
+	 *    "-scaled"/"-rotated", or an edited copy from the backup sizes;
+	 * 2. the same file name stem in the same folder, once size and edit
+	 *    suffixes (-300x200, -scaled, -rotated, -e1234567890) are removed. This
+	 *    covers size files that are still on disk and in content but no longer
+	 *    listed in the metadata (for example after thumbnails were regenerated).
+	 *
+	 * Other files that merely share the folder do not count.
+	 *
+	 * @param int   $attachment_id   Attachment ID.
+	 * @param array $reference_paths Relative path => reference URL.
+	 * @param array $reference_stems Folder/stem => reference URL.
+	 * @return string|null The reference URL that matched, or null.
+	 */
+	private static function find_referenced_variant( $attachment_id, $reference_paths, $reference_stems ) {
+		if ( empty( $reference_paths ) ) {
+			return null;
+		}
+
+		$attached = (string) get_post_meta( $attachment_id, '_wp_attached_file', true );
+		if ( '' === $attached ) {
+			return null;
+		}
+
+		$dir   = dirname( $attached );
+		$dir   = ( '.' === $dir || '' === $dir ) ? '' : trailingslashit( $dir );
+		$files = array( $attached );
+
+		$metadata = wp_get_attachment_metadata( $attachment_id );
+		if ( is_array( $metadata ) ) {
+			if ( ! empty( $metadata['file'] ) && is_string( $metadata['file'] ) ) {
+				$files[] = $metadata['file'];
+			}
+			if ( ! empty( $metadata['original_image'] ) && is_string( $metadata['original_image'] ) ) {
+				$files[] = $dir . $metadata['original_image'];
+			}
+			if ( ! empty( $metadata['sizes'] ) && is_array( $metadata['sizes'] ) ) {
+				foreach ( $metadata['sizes'] as $size ) {
+					if ( is_array( $size ) && ! empty( $size['file'] ) && is_string( $size['file'] ) ) {
+						$files[] = $dir . $size['file'];
+					}
+				}
+			}
+		}
+
+		$backup_sizes = get_post_meta( $attachment_id, '_wp_attachment_backup_sizes', true );
+		if ( is_array( $backup_sizes ) ) {
+			foreach ( $backup_sizes as $backup ) {
+				if ( is_array( $backup ) && ! empty( $backup['file'] ) && is_string( $backup['file'] ) ) {
+					$files[] = $dir . $backup['file'];
+				}
+			}
+		}
+
+		$stems = array();
+		foreach ( $files as $file ) {
+			$file = strtolower( ltrim( wp_normalize_path( $file ), '/' ) );
+			if ( isset( $reference_paths[ $file ] ) ) {
+				return $reference_paths[ $file ];
+			}
+			$stems[ self::file_stem( $file ) ] = true;
+		}
+
+		foreach ( array_keys( $stems ) as $stem ) {
+			if ( isset( $reference_stems[ $stem ] ) ) {
+				return $reference_stems[ $stem ];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Turn a referenced URL or path into a lowercase path relative to the uploads folder.
+	 *
+	 * Handles full, protocol-relative and root-relative URLs, query strings,
+	 * URL-encoded names, JSON-escaped slashes and srcset leftovers.
+	 *
+	 * @param string $url          Referenced URL or path.
+	 * @param string $uploads_path Path part of the uploads base URL.
+	 * @return string Relative path, or '' when it is not inside uploads.
+	 */
+	private static function upload_relative_path( $url, $uploads_path ) {
+		$url = str_replace( '\\/', '/', trim( (string) $url ) );
+		$url = preg_replace( '#[?\#].*$#', '', $url );
+		$url = rtrim( $url, ',' );
+
+		$path = wp_parse_url( $url, PHP_URL_PATH );
+		$path = rawurldecode( is_string( $path ) ? $path : $url );
+		$path = wp_normalize_path( $path );
+
+		$base = untrailingslashit( wp_normalize_path( rawurldecode( $uploads_path ) ) ) . '/';
+		$pos  = '/' !== $base ? stripos( $path, $base ) : false;
+		if ( false !== $pos ) {
+			$relative = substr( $path, $pos + strlen( $base ) );
+		} else {
+			$pos = stripos( $path, '/wp-content/uploads/' );
+			if ( false === $pos ) {
+				return '';
+			}
+			$relative = substr( $path, $pos + strlen( '/wp-content/uploads/' ) );
+		}
+
+		return strtolower( ltrim( $relative, '/' ) );
+	}
+
+	/**
+	 * Folder plus file name without extension and without WordPress size or edit suffixes.
+	 *
+	 * Example: 2026/11/photo-1024x768.webp and 2026/11/photo-scaled.jpg both give 2026/11/photo.
+	 *
+	 * @param string $relative_path Lowercase path relative to uploads.
+	 * @return string
+	 */
+	private static function file_stem( $relative_path ) {
+		$dir  = dirname( $relative_path );
+		$name = pathinfo( $relative_path, PATHINFO_FILENAME );
+
+		do {
+			$previous = $name;
+			$name     = preg_replace( '#-(?:\d+x\d+|scaled|rotated|e\d{10,})$#', '', $name );
+		} while ( $name !== $previous && '' !== $name );
+
+		return ( '.' === $dir ? '' : $dir . '/' ) . $name;
 	}
 
 	/**
