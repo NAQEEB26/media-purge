@@ -124,6 +124,7 @@ class WPMP_Scanner {
 
 		$total         = count( $attachments );
 		$recent_days   = (int) WPMP_Settings::get( 'recent_upload_days', 30 );
+		$skip_recent   = (bool) WPMP_Settings::get( 'skip_recent', true );
 		$cutoff_date   = strtotime( "-{$recent_days} days" );
 		$unused_count  = 0;
 		$exclude_types = array_map( 'strtolower', (array) WPMP_Settings::get( 'exclude_file_types', array() ) );
@@ -179,7 +180,7 @@ class WPMP_Scanner {
 			}
 
 			// 2. Recently uploaded (may not be published yet)
-			if ( ! $is_used && $recent_days > 0 && $uploaded >= $cutoff_date ) {
+			if ( ! $is_used && $skip_recent && $recent_days > 0 && $uploaded >= $cutoff_date ) {
 				$is_used   = true;
 				$used_in[] = array(
 					'type'  => 'recent_upload',

@@ -1100,7 +1100,10 @@
       var $ph = $('.wpmp-settings-placeholder');
       wpmp.api('settings').then(function (settings) {
         settings = settings || {};
-        var recentDays = parseInt(settings.recent_upload_days, 10) || 7;
+        /* 0 is a valid value, so only fall back when the setting is missing. */
+        var recentDays = parseInt(settings.recent_upload_days, 10);
+        if (isNaN(recentDays)) recentDays = 30;
+        var skipRecent = settings.skip_recent !== false;
         var trashDays = parseInt(settings.trash_retention_days, 10) || 30;
         var scanWoo = settings.scan_woocommerce !== false;
 
@@ -1117,7 +1120,7 @@
           '<div class="wpmp-settings-card">' +
           '<h3>' + wpmp.esc(s.scanSettings || 'Scan Settings') + '</h3>' +
           '<p class="card-desc">' + wpmp.esc(s.scanSettingsDesc || 'Control what MediaPurge scans and how') + '</p>' +
-          wpmp.buildToggleRow('skip-recent', s.skipRecentUploads || 'Skip files newer than 30 days', s.skipRecentDesc || 'Protect recently uploaded files from being flagged as unused.', recentDays > 0) +
+          wpmp.buildToggleRow('skip-recent', s.skipRecentUploads || 'Skip files newer than 30 days', s.skipRecentDesc || 'Protect recently uploaded files from being flagged as unused.', skipRecent) +
           wpmp.buildToggleRow('scan-woo', s.scanWoo || 'Scan WooCommerce galleries', s.scanWooDesc || 'Include product gallery images in the unused file check.', scanWoo) +
           wpmp.buildToggleRow('page-builders', s.proPageBuilders || 'Page builder scanning', s.proBuildersDesc || 'Detect images inside Elementor, Divi, WPBakery, and Beaver Builder.', false, true) +
           wpmp.buildToggleRow('scheduled-scan', s.proScheduledClean || 'Scheduled weekly scan', s.proScheduledDesc || 'Automatically scan your media library every 7 days.', false, true) +
@@ -1239,6 +1242,7 @@
         excludeTypes.push($(this).data('ext'));
       });
       data.exclude_file_types = excludeTypes;
+      data.skip_recent = $('.wpmp-toggle[data-toggle="skip-recent"]').hasClass('on');
       wpmp.api('settings', { method: 'POST', body: JSON.stringify(data) })
         .then(function () {
           wpmp.showToast(s.settingsSaved || 'Settings saved.', 'success');
