@@ -65,7 +65,15 @@
       if (typeof wpmpAdmin === 'undefined') {
         return Promise.reject(new Error('Plugin not configured'));
       }
-      var url = (wpmpAdmin.restUrl + endpoint).replace(/([^:]\/)\/+/g, '$1');
+      /* With plain permalinks restUrl already has a query string (?rest_route=),
+         so query args on the endpoint must be joined with & instead of ?. */
+      var queryPos = endpoint.indexOf('?');
+      var path = queryPos === -1 ? endpoint : endpoint.slice(0, queryPos);
+      var query = queryPos === -1 ? '' : endpoint.slice(queryPos + 1);
+      var url = (wpmpAdmin.restUrl + path).replace(/([^:]\/)\/+/g, '$1');
+      if (query) {
+        url += (url.indexOf('?') === -1 ? '?' : '&') + query;
+      }
       return fetch(url, $.extend({}, options, {
         headers: $.extend({
           'X-WP-Nonce': wpmpAdmin.nonce,
