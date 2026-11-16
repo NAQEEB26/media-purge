@@ -309,6 +309,8 @@ class WPMP_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_scan_status( $request ) {
+		$this->release_orphaned_scan_lock();
+
 		$last_run = get_option( 'wpmp_scan_last_run', null );
 		$running  = get_transient( 'wpmp_scan_running' );
 		$spawned  = (int) get_transient( 'wpmp_scan_spawned' );
@@ -353,6 +355,8 @@ class WPMP_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function start_scan( $request ) {
+		$this->release_orphaned_scan_lock();
+
 		if ( get_transient( 'wpmp_scan_running' ) ) {
 			return new WP_REST_Response(
 				array(
@@ -415,6 +419,29 @@ class WPMP_REST_API {
 			),
 			200
 		);
+	}
+
+	/**
+	 * Release a scan lock that no scan owns.
+	 *
+	 * A scan that is really running always has a phase set, and a background scan
+	 * that is still waiting to start has the spawned marker. A lock with neither
+	 * was left behind by a background request that never ran, for example one
+	 * started by version 1.4.7 or earlier, which did not set the spawned marker.
+	 * Without this the scan button stays blocked until the lock expires an hour later.
+	 */
+	private function release_orphaned_scan_lock() {
+		if ( ! get_transient( 'wpmp_scan_running' ) || get_transient( 'wpmp_scan_spawned' ) ) {
+			return;
+		}
+
+		if ( '' !== (string) get_transient( 'wpmp_scan_phase' ) ) {
+			return;
+		}
+
+		delete_transient( 'wpmp_scan_running' );
+		delete_transient( 'wpmp_scan_progress' );
+		delete_transient( 'wpmp_scan_token' );
 	}
 
 	/**

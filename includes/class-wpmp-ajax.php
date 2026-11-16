@@ -42,6 +42,9 @@ class WPMP_Ajax {
 			wp_die( esc_html__( 'Invalid or expired token.', 'media-purge' ), '', array( 'response' => 403 ) );
 		}
 
+		// Mark the scan as owned before the spawned marker goes away, so the
+		// status check never mistakes it for an orphaned lock.
+		set_transient( 'wpmp_scan_phase', 'content', 3600 );
 		delete_transient( 'wpmp_scan_token' );
 		delete_transient( 'wpmp_scan_spawned' );
 
