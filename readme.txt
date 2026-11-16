@@ -5,7 +5,7 @@ Tags: unused images, media cleaner, media library, duplicate images, cleanup
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.7
+Stable tag: 1.4.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -151,6 +151,13 @@ On deactivation, scheduled events are cleared and plugin tables are kept, so you
 
 == Changelog ==
 
+= 1.4.8 =
+* Fixed: Scans on media libraries with more than 300 files no longer stall at 0% on "Checking post content". If the server blocks the background request, the scan now stops after a minute with a clear message instead of hanging.
+* Fixed: The "Skip recent uploads" setting now saves, and the scanner respects it.
+* Fixed: A file is no longer marked as used just because another file in the same upload folder is used. A file now counts as used only when its ID, its URL or one of its generated sizes is referenced. The scan also reads more places that store media by ID (widgets, site icon, custom logo, term images and media custom fields).
+* Fixed: The Media Purge screens now load on sites that use Plain permalinks.
+* Fixed: The "Scan WooCommerce galleries" setting now saves and is respected. It stays on by default.
+
 = 1.4.7 =
 * Added: Dismissible review notice on the Media Purge screen, for users who can manage options, after 2 successful cleanups and 3 days since the install time was recorded. A successful cleanup is one request that trashed at least one file. An update that does not reactivate the plugin starts that 3-day wait on the next admin page load by a user who can manage options.
 * Added: Notice choices are stored per user. Maybe later hides it for 14 days, up to 2 times. Leave a review, I already did, No thanks, and the dismiss button hide it permanently.
@@ -232,6 +239,9 @@ On deactivation, scheduled events are cleared and plugin tables are kept, so you
 * Full uninstall cleanup.
 
 == Upgrade Notice ==
+
+= 1.4.8 =
+Fixes scans that stalled at 0% on larger libraries, settings that did not save, and the admin screens on Plain permalinks. Unused-file detection is more accurate, so run a new scan and check the Used In list before you trash anything.
 
 = 1.4.7 =
 Review notice on the Media Purge screen after two successful cleanups and three days installed, plus a Rate us link on the Plugins screen. The plugin header now says Tested up to 7.1.
