@@ -86,15 +86,20 @@ class WPMP_Meta_Scanner {
 			}
 		}
 
-		// 3. WooCommerce product gallery — with product title
-		$gallery_rows = $wpdb->get_results(
-			"SELECT pm.post_id, pm.meta_value, p.post_title
-			FROM {$wpdb->postmeta} pm
-			INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-			WHERE pm.meta_key = '_product_image_gallery'
-			AND pm.meta_value != ''
-			AND p.post_status != 'trash'"
-		);
+		// 3. WooCommerce product gallery — with product title. Skipped only when
+		// the "Scan WooCommerce galleries" setting is off; product featured
+		// images are still read in step 1 either way.
+		$gallery_rows = array();
+		if ( WPMP_Settings::get( 'scan_woocommerce', true ) ) {
+			$gallery_rows = $wpdb->get_results(
+				"SELECT pm.post_id, pm.meta_value, p.post_title
+				FROM {$wpdb->postmeta} pm
+				INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+				WHERE pm.meta_key = '_product_image_gallery'
+				AND pm.meta_value != ''
+				AND p.post_status != 'trash'"
+			);
+		}
 
 		foreach ( $gallery_rows as $row ) {
 			$gallery_ids = array_filter( array_map( 'absint', explode( ',', $row->meta_value ) ) );

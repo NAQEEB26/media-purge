@@ -1129,7 +1129,7 @@
           '<h3>' + wpmp.esc(s.scanSettings || 'Scan Settings') + '</h3>' +
           '<p class="card-desc">' + wpmp.esc(s.scanSettingsDesc || 'Control what MediaPurge scans and how') + '</p>' +
           wpmp.buildToggleRow('skip-recent', s.skipRecentUploads || 'Skip files newer than 30 days', s.skipRecentDesc || 'Protect recently uploaded files from being flagged as unused.', skipRecent) +
-          wpmp.buildToggleRow('scan-woo', s.scanWoo || 'Scan WooCommerce galleries', s.scanWooDesc || 'Include product gallery images in the unused file check.', scanWoo) +
+          wpmp.buildToggleRow('scan-woo', s.scanWoo || 'Scan WooCommerce galleries', s.scanWooDesc || 'Count images in WooCommerce product galleries as in use. When off, images that are only in a product gallery can be listed as unused.', scanWoo) +
           wpmp.buildToggleRow('page-builders', s.proPageBuilders || 'Page builder scanning', s.proBuildersDesc || 'Detect images inside Elementor, Divi, WPBakery, and Beaver Builder.', false, true) +
           wpmp.buildToggleRow('scheduled-scan', s.proScheduledClean || 'Scheduled weekly scan', s.proScheduledDesc || 'Automatically scan your media library every 7 days.', false, true) +
           '<div class="wpmp-settings-field" style="margin-top:16px">' +
@@ -1251,6 +1251,7 @@
       });
       data.exclude_file_types = excludeTypes;
       data.skip_recent = $('.wpmp-toggle[data-toggle="skip-recent"]').hasClass('on');
+      data.scan_woocommerce = $('.wpmp-toggle[data-toggle="scan-woo"]').hasClass('on');
       wpmp.api('settings', { method: 'POST', body: JSON.stringify(data) })
         .then(function () {
           wpmp.showToast(s.settingsSaved || 'Settings saved.', 'success');
@@ -1581,7 +1582,7 @@
             wooRow =
               '<div class="wpmp-wizard-toggle-row">' +
               '<div><div class="wpmp-wizard-toggle-label">' + wpmp.esc(s.scanWoo || 'Scan WooCommerce galleries') + '</div>' +
-              '<div class="wpmp-wizard-toggle-desc">' + wpmp.esc(s.scanWooDesc || 'Include product gallery images in scans.') + '</div></div>' +
+              '<div class="wpmp-wizard-toggle-desc">' + wpmp.esc(s.scanWooDesc || 'Count images in WooCommerce product galleries as in use.') + '</div></div>' +
               '<button type="button" class="wpmp-toggle' + (wizardData.scan_woocommerce ? ' on' : '') + '" id="wpmp-wizard-woo"><div class="wpmp-toggle-knob"></div></button>' +
               '</div>';
           }

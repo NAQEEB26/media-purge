@@ -255,6 +255,8 @@ class WPMP_Admin {
 					'exclusionsDesc'          => __( 'File types and paths that are always skipped during scans.', 'media-purge' ),
 					'skipRecentUploads'       => __( 'Skip recent uploads', 'media-purge' ),
 					'skipRecentDesc'          => __( 'Protect recently uploaded files from being flagged as unused.', 'media-purge' ),
+					'scanWoo'                 => __( 'Scan WooCommerce galleries', 'media-purge' ),
+					'scanWooDesc'             => __( 'Count images in WooCommerce product galleries as in use. When off, images that are only in a product gallery can be listed as unused.', 'media-purge' ),
 					'autoTrash'               => __( 'Auto-delete trash', 'media-purge' ),
 					'autoTrashDesc'           => __( 'Permanently delete trashed files after the retention period.', 'media-purge' ),
 					'deepScan'                => __( 'Deep content scan', 'media-purge' ),
