@@ -22,6 +22,7 @@ class WPMP_Scanner {
 		if ( function_exists( 'set_time_limit' ) ) {
 			set_time_limit( 0 );
 		}
+		set_transient( 'wpmp_scan_phase', 'content', 3600 );
 		set_transient( 'wpmp_scan_running', true, 3600 );
 		set_transient( 'wpmp_scan_progress', 0, 3600 );
 

@@ -153,6 +153,7 @@ On deactivation, scheduled events are cleared and plugin tables are kept, so you
 
 = 1.4.8 =
 * Fixed: Scans on media libraries with more than 300 files no longer stall at 0% on "Checking post content". If the server blocks the background request, the scan now stops after a minute with a clear message instead of hanging.
+* Fixed: A scan left stuck by version 1.4.7 is cleared, so a new scan can start right away after updating.
 * Fixed: The "Skip recent uploads" setting now saves, and the scanner respects it.
 * Fixed: A file is no longer marked as used just because another file in the same upload folder is used. A file now counts as used only when its ID, its URL or one of its generated sizes is referenced. The scan also reads more places that store media by ID (widgets, site icon, custom logo, term images and media custom fields).
 * Fixed: The Media Purge screens now load on sites that use Plain permalinks.
